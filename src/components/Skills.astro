@@ -1,7 +1,7 @@
 ---
-import skillsData from '../data/skillsdata.json';
-import Container from '../layouts/Container.astro';
-import Skill from './Skill.astro';
+import skillsData from "../data/SkillsData.json";
+import Container from "../layouts/Container.astro";
+import SkillCard from "./SkillCard.astro";
 
 interface SkillType {
   name: string;
@@ -11,9 +11,24 @@ interface SkillType {
 ---
 
 <Container size="xl">
+  <div class="mb-4">
+    <h2><strong>My Techstack</strong></h2>
+    <p>
+      I excel in utilizing a variety of modern technologies to create highly
+      effective solutions. Here are some of the key technologies I work with.
+    </p>
+  </div>
+
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {skillsData.map(({ name, description, imageUrl, bgColor }) => (
-      <Skill name={name} description={description} imageUrl={imageUrl} bgColor={bgColor} />
-    ))}
+    {
+      skillsData.map(({ name, description, imageUrl, bgColor }) => (
+        <SkillCard
+          name={name}
+          description={description}
+          imageUrl={imageUrl}
+          bgColor={bgColor}
+        />
+      ))
+    }
   </div>
 </Container>

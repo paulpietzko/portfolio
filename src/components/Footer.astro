@@ -1,0 +1,37 @@
+---
+import Container from "../layouts/Container.astro";
+---
+
+<Container size="xl">
+  <footer>
+    <div class="container">
+      <p>&copy; {new Date().getFullYear()} Paul Pietzko.</p>
+      <ul class="social-links">
+        <li><a href="https://x.com/paulpietzko" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+        <li><a href="https://github.com/paulpietzkoe" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/paulpietzko/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      </ul>
+    </div>
+  </footer>
+</Container>
+
+<style>
+  footer {
+    padding: 1rem 0;
+    text-align: center;
+  }
+  .social-links {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .social-links a {
+    text-decoration: none;
+  }
+  .social-links a:hover {
+    text-decoration: underline;
+  }
+</style>
