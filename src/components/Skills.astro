@@ -5,30 +5,31 @@ import SkillCard from "./SkillCard.astro";
 
 interface SkillType {
   name: string;
-  level: string;
-  icon: string;
+  description: string;
+  imageUrl: string;
+  bgColor: string;
 }
 ---
 
 <Container size="xl">
   <div class="mb-4">
-    <h2><strong>My Techstack</strong></h2>
-    <p>
+    <h2 class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold text-stone-200">My Techstack</h2>
+    <p class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-stone-200/70">
       I excel in utilizing a variety of modern technologies to create highly
       effective solutions. Here are some of the key technologies I work with.
     </p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {
-      skillsData.map(({ name, description, imageUrl, bgColor }) => (
-        <SkillCard
-          name={name}
-          description={description}
-          imageUrl={imageUrl}
-          bgColor={bgColor}
-        />
-      ))
-    }
+  {
+    skillsData.map((skill: SkillType) => (
+      <SkillCard
+        name={skill.name}
+        description={skill.description}
+        imageUrl={skill.imageUrl}
+        bgColor={skill.bgColor}
+      />
+    ))
+  }
   </div>
 </Container>
