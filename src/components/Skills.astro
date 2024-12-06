@@ -8,28 +8,37 @@ interface SkillType {
   description: string;
   imageUrl: string;
   bgColor: string;
+  link: string;
 }
 ---
 
 <Container size="xl">
-  <div class="mb-4">
-    <h2 class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold text-stone-200">My Techstack</h2>
-    <p class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-stone-200/70">
-      I excel in utilizing a variety of modern technologies to create highly
-      effective solutions. Here are some of the key technologies I work with.
-    </p>
-  </div>
+  <div class="relative z-10 py-16 sm:py-24" id="about">
+    <div class="space-y-4 mb-10">
+      <h1
+        class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200"
+      >
+        My Techstack
+      </h1>
+      <p
+        class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-dark-200/70 dark:text-stone-200/70"
+      >
+        Here are some of the main technologies I work with.
+      </p>
+    </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {
-    skillsData.map((skill: SkillType) => (
-      <SkillCard
-        name={skill.name}
-        description={skill.description}
-        imageUrl={skill.imageUrl}
-        bgColor={skill.bgColor}
-      />
-    ))
-  }
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {
+        skillsData.map((skill: SkillType) => (
+          <SkillCard
+            link={skill.link}
+            name={skill.name}
+            description={skill.description}
+            imageUrl={skill.imageUrl}
+            bgColor={skill.bgColor}
+          />
+        ))
+      }
+    </div>
   </div>
 </Container>

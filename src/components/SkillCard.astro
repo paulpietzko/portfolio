@@ -1,8 +1,8 @@
 ---
-const { bgColor, imageUrl, name, description } = Astro.props;
+const { bgColor, imageUrl, name, description, link } = Astro.props;
 ---
 
-<div class="flex flex-1 gap-5 p-2.5 rounded-xl border border-dark-200 bg-dark-200 hover:bg-dark-300 hover:border-dark-700 transition-colors duration-200">
+<a href={link} class="flex flex-1 gap-5 p-2.5 rounded-xl border border-dark-200 bg-dark-200 hover:bg-dark-300 hover:border-dark-700 transition-colors duration-200">
   <div class={`p-3 ${bgColor} rounded-lg w-fit`}>
     <img
       src={imageUrl}
@@ -18,4 +18,4 @@ const { bgColor, imageUrl, name, description } = Astro.props;
       {description}
     </p>
   </div>
-</div>
+</a>
