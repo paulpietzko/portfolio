@@ -18,7 +18,7 @@ interface SkillType {
       <h1
         class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200"
       >
-        My Techstack
+      My Techstack
       </h1>
       <p
         class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-dark-200/70 dark:text-stone-200/70"
@@ -27,18 +27,17 @@ interface SkillType {
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      {
-        skillsData.map((skill: SkillType) => (
-          <SkillCard
-            link={skill.link}
-            name={skill.name}
-            description={skill.description}
-            imageUrl={skill.imageUrl}
-            bgColor={skill.bgColor}
-          />
-        ))
-      }
-    </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+  {
+    skillsData.map((skill: SkillType) => (
+      <SkillCard
+        link={skill.link}
+        name={skill.name}
+        description={skill.description}
+        imageUrl={skill.imageUrl}
+        bgColor={skill.bgColor}
+      />
+    ))
+  }
   </div>
 </Container>
