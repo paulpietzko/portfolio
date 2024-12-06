@@ -4,12 +4,14 @@ import Container from "../layouts/Container.astro";
 
 <footer>
   <Container size="xl">
-    <h2 class="footer-title">
-      let's connect
-    </h2>
+    <h2 class="footer-title text-[14rem] md:text-[10rem] sm:text-[8rem]">let's connect</h2>
 
     <div class="footer-body my-5">
-      <p>Feel free to <a class="font-bold" href="mailto:paul.pietzko@icloud.com">contact</a> me with any kind of question.</p>
+      <p>
+        Feel free to <a class="font-bold" href="mailto:paul.pietzko@icloud.com"
+          >contact</a
+        > me with any kind of question.
+      </p>
       <ul class="social-links">
         <li>
           <a
@@ -82,7 +84,7 @@ import Container from "../layouts/Container.astro";
 </footer>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Anton+SC&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Anton+SC&display=swap");
   footer {
     display: flex;
     flex-direction: column;
@@ -90,10 +92,9 @@ import Container from "../layouts/Container.astro";
   }
 
   .footer-title {
-    font-size: 14rem;
-  font-family: "Anton SC", sans-serif;
-  font-weight: 400;
-  font-style: normal;
+    font-family: "Anton SC", sans-serif;
+    font-weight: 400;
+    font-style: normal;
   }
 
   .footer-body {
