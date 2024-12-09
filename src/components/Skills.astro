@@ -2,6 +2,7 @@
 import skillsData from "../data/SkillsData.json";
 import Container from "../layouts/Container.astro";
 import SkillCard from "./SkillCard.astro";
+import SubTitle from "./SubTitle.astro";
 
 interface SkillType {
   name: string;
@@ -14,12 +15,8 @@ interface SkillType {
 
 <Container size="xl">
   <div class="relative z-10 py-16 sm:py-24" id="about">
-    <div class="space-y-4 mb-10">
-      <h1
-        class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200"
-      >
-      My Techstack
-      </h1>
+    <div class="mb-10">
+      <SubTitle text="My Techstack" />
       <p
         class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-dark-200/70 dark:text-stone-200/70"
       >

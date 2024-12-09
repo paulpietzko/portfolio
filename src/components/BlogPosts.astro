@@ -1,0 +1,61 @@
+---
+import Container from "../layouts/Container.astro";
+import StoryCard from "./StoryCard.astro";
+import SubTitle from "./SubTitle.astro";
+
+let stories: {
+  image: string;
+  title: string;
+  description: string;
+  link: string;
+}[] = [];
+
+type StoryItem = {
+  thumbnail: string;
+  title: string;
+  description: string;
+  link: string;
+};
+
+const fetchStories = async () => {
+  const response = await fetch(
+    "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@paul.pietzko"
+  );
+  const data = await response.json();
+
+  stories = data.items.slice(0, 6).map((item: StoryItem) => ({
+    image: item.thumbnail || "images/placeholder.png",
+    title: item.title,
+    description: item.description,
+    link: item.link,
+  }));
+};
+
+await fetchStories();
+---
+
+<Container size="xl">
+  <SubTitle text="Latest Stories" />
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {
+      stories.map((story) => (
+        <a
+          href={story.link}
+          class="flex flex-col gap-5 p-2.5 rounded-xl border border-dark-200 bg-dark-200 hover:bg-dark-300 hover:border-dark-700 transition-colors duration-200"
+        >
+          <img
+            src={story.image}
+            width={1000}
+            height={1000}
+            alt={`${story.title} logo`}
+            class="w-full h-auto rounded-lg"
+          />
+          <div>
+            <h4 class="text-lg font-medium">{story.title}</h4>
+            <p class="text-sm">{`${story.description.substring(0, 100)}...`}</p>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+</Container>

@@ -1,7 +1,9 @@
 ---
 import GitHubStats from '../components/GitHubStats.astro';
 import Container from '../layouts/Container.astro';
+import SubTitle from './SubTitle.astro';
 ---
 <Container size="xl">
-  <GitHubStats client:visible />
+  <SubTitle text="My Statistics" />
+  <GitHubStats />
 </Container>

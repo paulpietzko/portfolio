@@ -1,5 +1,4 @@
 ---
-// Standard fetch method (no 'astro:fetch' module)
 async function getGitHubStats(username: string) {
   try {
     const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
@@ -30,10 +29,10 @@ const stats = await getGitHubStats(username);
 
 <div>
   {stats ? (
-    <>
+    <div>
       <p>Total Repositories: {stats.totalRepos}</p>
       <p>Total Lines of Code: {stats.totalLines}</p>
-    </>
+    </div>
   ) : (
     <p>Error loading data or no data available.</p>
   )}
