@@ -4,13 +4,20 @@ import Footer from '../components/Footer.astro';
 import Hero from '../components/Hero.astro';
 import Skills from '../components/Skills.astro';
 import Stats from '../components/Stats.astro';
+import Container from '../layouts/Container.astro';
 import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
 	<Hero />
 	<!-- <Stats /> -->
-	 <BlogPosts />
+	 <BlogPosts server:defer>
+		<Container size="xl" slot="fallback">
+			Rendered on Client
+		</Container>
+	 </BlogPosts>
 	<Skills />
 	<Footer />
 </Layout>
+
+
