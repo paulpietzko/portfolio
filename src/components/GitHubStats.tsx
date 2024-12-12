@@ -3,11 +3,11 @@ import { createSignal, createEffect } from "solid-js";
 async function getGitHubStats(username: string) {
   try {
     // Fetch user data
-    const userResponse = await fetch(`https://paulpietzko.vercel.app/gitApiUser.json`);
+    const userResponse = await fetch(`https://paulpietzko.vercel.app/api/github/user.json`);
     const userData = await userResponse.json();
 
     // Fetch repository data
-    const reposResponse = await fetch(`https://paulpietzko.vercel.app/gitApiRepos.json`);
+    const reposResponse = await fetch(`https://paulpietzko.vercel.app/api/github/repos.json`);
     const repos = await reposResponse.json();
 
     // Mock data for illustration
@@ -26,11 +26,13 @@ async function getGitHubStats(username: string) {
     }
 
     return {
+      // Mock data for illustration
+      totalCommits: 3,
+      totalIssues: 4,
+      totalPRs: 2,
+      totalStars: 2002,
+      // Real data
       totalRepos: userData.public_repos,
-      totalCommits,
-      totalIssues,
-      totalPRs,
-      totalStars,
       followers: userData.followers,
       publicRepos: userData.public_repos,
     };
