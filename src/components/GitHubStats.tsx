@@ -1,16 +1,18 @@
 import { createSignal, createEffect } from "solid-js";
+import Chart from "chart.js/auto";
 
 async function getGitHubStats(username: string) {
   try {
-    // Fetch user data
-    const userResponse = await fetch(`https://paulpietzko.vercel.app/api/github/user.json`);
+    const userResponse = await fetch(
+      `https://paulpietzko.vercel.app/api/github/user.json`
+    );
     const userData = await userResponse.json();
 
-    // Fetch repository data
-    const reposResponse = await fetch(`https://paulpietzko.vercel.app/api/github/repos.json`);
+    const reposResponse = await fetch(
+      `https://paulpietzko.vercel.app/api/github/repos.json`
+    );
     const repos = await reposResponse.json();
 
-    // Mock data for illustration
     let totalCommits = 0;
     let totalIssues = 0;
     let totalPRs = 0;
@@ -26,12 +28,10 @@ async function getGitHubStats(username: string) {
     }
 
     return {
-      // Mock data for illustration
       totalCommits: 3,
       totalIssues: 4,
       totalPRs: 2,
-      totalStars: 2002,
-      // Real data
+      totalStars: 5,
       totalRepos: userData.public_repos,
       followers: userData.followers,
       publicRepos: userData.public_repos,
@@ -58,24 +58,62 @@ const GitHubStats = () => {
     setStats(stats);
   });
 
+  createEffect(() => {
+    if (stats()) {
+      const ctx = document.getElementById("myChart") as HTMLCanvasElement;
+      if (ctx) {
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Commits", "Issues", "Pull Requests", "Stars"],
+            datasets: [
+              {
+                label: "GitHub Stats",
+                data: [
+                  stats()?.totalCommits,
+                  stats()?.totalIssues,
+                  stats()?.totalPRs,
+                  stats()?.totalStars,
+                ],
+                backgroundColor: [
+                  "rgba(75, 192, 192, 0.2)",
+                  "rgba(153, 102, 255, 0.2)",
+                  "rgba(255, 159, 64, 0.2)",
+                  "rgba(255, 99, 132, 0.2)",
+                ],
+                borderColor: [
+                  "rgba(75, 192, 192, 1)",
+                  "rgba(153, 102, 255, 1)",
+                  "rgba(255, 159, 64, 1)",
+                  "rgba(255, 99, 132, 1)",
+                ],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+      }
+    }
+  });
+
   return (
     <div>
       {stats() ? (
         <div>
+          <div class="max-w-[30rem]">
+            <canvas id="myChart" />
+          </div>
           <div>
-            {/* showcase all the different languages used and percentages */}
-
-            {/* end */}
-
-            {/* Bar chart with commits in the last year (amount) */}
-
-            {/* end */}
-
-            {/* Should be a Pie Chart with percentages */}
             <p>Total Commits: {stats()?.totalCommits}</p>
             <p>Total Issues: {stats()?.totalIssues}</p>
             <p>Total Pull Requests: {stats()?.totalPRs}</p>
-            {/* end */}
           </div>
           <div>
             <p>Followers: {stats()?.followers}</p>
