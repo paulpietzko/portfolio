@@ -11,3 +11,4 @@ const { title, description, link } = Astro.props;
     <p class="text-sm" set:html={description.slice(0, 200) + "..."}></p>
   </div>
 </a>
+<link rel="canonical" href={link} />
