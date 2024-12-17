@@ -1,5 +1,6 @@
 ---
 import Container from "../layouts/Container.astro";
+import NumberCounter from "./NumberCounter.astro";
 import SubTitle from "./SubTitle.astro";
 
 // Uncomment the code below and add the fetchStats function if you want to fetch data dynamically
@@ -20,30 +21,32 @@ const stats = {
 
 <Container size="xl">
   <SubTitle
-    title="Latest Stories"
-    text="The latest stories I've written on Medium."
+    title="Alltime Stats"
+    text="Here are some stats about my contributions on GitHub."
   />
-  
-  <div class="flex flex-wrap gap-8 text-center">
+
+  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 text-center">
     <div>
-      <p class="text-2xl font-bold">{stats.totalCommits}</p>
+      <NumberCounter number={stats.totalCommits} />
       <p class="text-lg font-semibold">Total Commits</p>
     </div>
     <div>
-      <p class="text-2xl font-bold">{stats.totalReviews}</p>
+      <NumberCounter number={stats.totalReviews} />
       <p class="text-lg font-semibold">Total Reviews</p>
     </div>
     <div>
-      <p class="text-2xl font-bold">{stats.totalIssues}</p>
+      <NumberCounter number={stats.totalIssues} />
       <p class="text-lg font-semibold">Total Issues</p>
     </div>
     <div>
-      <p class="text-2xl font-bold">{stats.totalPRs}</p>
+      <NumberCounter number={stats.totalPRs} />
       <p class="text-lg font-semibold">Total PRs</p>
     </div>
     <div>
-      <p class="text-2xl font-bold">{stats.contributedTo}</p>
+      <NumberCounter number={stats.contributedTo} />
       <p class="text-lg font-semibold">Contributed To</p>
     </div>
   </div>
 </Container>
+
+<!-- TODO: Visual 1 Year Commit History -->
