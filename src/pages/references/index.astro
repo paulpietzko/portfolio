@@ -1,0 +1,84 @@
+---
+import SubTitle from "../../components/SubTitle.astro";
+import Container from "../../layouts/Container.astro";
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout>
+  <Container size="xl">
+    <SubTitle
+      title="References"
+      text="Here are some of the libraries and resources that have inspired and helped in the creation of this project"
+    />
+
+    <h2 class="text-2xl font-bold mt-8">Libraries</h2>
+    <ul class="list-disc list-inside space-y-2 mt-4">
+      <li>
+        <a
+          href="https://www.chartjs.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-500 hover:underline">Chart.js</a
+        > - A simple yet flexible JavaScript charting library.
+      </li>
+      <li>
+        <a
+          href="https://greensock.com/gsap/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-500 hover:underline">GSAP</a
+        > - A robust JavaScript toolset for creating animations.
+      </li>
+    </ul>
+
+    <h2 class="text-2xl font-bold mt-8">Inspirations</h2>
+    <ul class="list-disc list-inside space-y-2 mt-4">
+      <li>
+        <a
+          href="https://astro-sphere-demo.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-500 hover:underline">Astro Sphere Demo</a
+        > - A demo showcasing the capabilities of Astro.
+      </li>
+      <li>
+        <a
+          href="https://sankalp-jaiswal-portfolio.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-500 hover:underline">Sankalp Jaiswal Portfolio</a
+        > - A personal portfolio built with modern web technologies.
+      </li>
+      <li>
+        <a
+          href="https://andrijaweb.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-500 hover:underline">Andrija Web</a
+        > - A portfolio website demonstrating web development skills.
+      </li>
+    </ul>
+
+    <h2 class="text-2xl font-bold mt-8">Frameworks</h2>
+    <ul class="list-disc list-inside space-y-2 mt-4">
+      <li>
+        <a
+          href="https://tailwindcss.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-500 hover:underline">Tailwind CSS</a
+        > - A utility-first CSS framework for rapid UI development.
+      </li>
+      <li>
+        <a
+          href="https://astro.build/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-500 hover:underline">Astro</a
+        > - A modern static site builder.
+      </li>
+    </ul>
+    <br />
+    <a href="/" class="text-blue-500 hover:underline">Back</a>
+  </Container>
+</Layout>

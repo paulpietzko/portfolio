@@ -1,9 +1,17 @@
 ---
+const { title } = Astro.props;
 const { text } = Astro.props;
 ---
 
-<h2
-  class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200 mb-4"
->
-  {text}
-</h2>
+<div class="mb-10">
+  <h2
+    class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200 mb-4"
+  >
+    {title}
+  </h2>
+  <p
+    class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-dark-200/70 dark:text-stone-200/70"
+  >
+    {text}
+  </p>
+</div>

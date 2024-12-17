@@ -1,0 +1,49 @@
+---
+import Container from "../layouts/Container.astro";
+import SubTitle from "./SubTitle.astro";
+
+// Uncomment the code below and add the fetchStats function if you want to fetch data dynamically
+// import { fetchStats } from './GitHubStats';
+
+// Dynamic stats fetching (if needed in the future)
+// const [stats] = createResource(() => fetchStats("paulpietzko"));
+
+// Use static stats data instead of dynamic fetching
+const stats = {
+  totalCommits: 541,
+  totalReviews: 0,
+  totalIssues: 0,
+  totalPRs: 3,
+  contributedTo: 11,
+};
+---
+
+<Container size="xl">
+  <SubTitle
+    title="Latest Stories"
+    text="The latest stories I've written on Medium."
+  />
+  
+  <div class="flex flex-wrap gap-8 text-center">
+    <div>
+      <p class="text-2xl font-bold">{stats.totalCommits}</p>
+      <p class="text-lg font-semibold">Total Commits</p>
+    </div>
+    <div>
+      <p class="text-2xl font-bold">{stats.totalReviews}</p>
+      <p class="text-lg font-semibold">Total Reviews</p>
+    </div>
+    <div>
+      <p class="text-2xl font-bold">{stats.totalIssues}</p>
+      <p class="text-lg font-semibold">Total Issues</p>
+    </div>
+    <div>
+      <p class="text-2xl font-bold">{stats.totalPRs}</p>
+      <p class="text-lg font-semibold">Total PRs</p>
+    </div>
+    <div>
+      <p class="text-2xl font-bold">{stats.contributedTo}</p>
+      <p class="text-lg font-semibold">Contributed To</p>
+    </div>
+  </div>
+</Container>

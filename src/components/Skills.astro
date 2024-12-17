@@ -14,27 +14,24 @@ interface SkillType {
 ---
 
 <Container size="xl">
-  <div class="relative z-10 py-16 sm:py-24" id="about">
-    <div class="mb-10">
-      <SubTitle text="My Techstack" />
-      <p
-        class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-dark-200/70 dark:text-stone-200/70"
-      >
-        Here are some of the main technologies I work with.
-      </p>
-    </div>
+  <div class="relative z-10" id="about">
+    <SubTitle
+      title="My Techstack"
+      text="Here are some of the main technologies I work with."
+    />
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-  {
-    skillsData.map((skill: SkillType) => (
-      <SkillCard
-        link={skill.link}
-        name={skill.name}
-        description={skill.description}
-        imageUrl={skill.imageUrl}
-        bgColor={skill.bgColor}
-      />
-    ))
-  }
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {
+        skillsData.map((skill: SkillType) => (
+          <SkillCard
+            link={skill.link}
+            name={skill.name}
+            description={skill.description}
+            imageUrl={skill.imageUrl}
+            bgColor={skill.bgColor}
+          />
+        ))
+      }
+    </div>
   </div>
 </Container>
