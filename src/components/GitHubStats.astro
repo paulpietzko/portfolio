@@ -1,6 +1,6 @@
 ---
 import Container from "../layouts/Container.astro";
-import NumberCounter from "./NumberCounter.astro";
+import NumberCounter from "./NumberCounter.tsx";
 import SubTitle from "./SubTitle.astro";
 
 // Uncomment the code below and add the fetchStats function if you want to fetch data dynamically
@@ -27,23 +27,23 @@ const stats = {
 
   <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 text-center">
     <div>
-      <NumberCounter number={stats.totalCommits} />
+      <NumberCounter client:visible number={stats.totalCommits} />
       <p class="text-lg font-semibold">Total Commits</p>
     </div>
     <div>
-      <NumberCounter number={stats.totalReviews} />
+      <NumberCounter client:visible number={stats.totalReviews} />
       <p class="text-lg font-semibold">Total Reviews</p>
     </div>
     <div>
-      <NumberCounter number={stats.totalIssues} />
+      <NumberCounter client:visible number={stats.totalIssues} />
       <p class="text-lg font-semibold">Total Issues</p>
     </div>
     <div>
-      <NumberCounter number={stats.totalPRs} />
+      <NumberCounter client:visible number={stats.totalPRs} />
       <p class="text-lg font-semibold">Total PRs</p>
     </div>
     <div>
-      <NumberCounter number={stats.contributedTo} />
+      <NumberCounter client:visible number={stats.contributedTo} />
       <p class="text-lg font-semibold">Contributed To</p>
     </div>
   </div>
