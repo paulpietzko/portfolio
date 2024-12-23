@@ -2,12 +2,12 @@
 import Container from "../layouts/Container.astro";
 import NumberCounter from "./NumberCounter.tsx";
 import SubTitle from "./SubTitle.astro";
-
-// Uncomment the code below and add the fetchStats function if you want to fetch data dynamically
-// import { fetchStats } from './GitHubStats';
+import processCommitData from "../utils/FetchYearlyCommits";
+import fetchStats from '../utils/FetchGitHubStats';
+import CommitHistoryChart from "./CommitHistoryChart";
 
 // Dynamic stats fetching (if needed in the future)
-// const [stats] = createResource(() => fetchStats("paulpietzko"));
+// const stats = await fetchStats("paulpietzko");
 
 // Use static stats data instead of dynamic fetching
 const stats = {
@@ -17,6 +17,36 @@ const stats = {
   totalPRs: 3,
   contributedTo: 11,
 };
+
+
+/* Yearly Commits per month */
+// Example usage
+const events = [
+  {
+    id: "44987043177",
+    type: "PushEvent",
+    created_at: "2024-12-20T16:07:14Z",
+    payload: {
+      size: 1,
+    },
+  },
+  {
+    id: "44882513423",
+    type: "PushEvent",
+    created_at: "2024-12-17T20:11:46Z",
+    payload: {
+      size: 1,
+    },
+  },
+  {
+    id: "44896010952",
+    type: "WatchEvent",
+    created_at: "2024-12-18T07:17:25Z",
+    payload: {},
+  },
+];
+
+const commitsLastYear = await processCommitData(events);
 ---
 
 <Container size="xl">
@@ -47,6 +77,8 @@ const stats = {
       <p class="text-lg font-semibold">Contributed To</p>
     </div>
   </div>
-</Container>
 
-<!-- TODO: Visual 1 Year Commit History -->
+  <div class="mt-8">
+    <CommitHistoryChart client:visible data={commitsLastYear} />
+  </div>
+</Container>

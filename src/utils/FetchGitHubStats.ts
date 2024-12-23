@@ -85,4 +85,4 @@ const fetchStats = async (username: string): Promise<UserStats> => {
   }
 };
 
-export default { fetchStats };
+export default fetchStats;
