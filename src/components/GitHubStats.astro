@@ -2,51 +2,15 @@
 import Container from "../layouts/Container.astro";
 import NumberCounter from "./NumberCounter.tsx";
 import SubTitle from "./SubTitle.astro";
-import processCommitData from "../utils/FetchYearlyCommits";
-import fetchStats from '../utils/FetchGitHubStats';
+import fetchStats from "../utils/FetchGitHubStats";
 import CommitHistoryChart from "./CommitHistoryChart";
+import fetchUserCommits from "../utils/FetchYearlyCommits";
 
 // Dynamic stats fetching (if needed in the future)
-// const stats = await fetchStats("paulpietzko");
+const stats = await fetchStats("paulpietzko");
 
-// Use static stats data instead of dynamic fetching
-const stats = {
-  totalCommits: 541,
-  totalReviews: 0,
-  totalIssues: 0,
-  totalPRs: 3,
-  contributedTo: 11,
-};
-
-
-/* Yearly Commits per month */
-// Example usage
-const events = [
-  {
-    id: "44987043177",
-    type: "PushEvent",
-    created_at: "2024-12-20T16:07:14Z",
-    payload: {
-      size: 1,
-    },
-  },
-  {
-    id: "44882513423",
-    type: "PushEvent",
-    created_at: "2024-12-17T20:11:46Z",
-    payload: {
-      size: 1,
-    },
-  },
-  {
-    id: "44896010952",
-    type: "WatchEvent",
-    created_at: "2024-12-18T07:17:25Z",
-    payload: {},
-  },
-];
-
-const commitsLastYear = await processCommitData(events);
+// Fetch the commit data for the last year
+const commitsLastYear = await fetchUserCommits("paulpietzko");
 ---
 
 <Container size="xl">
@@ -78,6 +42,10 @@ const commitsLastYear = await processCommitData(events);
     </div>
   </div>
 
+  <SubTitle
+    title="My Commits over the last Year"
+    text="Here is a chart showing my commit history over the last year."
+  />
   <div class="mt-8">
     <CommitHistoryChart client:visible data={commitsLastYear} />
   </div>

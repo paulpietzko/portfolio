@@ -102,7 +102,7 @@ const CommitHistoryChart = (props: CommitHistoryChartProps) => {
     <div class="w-full h-full">
       <canvas
         ref={(el) => (canvasRef = el)}
-        class="w-full h-full"
+        class="w-[50rem] h-full"
       />
     </div>
   );
