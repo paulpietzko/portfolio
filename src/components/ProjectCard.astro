@@ -1,0 +1,21 @@
+---
+const { link, imgSrc, imgAlt, title, description, extraClasses = "" } = Astro.props;
+---
+
+<a href={link} class={`relative group overflow-hidden rounded-3xl shadow-md ${extraClasses}`}>
+  <!-- Project Image -->
+  <img
+    src={imgSrc}
+    alt={imgAlt}
+    class="h-full w-full rounded-3xl transition-transform duration-300 group-hover:scale-105"
+  />
+
+  <!-- Hover Overlay -->
+  <div
+    class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity
+           flex flex-col justify-center items-center text-white p-4"
+  >
+    <h3 class="text-xl font-bold">{title}</h3>
+    <p class="mt-2 text-center max-w-sm">{description}</p>
+  </div>
+</a>
