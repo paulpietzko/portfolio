@@ -1,21 +1,41 @@
-<section class="flex justify-between">
-  <!-- need to change overflow for y axis -->
-  <!-- Left Card -->
-  <img
-    src="/images/placeholder.png"
-    class="rotate-12 w-2/5 bg-white rounded-3xl shadow-md -ml-16"
-    alt=""
-  />
-  <!-- Center Card -->
-  <img
-    src="/images/placeholder.png"
-    class="-rotate-12 w-2/5 bg-white rounded-3xl shadow-md -ml-16"
-    alt=""
-  />
-  <!-- Right Card -->
-  <img
-    src="/images/placeholder.png"
-    class="rotate-12 w-2/5 bg-white rounded-3xl shadow-md -ml-16"
-    alt=""
-  />
-</section>
+---
+import Container from "../layouts/Container.astro";
+import SubTitle from "./SubTitle.astro";
+---
+
+<div class="mb-[5rem] overflow-x-hidden">
+  <Container size="xl">
+    <SubTitle
+      title="Projects I worked on"
+      text="Here are some of the projects I worked on in the past."
+    />
+  </Container>
+  <section class="flex justify-between my-[5rem]">
+    <!-- Left Card -->
+    <a href="https://2sxc.org/en/" class="rotate-12 shadow-md -ml-8 rounded-3xl">
+      <img
+        src="/images/placeholder.png"
+        class="h-full w-full rounded-3xl"
+        alt="2sxc"
+      />
+    </a>
+
+    <!-- Center Card -->
+    <a href="https://www.paulpietzko.com/en" class="-rotate-12 shadow-md rounded-3xl">
+      <img
+        src="/images/placeholder.png"
+        class="h-full w-full rounded-3xl"
+        alt="paulpietzko portfolio site"
+      />
+    </a>
+
+    <!-- Right Card -->
+    <a href="https://www.aspecs.ch/en" class="rotate-12 shadow-md rounded-3xl -mr-8">
+      <img
+        src="/images/placeholder.png"
+        class="h-full w-full rounded-3xl"
+        alt="aspecs company site"
+      />
+    </a>
+  </section>
+</div>
