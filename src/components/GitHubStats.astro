@@ -19,7 +19,7 @@ const commitsLastYear = await fetchUserCommits("paulpietzko");
     text="Here are some stats about my contributions on GitHub."
   />
 
-  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 text-center">
+  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 text-center mb-[10rem]">
     <div>
       <NumberCounter client:visible number={stats.totalCommits} />
       <p class="text-lg font-semibold">Total Commits</p>
@@ -46,7 +46,7 @@ const commitsLastYear = await fetchUserCommits("paulpietzko");
     title="My Commits over the last Year"
     text="Here is a chart showing my commit history over the last year."
   />
-  <div class="mt-8">
+  <div class="mt-8 mb-[10rem]">
     <CommitHistoryChart client:visible data={commitsLastYear} />
   </div>
 </Container>

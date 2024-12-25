@@ -76,7 +76,7 @@ const CommitHistoryChart = (props: CommitHistoryChartProps) => {
         maintainAspectRatio: false,
         plugins: {
           title: {
-            display: true,
+            display: false,
             text: "Commit History (Last 12 Months)",
           },
         },

@@ -13,25 +13,27 @@ interface SkillType {
 }
 ---
 
-<Container size="xl">
-  <div class="relative z-10" id="about">
-    <SubTitle
-      title="My Techstack"
-      text="Here are some of the main technologies I work with."
-    />
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      {
-        skillsData.map((skill: SkillType) => (
-          <SkillCard
-            link={skill.link}
-            name={skill.name}
-            description={skill.description}
-            imageUrl={skill.imageUrl}
-            bgColor={skill.bgColor}
-          />
-        ))
-      }
+<div class="mb-[10rem]">
+  <Container size="xl">
+    <div class="relative z-10" id="about">
+      <SubTitle
+        title="My Techstack"
+        text="Here are some of the main technologies I work with."
+      />
+  
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {
+          skillsData.map((skill: SkillType) => (
+            <SkillCard
+              link={skill.link}
+              name={skill.name}
+              description={skill.description}
+              imageUrl={skill.imageUrl}
+              bgColor={skill.bgColor}
+            />
+          ))
+        }
+      </div>
     </div>
-  </div>
-</Container>
+  </Container>
+</div>
