@@ -47,7 +47,6 @@ const fetchUserCommits = async (username: string): Promise<number[]> => {
   }
 
   const data = await response.json();
-  console.log('data', data);
 
   // Error handling for missing data structure
   if (!data?.data?.user?.repositories?.nodes) {

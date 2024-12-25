@@ -64,8 +64,6 @@ const fetchStats = async (username: string): Promise<UserStats> => {
 
     const user = result.data.user;
 
-    console.log('user', user);
-
     return {
       name: user.name || user.login,
       totalCommits: user.contributionsCollection.totalCommitContributions,
