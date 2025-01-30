@@ -40,26 +40,5 @@
     "description": "JavaScript but better",
     "imageUrl": "/images/logos/typescript.svg",
     "bgColor": "bg-[rgba(49,120,198,0.2)]"
-  },
-  {
-    "name": "Tailwind",
-    "link": "https://tailwindcss.com",
-    "description": "CSS framework",
-    "imageUrl": "/images/logos/tailwind.svg",
-    "bgColor": "bg-[rgba(14,165,233,0.2)]"
-  },
-  {
-    "name": "Git",
-    "link": "https://git-scm.com",
-    "description": "Version control",
-    "imageUrl": "/images/logos/git.svg",
-    "bgColor": "bg-[rgba(241,80,47,0.2)]"
-  },
-  {
-    "name": "Figma",
-    "link": "https://www.figma.com/",
-    "description": "Design Tool",
-    "imageUrl": "/images/logos/figma-logo.svg",
-    "bgColor": "bg-[rgba(10,207,131,0.2)]"
   }
 ]
