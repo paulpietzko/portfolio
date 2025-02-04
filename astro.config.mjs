@@ -11,4 +11,11 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   integrations: [tailwind(), solidJs()],
   adapter: vercel(),
+  i18n: {
+    locales: ["en", "de"],
+    defaultLocale: "en",
+    routing: {
+        prefixDefaultLocale: true
+    }
+  }
 });

@@ -1,5 +1,9 @@
 ---
 import Container from "../layouts/Container.astro";
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 
 // Get the current year and calculate the years of experience since 2021-08-01
 const currentYear = new Date().getFullYear();
@@ -11,20 +15,19 @@ const yearsOfExperience =
     ? 1
     : 0);
 ---
-
 <section class="h-screen w-full flex flex-col text-white relative">
   <!-- Navigation -->
   <Container size="xl">
     <nav class="flex justify-between items-center">
       <ul class="flex space-x-8 text-white font-light text-sm">
-        <li><a href="/" class="hover:underline">Home</a></li>
+        <li><a href="/" class="hover:underline">{t('nav.home')}</a></li>
         <li>
           <a href="https://medium.com/@paul.pietzko" class="hover:underline"
             >Blog</a
           >
         </li>
-        <li><a href="/references" class="hover:underline">References</a></li>
-        <li><a href="/imprint" class="hover:underline">Imprint</a></li>
+        <li><a href="/references" class="hover:underline">{t('nav.references')}</a></li>
+        <li><a href="/imprint" class="hover:underline">{t('nav.imprint')}</a></li>
       </ul>
       <a
         href="mailto:paul.pietzko@icloud.com"
@@ -34,7 +37,7 @@ const yearsOfExperience =
           class="absolute inset-0 bg-white transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"
         ></span>
         <span class="relative z-10 text-white group-hover:text-black"
-          >Get in Touch</span
+          >{t('nav.contact')}</span
         >
       </a>
     </nav>
@@ -49,8 +52,7 @@ const yearsOfExperience =
         >
       </h1>
       <p class="mt-4 text-gray-300 max-w-md">
-        I'm a Frontend Developer from Switzerland with {yearsOfExperience} years
-        of experience.
+        
       </p>
     </div>
   </Container>
