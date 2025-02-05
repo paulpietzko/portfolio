@@ -2,13 +2,17 @@
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import ProjectCard from "./ProjectCard.astro";
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 
 <div class="mb-[5rem] overflow-x-hidden">
   <Container size="xl">
     <SubTitle
-      title="Projects I worked on"
-      text="Here are some of the projects I worked on in the past."
+      title={t('projects.title')}
+      text={t('projects.subTitle')}
     />
   </Container>
 

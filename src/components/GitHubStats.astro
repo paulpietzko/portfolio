@@ -5,6 +5,10 @@ import SubTitle from "./SubTitle.astro";
 import fetchStats from "../utils/FetchGitHubStats";
 import CommitHistoryChart from "./CommitHistoryChart";
 import fetchUserCommits from "../utils/FetchYearlyCommits";
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 
 // Dynamic stats fetching (if needed in the future)
 const stats = await fetchStats("paulpietzko");
@@ -15,8 +19,8 @@ const commitsLastYear = await fetchUserCommits("paulpietzko");
 
 <Container size="xl">
   <SubTitle
-    title="Alltime Stats"
-    text="Here are some stats about my contributions on GitHub."
+    title={t('stats.title')}
+    text={t('stats.subTitle')}
   />
 
   <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 text-center mb-[10rem]">
