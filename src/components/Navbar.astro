@@ -1,0 +1,40 @@
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+import Container from "../layouts/Container.astro";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+export async function getStaticPaths() {
+  return [
+    { params: { locale: 'en' } },
+    { params: { locale: 'de' } },
+  ];
+}
+
+---
+<Container size="xl">
+    <nav class="flex justify-between items-center">
+      <ul class="flex space-x-8 text-white font-light text-sm">
+        <li><a href="/" class="hover:underline">{t('nav.home')}</a></li>
+        <li>
+          <a href="https://medium.com/@paul.pietzko" class="hover:underline"
+            >Blog</a
+          >
+        </li>
+        <li><a href="/references" class="hover:underline">{t('nav.references')}</a></li>
+        <li><a href="/imprint" class="hover:underline">{t('nav.imprint')}</a></li>
+      </ul>
+      <a
+        href="mailto:paul.pietzko@icloud.com"
+        class="relative border rounded-md border-white px-4 py-2 text-white overflow-hidden group"
+      >
+        <span
+          class="absolute inset-0 bg-white transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"
+        ></span>
+        <span class="relative z-10 text-white group-hover:text-black"
+          >{t('nav.contact')}</span
+        >
+      </a>
+    </nav>
+  </Container>
