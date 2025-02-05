@@ -1,5 +1,9 @@
 ---
 import Container from "../layouts/Container.astro";
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 
 <footer>
@@ -78,7 +82,7 @@ import Container from "../layouts/Container.astro";
   <Container size="xl">
     <div class="footer-bottom my-5">
       <p>Copyright &copy; {new Date().getFullYear()}</p>
-      <p>Made by <a href="https://www.paulpietzko.com">Paul Pietzko</a></p>
+      <p>{t('footer.credits')} <a href="https://www.paulpietzko.com">Paul Pietzko</a></p>
     </div>
   </Container>
 </footer>

@@ -47,8 +47,8 @@ const commitsLastYear = await fetchUserCommits("paulpietzko");
   </div>
 
   <SubTitle
-    title="My Commits over the last Year"
-    text="Here is a chart showing my commit history over the last year."
+    title={t('stats-chart.title')}
+    text={t('stats-chart.subTitle')}
   />
   <div class="mt-8 mb-[10rem]">
     <CommitHistoryChart client:visible data={commitsLastYear} />

@@ -2,6 +2,10 @@
 import Container from "../layouts/Container.astro";
 import StoryCard from "./StoryCard.astro";
 import SubTitle from "./SubTitle.astro";
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 
 let stories: {
   title: string;
@@ -35,7 +39,9 @@ await fetchStories();
   <Container size="xl">
     <SubTitle
       title="Latest Stories"
-      text="The latest stories I've written on Medium."
+      text=""
+      title={t('blog.title')}
+      text={t('blog.subTitle')}
     />
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {
