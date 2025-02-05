@@ -1,5 +1,10 @@
 ---
-const { link, imgSrc, imgAlt, title, description, extraClasses = "" } = Astro.props;
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const { link, imgSrc, imgAlt, title, text, extraClasses = "" } = Astro.props;
 ---
 
 <a href={link} class={`relative group overflow-hidden rounded-3xl shadow-md ${extraClasses}`}>
@@ -16,6 +21,6 @@ const { link, imgSrc, imgAlt, title, description, extraClasses = "" } = Astro.pr
            flex flex-col justify-center items-center text-white p-4"
   >
     <h3 class="text-xl font-bold">{title}</h3>
-    <p class="mt-2 text-center max-w-sm">{description}</p>
+    <p class="mt-2 text-center max-w-sm">{t(text)}</p>
   </div>
 </a>
