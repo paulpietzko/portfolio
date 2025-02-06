@@ -8,10 +8,7 @@ import Skills from "../../components/Skills.astro";
 import Layout from "../../layouts/Layout.astro";
 
 export async function getStaticPaths() {
-  return [
-    { params: { locale: 'en' } },
-    { params: { locale: 'de' } },
-  ];
+  return [{ params: { locale: "en" } }, { params: { locale: "de" } }];
 }
 ---
 
@@ -25,3 +22,12 @@ export async function getStaticPaths() {
     <Footer />
   </div>
 </Layout>
+
+<script>
+  import "nano-analytics";
+</script>
+
+<nano-analytics
+  projectId="2b849b44-2d3f-431a-b2af-0176eaad1482"
+  userId="a5fb0950-8486-43a2-8ee5-dc4f551a4003"
+></nano-analytics>
