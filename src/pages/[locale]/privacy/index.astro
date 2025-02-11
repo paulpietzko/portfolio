@@ -1,0 +1,23 @@
+---
+import SubTitle from "../../../components/SubTitle.astro";
+import { getLangFromUrl, useTranslations } from "../../../i18n/utils";
+import Container from "../../../layouts/Container.astro";
+import Layout from "../../../layouts/Layout.astro";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+export async function getStaticPaths() {
+  return [
+    { params: { locale: 'en' } },
+    { params: { locale: 'de' } },
+  ];
+}
+---
+
+<Layout>
+  <Container size="xl">
+    <SubTitle title="Privacy Policy" text="" />
+    
+  </Container>
+</Layout>
