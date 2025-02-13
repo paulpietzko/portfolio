@@ -1,0 +1,46 @@
+---
+import Footer from "../components/Footer.astro";
+import Navbar from "../components/Navbar.astro";
+import Container from "./Container.astro";
+
+const { title } = Astro.props;
+---
+
+<Navbar />
+<Container size="xl">
+  <div class="min-h-screen bg-background pt-8">
+    <div class="container mx-auto max-w-4xl mb-8">
+      <nav class="mb-16">
+        <ul class="flex justify-center space-x-4 border-b">
+          <li>
+            <button>
+              <a href="imprint" class="link link-hover">Imprint</a>
+            </button>
+          </li>
+          <li>
+            <button>
+              <a href="terms" class="link link-hover">Terms</a>
+            </button>
+          </li>
+          <li>
+            <button>
+              <a href="privacy" class="link link-hover">Privacy</a>
+            </button>
+          </li>
+          <li>
+            <button>
+              <a href="cookies" class="link link-hover">Cookies</a>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      <h1
+        class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200 mb-4"
+      >
+        {title}
+      </h1>
+      <slot />
+    </div>
+  </div>
+</Container>
+<Footer />

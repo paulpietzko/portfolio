@@ -1,23 +1,103 @@
 ---
-import SubTitle from "../../../components/SubTitle.astro";
 import { getLangFromUrl, useTranslations } from "../../../i18n/utils";
 import Container from "../../../layouts/Container.astro";
 import Layout from "../../../layouts/Layout.astro";
+import LegalLayout from "../../../layouts/Legal-Layout.astro";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 
 export async function getStaticPaths() {
-  return [
-    { params: { locale: 'en' } },
-    { params: { locale: 'de' } },
-  ];
+  return [{ params: { locale: "en" } }, { params: { locale: "de" } }];
 }
 ---
 
 <Layout>
-  <Container size="xl">
-    <SubTitle title="Cookie Policy" text="" />
-    
-  </Container>
+  <LegalLayout title="Cookie Policy">
+    <Container size="xl">
+      <p class="text-lg">
+        This Cookie Policy explains how paulpietzko.com uses cookies and similar
+        technologies to recognize you when you visit our website.
+      </p>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">1. What are cookies?</h2>
+        <p>
+          Cookies are small data files that are placed on your computer or
+          mobile device when you visit a website. Cookies are widely used by
+          website owners to make their websites work, or to work more
+          efficiently, as well as to provide reporting information.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">
+          2. Why do I use cookies?
+        </h2>
+        <p>
+          I use cookies to enhance your browsing experience by remembering your
+          preferences and visits. They help me understand how our website is
+          being used and improve its performance.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">
+          3. Types of cookies I use
+        </h2>
+        <p>
+          I use both session cookies (which expire once you close your web
+          browser) and persistent cookies (which stay on your device until you
+          delete them). The cookies used on our website may include:
+        </p>
+        <ul class="list-disc ml-6">
+          <li>
+            Essential Cookies: Necessary for the operation of our website.
+          </li>
+          <li>
+            Performance Cookies: Help me understand how visitors interact with
+            our website.
+          </li>
+          <li>
+            Functionality Cookies: Used to recognize you when you return to our
+            website.
+          </li>
+          <li>
+            Targeting Cookies: Record your visit to our website, the pages you
+            have visited, and the links you have followed.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">
+          4. How can you control cookies?
+        </h2>
+        <p>
+          You have the right to decide whether to accept or reject cookies. You
+          can set your web browser controls to accept or refuse cookies. If you
+          choose to reject cookies, you may still use our website, though your
+          access to some functionality and areas of our website may be
+          restricted.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">
+          5. Changes to this Cookie Policy
+        </h2>
+        <p>
+          I may update this Cookie Policy from time to time to reflect changes
+          to our practices or for other operational, legal, or regulatory
+          reasons. Please revisit this Cookie Policy regularly to stay informed
+          about our use of cookies and related technologies.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">6. Contact me</h2>
+        <p>
+          If you have any questions about our use of cookies or other
+          technologies, please contact me at
+          <a href="mailto:paul.pietzko@icloud.com" class="text-primary hover:underline">
+            paul.pietzko@icloud.com
+          </a>.
+        </p>
+      </div>
+    </Container>
+  </LegalLayout>
 </Layout>

@@ -1,23 +1,74 @@
 ---
-import SubTitle from "../../../components/SubTitle.astro";
 import { getLangFromUrl, useTranslations } from "../../../i18n/utils";
 import Container from "../../../layouts/Container.astro";
 import Layout from "../../../layouts/Layout.astro";
+import LegalLayout from "../../../layouts/Legal-Layout.astro";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 
 export async function getStaticPaths() {
-  return [
-    { params: { locale: 'en' } },
-    { params: { locale: 'de' } },
-  ];
+  return [{ params: { locale: "en" } }, { params: { locale: "de" } }];
 }
 ---
 
 <Layout>
-  <Container size="xl">
-    <SubTitle title="Privacy Policy" text="" />
-    
-  </Container>
+  <LegalLayout title="Privacy Policy">
+    <Container size="xl">
+      <p class="text-lg">
+        I take your privacy seriously. This policy outlines my practices
+        regarding data collection and use.
+      </p>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">Data Collection</h2>
+        <p>
+          This site collects anonymous data to better understand how all of you
+          interact with this. This helps me improve the overall user experience.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">Cookies</h2>
+        <p>
+          I use cookies to enhance user experience. These cookies are essential
+          for the proper functioning of my website and do not store any personal
+          information.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">Analytics</h2>
+        <p>
+          I use <a href="https://www.nanosights.dev">nanosights.dev</a> to understand
+          how my site is used. This service may collect anonymous data about your
+          visit, such as the pages you view and the time spent on our site.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">Third-Party Services</h2>
+        <p>
+          My site may contain links to third-party websites. I'm not responsible
+          for the privacy practices or content of these sites.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">Changes to This Policy</h2>
+        <p>
+          I may update this privacy policy from time to time. I encourage you to
+          review this page periodically for any changes.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">Contact Me</h2>
+        <p>
+          If you have any questions about our privacy policy, please contact me
+          at
+          <a
+            href="mailto:paul.pietzko@icloud.com"
+            class="text-primary hover:underline"
+          >
+            paul.pietzko@icloud.com
+          </a>.
+        </p>
+      </div>
+    </Container></LegalLayout
+  >
 </Layout>

@@ -1,23 +1,66 @@
 ---
-import SubTitle from "../../../components/SubTitle.astro";
 import { getLangFromUrl, useTranslations } from "../../../i18n/utils";
 import Container from "../../../layouts/Container.astro";
 import Layout from "../../../layouts/Layout.astro";
+import LegalLayout from "../../../layouts/Legal-Layout.astro";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 
 export async function getStaticPaths() {
-  return [
-    { params: { locale: 'en' } },
-    { params: { locale: 'de' } },
-  ];
+  return [{ params: { locale: "en" } }, { params: { locale: "de" } }];
 }
 ---
 
 <Layout>
-  <Container size="xl">
-    <SubTitle title="Terms of service" text="" />
-    
-  </Container>
+  <LegalLayout title="Terms of Service">
+    <Container size="xl">
+      <p class="text-lg">
+        Welcome to paulpietzko.com By accessing or using our website, you agree
+        to be bound by these terms of service.
+      </p>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">1. Use of the Site</h2>
+        <p>
+          You agree to use the site only for lawful purposes and in a way that
+          does not infringe the rights of, restrict, or inhibit anyone else's
+          use and enjoyment of the site.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">
+          2. Intellectual Property
+        </h2>
+        <p>
+          All content on this site, including text, graphics, logos, and images,
+          is the property of NanoSights.dev and is protected by copyright laws.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">
+          3. Limitation of Liability
+        </h2>
+        <p>
+          NanoSights.dev will not be liable for any damages arising from the use
+          of this site.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">4. Changes to Terms</h2>
+        <p>
+          I reserve the right to modify these terms at any time. Your continued
+          use of the site constitutes your acceptance of the new terms.
+        </p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mt-8 mb-4">5. Contact Me</h2>
+        <p>
+          If you have any questions about these terms, please contact me at
+          <a href="mailto:paul.pietzko@icloud.com" class="text-primary hover:underline">
+            paul.pietzko@icloud.com
+          </a>.
+        </p>
+      </div>
+    </Container>
+  </LegalLayout>
 </Layout>
