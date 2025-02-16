@@ -1,48 +1,74 @@
-# Astro Starter Kit: Basics
+# Portfolio
 
-```sh
-npm create astro@latest -- --template basics
-```
+## Table of Contents
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+1. [Description](#description)
+2. [Team](#team)
+3. [Technologies Used](#technologies-used)
+4. [Hosting & Deployment](#hosting--deployment)
+5. [Expenses & Budget](#expenses--budget)
+6. [Installation & Setup](#installation--setup)
+7. [License](#license)
+8. [Contact](#contact)
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Description
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+The Portfolio website of Paul Pietzko. Using various APIs, Technologies and Frameworks.
 
-## 🚀 Project Structure
+## Team
 
-Inside of your Astro project, you'll see the following folders and files:
+- **[Paul Pietzko]** - Project Manager, Frontend Developer, Backend Developer
+- (Add more as needed)
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## Technologies Used
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+Used Technologies, Frameworks, and Tools used in the project:
 
-## 🧞 Commands
+### Dashboard
+- [Git](https://github.com/paulpietzko/portfolio)
+- Programming Languages: TypeScript
+- Frameworks: AstroJS, Tailwind, SolidJS, ChartJS
+- Database: -
+- APIs: GitHub REST and GraphQL, Medium
 
-All commands are run from the root of the project, from a terminal:
+## Hosting & Deployment
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+- **Hosting Provider**: Vercel
+- **Domain Name**: paulpietzko.com
+- **Deployment Process**: CI/CD pipelines on main branch
 
-## 👀 Want to learn more?
+## Expenses & Budget
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Associated costs for running the project:
+
+- **Domain**: $20 per year per domain
+- **Hosting**: -
+- **APIs & Services**: -
+- **Other Costs**: -
+
+## Installation & Setup
+
+Provide steps for setting up the project locally:
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/paulpietzko/portfolio.git
+   ```
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
+3. Start the development server:
+   ```sh
+   npm run dev
+   ```
+
+## License
+This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this project under the terms of the license.
+
+## Contact
+
+Provide contact details for support or inquiries:
+
+- Email: [paul.pietzko@icloud.com](mailto:paul.pietzko@icloud.com)
+- Twitter: @paulpietzko
