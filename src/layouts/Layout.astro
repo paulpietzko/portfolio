@@ -1,28 +1,36 @@
 ---
-import { getLangFromUrl } from '../i18n/utils';
+import { getLangFromUrl } from "../i18n/utils";
 
 const lang = getLangFromUrl(Astro.url);
 ---
 
-<!doctype html>
+<script>
+  import "nano-analytics";
+</script>
+
 <html lang={lang}>
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Portfolio | Paul Pietzko</title>
-	</head>
-	<body class="bg-dark-100 text-white/70">
-		<slot />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Portfolio | Paul Pietzko</title>
+  </head>
+  <body class="bg-dark-100 text-white/70">
+    <slot />
+  </body>
+
+	<nano-analytics
+		projectKey="674ecacd44"
+		userId="a5fb0950-8486-43a2-8ee5-dc4f551a4003"
+	/>
 </html>
 
 <style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+  }
 </style>
