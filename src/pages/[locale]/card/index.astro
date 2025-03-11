@@ -1,0 +1,16 @@
+---
+import { getLangFromUrl, useTranslations } from '../../../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+export async function getStaticPaths() {
+  return [
+    { params: { locale: 'en' } },
+    { params: { locale: 'de' } },
+  ];
+}
+---
+<main>
+  <h1>Card</h1>
+</main>
