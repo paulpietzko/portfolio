@@ -3,10 +3,6 @@ import skillsData from "../data/SkillsData.json";
 import Container from "../layouts/Container.astro";
 import SkillCard from "./SkillCard.astro";
 import SubTitle from "./SubTitle.astro";
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-
-const lang = getLangFromUrl(Astro.url);
-const t = useTranslations(lang);
 
 interface SkillType {
   name: string;
@@ -21,10 +17,10 @@ interface SkillType {
   <Container size="xl">
     <div class="relative z-10" id="about">
       <SubTitle
-        title={t('skills.title')}
-        text={t('skills.subTitle')}
+        title="My Techstack"
+        text="Here are some of the main technologies I work with."
       />
-  
+
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {
           skillsData.map((skill: SkillType) => (

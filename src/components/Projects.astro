@@ -2,29 +2,24 @@
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import ProjectCard from "./ProjectCard.astro";
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-
-const lang = getLangFromUrl(Astro.url);
-const t = useTranslations(lang);
 ---
 
 <div class="mb-[5rem] overflow-x-hidden">
   <Container size="xl">
     <SubTitle
-      title={t('projects.title')}
-      text={t('projects.subTitle')}
+      title="Projects I work on"
+      text="Here are some of the projects I worked on in the past."
     />
   </Container>
 
   <section class="flex justify-between my-[5rem]">
-
     <!-- Left Card -->
     <ProjectCard
       link="https://www.nanosights.dev"
       imgSrc="/images/nanosights.png"
       imgAlt="NanoSights"
       title="NanoSights Saas"
-      text="projects.project-one.text"
+      text="My own Saas: A developer-friendly platform for embedding lightweight analytics, SEO, speed insights, and revenue tracking into your applications."
       extraClasses="rotate-12 -ml-8"
     />
 
@@ -34,7 +29,7 @@ const t = useTranslations(lang);
       imgSrc="/images/2sxc.png"
       imgAlt="2sxc"
       title="2sxc CMS"
-      text="projects.project-two.text"
+      text="2sxc is revolutionizing content management on DNN and Oqtane with the 1-second-paradigm. Every interaction takes less than 1 second. As part of an internship, I contributed to the development of this CMS."
       extraClasses="-rotate-12"
     />
 
@@ -44,7 +39,7 @@ const t = useTranslations(lang);
       imgSrc="/images/school-sys.png"
       imgAlt="SchoolSys"
       title="Swiss School System"
-      text="projects.project-three.text"
+      text="SchoolSys is a system designed to help daycares in Arusha (Tanzania) and Cape Town (South Africa) teach children using modern methods to empower young children. For my final exam project, I developed material management system for the App."
       extraClasses="rotate-12 -mr-8"
     />
   </section>

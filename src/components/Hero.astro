@@ -1,10 +1,6 @@
 ---
 import Container from "../layouts/Container.astro";
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
 import Navbar from "./Navbar.astro";
-
-const lang = getLangFromUrl(Astro.url);
-const t = useTranslations(lang);
 
 // Get the current year and calculate the years of experience since 2021-08-01
 const currentYear = new Date().getFullYear();
@@ -16,19 +12,26 @@ const yearsOfExperience =
     ? 1
     : 0);
 ---
+
 <section class="h-screen w-full flex flex-col text-white relative">
   <Navbar />
 
   <!-- Hero Content -->
   <Container size="xl">
     <div class="absolute bottom-[8rem] px-4">
-      <h1 class="name text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-[4vw] font-bold leading-[0.8]">
-      Paul <span class="text-[5vw] md:text-[4vw] lg:text-[3vw] xl:text-[2vw] block bg-yellow-300 text-black px-2"
-        >Pietzko</span
+      <h1
+        class="name text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-[4vw] font-bold leading-[0.8]"
       >
+        Paul <span
+          class="text-[5vw] md:text-[4vw] lg:text-[3vw] xl:text-[2vw] block bg-yellow-300 text-black px-2"
+          >Pietzko</span
+        >
       </h1>
-      <p class="mt-4 text-gray-300 max-w-md text-sm md:text-base lg:text-lg xl:text-xl">
-      {t('hero.text').replace('{yearsOfExperience}', yearsOfExperience)}
+      <p
+        class="mt-4 text-gray-300 max-w-md text-sm md:text-base lg:text-lg xl:text-xl"
+      >
+        I'm a Frontend Developer from Switzerland with {yearsOfExperience} years
+        of experience.
       </p>
     </div>
   </Container>

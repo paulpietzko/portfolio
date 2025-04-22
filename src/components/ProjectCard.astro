@@ -1,13 +1,11 @@
 ---
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-
-const lang = getLangFromUrl(Astro.url);
-const t = useTranslations(lang);
-
 const { link, imgSrc, imgAlt, title, text, extraClasses = "" } = Astro.props;
 ---
 
-<a href={link} class={`relative group overflow-hidden rounded-3xl shadow-md ${extraClasses}`}>
+<a
+  href={link}
+  class={`relative group overflow-hidden rounded-3xl shadow-md ${extraClasses}`}
+>
   <!-- Project Image -->
   <img
     src={imgSrc}
@@ -17,10 +15,10 @@ const { link, imgSrc, imgAlt, title, text, extraClasses = "" } = Astro.props;
 
   <!-- Hover Overlay -->
   <div
-    class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity
+    class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity
            flex flex-col justify-center items-center text-white p-4"
   >
     <h3 class="text-xl font-bold">{title}</h3>
-    <p class="mt-2 text-center max-w-sm">{t(text)}</p>
+    <p class="mt-2 text-center max-w-sm">{text}</p>
   </div>
 </a>

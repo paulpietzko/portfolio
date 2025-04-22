@@ -1,19 +1,20 @@
 ---
 import Container from "../layouts/Container.astro";
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-
-const lang = getLangFromUrl(Astro.url);
-const t = useTranslations(lang);
 ---
 
 <footer>
   <Container size="xl">
-    <h2 class="footer-title text-[6rem] sm:text-[8rem] md:text-[10rem] lg:text-[14rem]">let's connect</h2>
-    
+    <h2
+      class="footer-title text-[6rem] sm:text-[8rem] md:text-[10rem] lg:text-[14rem]"
+    >
+      let's connect
+    </h2>
+
     <div class="footer-body my-5">
       <p>
-        Feel free to <a class="font-bold underline" href="mailto:paul.pietzko@icloud.com"
-          >contact</a
+        Feel free to <a
+          class="font-bold underline"
+          href="mailto:paul.pietzko@icloud.com">contact</a
         > me with any kind of question.
       </p>
       <ul class="social-links">
@@ -82,7 +83,7 @@ const t = useTranslations(lang);
   <Container size="xl">
     <div class="footer-bottom my-5">
       <p>Copyright &copy; {new Date().getFullYear()}</p>
-      <p>{t('footer.credits')} <a href="https://www.paulpietzko.com">Paul Pietzko</a></p>
+      <p>Made by <a href="https://www.paulpietzko.com">Paul Pietzko</a></p>
     </div>
   </Container>
 </footer>

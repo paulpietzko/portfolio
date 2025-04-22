@@ -1,15 +1,7 @@
 ---
-import { getLangFromUrl, useTranslations } from "../../../i18n/utils";
-import Container from "../../../layouts/Container.astro";
-import Layout from "../../../layouts/Layout.astro";
-import LegalLayout from "../../../layouts/Legal-Layout.astro";
-
-const lang = getLangFromUrl(Astro.url);
-const t = useTranslations(lang);
-
-export async function getStaticPaths() {
-  return [{ params: { locale: "en" } }, { params: { locale: "de" } }];
-}
+import Container from "../../layouts/Container.astro";
+import Layout from "../../layouts/Layout.astro";
+import LegalLayout from "../../layouts/Legal-Layout.astro";
 ---
 
 <Layout>
@@ -56,7 +48,10 @@ export async function getStaticPaths() {
         <h2 class="text-2xl font-semibold mt-8 mb-4">5. Contact Me</h2>
         <p>
           If you have any questions about these terms, please contact me at
-          <a href="mailto:paul.pietzko@icloud.com" class="text-primary hover:underline">
+          <a
+            href="mailto:paul.pietzko@icloud.com"
+            class="text-primary hover:underline"
+          >
             paul.pietzko@icloud.com
           </a>.
         </p>

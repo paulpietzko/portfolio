@@ -1,15 +1,12 @@
 ---
-import { getLangFromUrl } from "../i18n/utils";
 import { ClientRouter } from "astro:transitions";
-
-const lang = getLangFromUrl(Astro.url);
 ---
 
 <script>
   import "nano-analytics";
 </script>
 
-<html lang={lang}>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -23,17 +20,13 @@ const lang = getLangFromUrl(Astro.url);
 
   <ClientRouter />
 
-	<nano-analytics
+  <nano-analytics
     projectKey="674ecacd44"
-    userId="a5fb0950-8486-43a2-8ee5-dc4f551a4003"
-  />
+    userId="a5fb0950-8486-43a2-8ee5-dc4f551a4003"></nano-analytics>
 </html>
 
 <style>
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
+  html {
+    scroll-behavior: smooth;
   }
 </style>
