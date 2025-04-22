@@ -1,5 +1,6 @@
 ---
 import { getLangFromUrl } from "../i18n/utils";
+import { ClientRouter } from "astro:transitions";
 
 const lang = getLangFromUrl(Astro.url);
 ---
@@ -12,7 +13,7 @@ const lang = getLangFromUrl(Astro.url);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
     <title>Portfolio | Paul Pietzko</title>
   </head>
@@ -20,10 +21,12 @@ const lang = getLangFromUrl(Astro.url);
     <slot />
   </body>
 
+  <ClientRouter />
+
 	<nano-analytics
-		projectKey="674ecacd44"
-		userId="a5fb0950-8486-43a2-8ee5-dc4f551a4003"
-	/>
+    projectKey="674ecacd44"
+    userId="a5fb0950-8486-43a2-8ee5-dc4f551a4003"
+  />
 </html>
 
 <style>
