@@ -24,6 +24,7 @@ import Container from "../layouts/Container.astro";
     <!-- Navigation Links -->
     <ul
       class="hidden sm:flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 text-white font-light text-sm"
+      id="mobile-menu"
     >
       <li><a href="/" class="hover:underline">Home</a></li>
       <li>
@@ -55,11 +56,19 @@ import Container from "../layouts/Container.astro";
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const toggleButton = document.querySelector("[data-menu-toggle]");
-    const navList = document.querySelector("ul");
+    const navList = document.getElementById("mobile-menu");
+    const overlay = document.getElementById("menu-overlay");
 
+    // Toggle the visibility of the menu and overlay
     toggleButton?.addEventListener("click", () => {
       navList?.classList.toggle("hidden");
-      navList?.classList.toggle("block");
+      overlay?.classList.toggle("hidden");
+    });
+
+    // Close the menu when clicking the overlay
+    overlay?.addEventListener("click", () => {
+      navList?.classList.add("hidden");
+      overlay?.classList.add("hidden");
     });
   });
 </script>
