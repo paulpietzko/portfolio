@@ -21,7 +21,7 @@ const fetchStories = async () => {
   );
   const data = await response.json();
 
-  stories = data.items.slice(0, 6).map((item: StoryItem) => ({
+  stories = data.items.slice(0, 3).map((item: StoryItem) => ({
     title: item.title,
     description: item.description,
     link: item.link,
