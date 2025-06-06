@@ -4,13 +4,13 @@ const { link, imgSrc, imgAlt, title, text, extraClasses = "" } = Astro.props;
 
 <a
   href={link}
-  class={`relative group overflow-hidden rounded-3xl shadow-md ${extraClasses}`}
+  class={`relative group overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md ${extraClasses}`}
 >
   <!-- Project Image -->
   <img
     src={imgSrc}
     alt={imgAlt}
-    class="h-full w-full rounded-3xl transition-transform duration-300 group-hover:scale-105"
+    class="h-full w-full rounded-xl sm:rounded-2xl md:rounded-3xl transition-transform duration-300 group-hover:scale-105"
   />
 
   <!-- Hover Overlay -->

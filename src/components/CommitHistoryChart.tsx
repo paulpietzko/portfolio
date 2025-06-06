@@ -99,10 +99,10 @@ const CommitHistoryChart = (props: CommitHistoryChartProps) => {
   });
 
   return (
-    <div class="w-full h-full">
+    <div class="w-full max-w-full overflow-hidden">
       <canvas
         ref={(el) => (canvasRef = el)}
-        class="w-[50rem] h-full"
+        class="w-full h-[20rem] max-w-full"
       />
     </div>
   );
