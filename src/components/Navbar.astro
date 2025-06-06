@@ -2,10 +2,15 @@
 import Container from "../layouts/Container.astro";
 ---
 
-<Container size="xl">
-  <nav class="flex flex-wrap justify-between items-center">
+<nav
+  class="absolute z-40 left-0 right-0 flex flex-wrap items-center justify-between mx-auto my-4 px-4 sm:px-10 md:px-16 mt-4 md:mt-10"
+>
+  <div class="flex w-full justify-between items-center">
     <!-- Hamburger Button -->
-    <button class="sm:hidden text-white focus:outline-none" data-menu-toggle>
+    <button
+      class="sm:hidden text-white focus:outline-none z-20"
+      data-menu-toggle
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-6 w-6"
@@ -20,7 +25,6 @@ import Container from "../layouts/Container.astro";
           d="M4 6h16M4 12h16m-7 6h7"></path>
       </svg>
     </button>
-
     <!-- Navigation Links -->
     <ul
       class="hidden sm:flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 text-white font-light text-sm"
@@ -43,7 +47,7 @@ import Container from "../layouts/Container.astro";
     <!-- Get in Touch Button -->
     <a
       href="mailto:paul.pietzko@icloud.com"
-      class="mt-4 sm:mt-0 relative border rounded-md border-white px-4 py-2 text-white overflow-hidden group"
+      class="relative border rounded-md border-white px-4 py-2 text-white overflow-hidden group"
     >
       <span
         class="absolute inset-0 bg-white transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"
@@ -52,8 +56,8 @@ import Container from "../layouts/Container.astro";
         >Get in Touch</span
       >
     </a>
-  </nav>
-</Container>
+  </div>
+</nav>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {

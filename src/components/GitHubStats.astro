@@ -14,43 +14,41 @@ const commitsLastYear = await fetchUserCommits("paulpietzko");
 ---
 
 <Container size="xl">
-  <div class="px-4 sm:px-8">
-    <SubTitle
-      title="Alltime Stats"
-      text="Here are some stats about my contributions on GitHub."
-    />
+  <SubTitle
+    title="Alltime Stats"
+    text="Here are some stats about my contributions on GitHub."
+  />
 
-    <div
-      class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 text-center mb-[10rem]"
-    >
-      <div>
-        <NumberCounter client:visible number={stats.totalCommits} />
-        <p class="text-lg font-semibold">Total Commits</p>
-      </div>
-      <div>
-        <NumberCounter client:visible number={stats.totalReviews} />
-        <p class="text-lg font-semibold">Total Reviews</p>
-      </div>
-      <div>
-        <NumberCounter client:visible number={stats.totalIssues} />
-        <p class="text-lg font-semibold">Total Issues</p>
-      </div>
-      <div>
-        <NumberCounter client:visible number={stats.totalPRs} />
-        <p class="text-lg font-semibold">Total PRs</p>
-      </div>
-      <div>
-        <NumberCounter client:visible number={stats.contributedTo} />
-        <p class="text-lg font-semibold">Contributed To</p>
-      </div>
+  <div
+    class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5 text-center mb-[10rem]"
+  >
+    <div>
+      <NumberCounter client:visible number={stats.totalCommits} />
+      <p class="text-lg font-semibold">Total Commits</p>
     </div>
+    <div>
+      <NumberCounter client:visible number={stats.totalReviews} />
+      <p class="text-lg font-semibold">Total Reviews</p>
+    </div>
+    <div>
+      <NumberCounter client:visible number={stats.totalIssues} />
+      <p class="text-lg font-semibold">Total Issues</p>
+    </div>
+    <div>
+      <NumberCounter client:visible number={stats.totalPRs} />
+      <p class="text-lg font-semibold">Total PRs</p>
+    </div>
+    <div>
+      <NumberCounter client:visible number={stats.contributedTo} />
+      <p class="text-lg font-semibold">Contributed To</p>
+    </div>
+  </div>
 
-    <SubTitle
-      title="My Commits over the last Year'"
-      text="Here is a chart showing my commit history over the last year."
-    />
-    <div class="mt-8 mb-[10rem]">
-      <CommitHistoryChart client:visible data={commitsLastYear} />
-    </div>
+  <SubTitle
+    title="My Commits over the last Year'"
+    text="Here is a chart showing my commit history over the last year."
+  />
+  <div class="mt-8 mb-[10rem]">
+    <CommitHistoryChart client:visible data={commitsLastYear} />
   </div>
 </Container>
