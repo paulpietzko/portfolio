@@ -3,60 +3,62 @@ import Container from "../layouts/Container.astro";
 ---
 
 <nav
-  class="absolute z-40 left-0 right-0 flex flex-wrap items-center justify-between mx-auto my-4 px-4 sm:px-10 md:px-16 mt-4 md:mt-10"
+  class="absolute z-40 left-0 right-0 flex flex-wrap items-center justify-between mx-auto mt-4"
 >
-  <div class="flex w-full justify-between items-center">
-    <!-- Hamburger Button -->
-    <button
-      class="sm:hidden text-white focus:outline-none z-20"
-      data-menu-toggle
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
+  <Container size="xl">
+    <div class="flex w-full justify-between items-center">
+      <!-- Hamburger Button -->
+      <button
+        class="sm:hidden text-white focus:outline-none z-20"
+        data-menu-toggle
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16m-7 6h7"></path>
-      </svg>
-    </button>
-    <!-- Navigation Links -->
-    <ul
-      class="hidden sm:flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 text-white font-light text-sm"
-      id="mobile-menu"
-    >
-      <li><a href="/" class="hover:underline">Home</a></li>
-      <li>
-        <a
-          href="https://medium.com/@paul.pietzko"
-          class="hover:underline"
-          target="_blank">Blog</a
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
         >
-      </li>
-      <li>
-        <a href="references" class="hover:underline">References</a>
-      </li>
-      <li><a href="imprint" class="hover:underline">Imprint</a></li>
-    </ul>
-
-    <!-- Get in Touch Button -->
-    <a
-      href="mailto:paul.pietzko@icloud.com"
-      class="relative border rounded-md border-white px-4 py-2 text-white overflow-hidden group"
-    >
-      <span
-        class="absolute inset-0 bg-white transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"
-      ></span>
-      <span class="relative z-10 text-white group-hover:text-black"
-        >Get in Touch</span
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16m-7 6h7"></path>
+        </svg>
+      </button>
+      <!-- Navigation Links -->
+      <ul
+        class="hidden sm:flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 text-white font-light text-sm"
+        id="mobile-menu"
       >
-    </a>
-  </div>
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>
+          <a
+            href="https://medium.com/@paul.pietzko"
+            class="hover:underline"
+            target="_blank">Blog</a
+          >
+        </li>
+        <li>
+          <a href="references" class="hover:underline">References</a>
+        </li>
+        <li><a href="imprint" class="hover:underline">Imprint</a></li>
+      </ul>
+
+      <!-- Get in Touch Button -->
+      <a
+        href="mailto:paul.pietzko@icloud.com"
+        class="relative border rounded-md border-white px-4 py-2 text-white overflow-hidden group"
+      >
+        <span
+          class="absolute inset-0 bg-white transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"
+        ></span>
+        <span class="relative z-10 text-white group-hover:text-black"
+          >Get in Touch</span
+        >
+      </a>
+    </div>
+  </Container>
 </nav>
 
 <script>
