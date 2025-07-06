@@ -15,8 +15,8 @@
     "@astrojs/vercel": "^8.0.0",
     "astro": "^5.0.1",
     "chart.js": "^4.4.7",
-    "nano-analytics": "^0.9.0",
-    "nano-insights": "^0.4.0",
+    "nano-analytics": "^0.10.0",
+    "nano-insights": "^0.5.0",
     "solid-js": "^1.9.3",
     "tailwindcss": "^3.4.16"
   }
