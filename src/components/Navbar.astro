@@ -53,9 +53,12 @@ import Container from "../layouts/Container.astro";
         <span
           class="absolute inset-0 bg-white transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"
         ></span>
-        <span class="relative z-10 text-white group-hover:text-black"
-          >Get in Touch</span
+        <button
+          class="relative z-10 text-white group-hover:text-black"
+          onclick="track('GetInTouch')"
         >
+          Get in Touch
+        </button>
       </a>
     </div>
   </Container>
