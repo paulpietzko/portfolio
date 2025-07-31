@@ -48,80 +48,74 @@ await fetchStories();
       id="story-wrapper"
     >
       <p id="story-text">
-        {story.description.length > 1500
-          ? story.description.slice(0, 1500) + "..."
-          : story.description}
+        {
+          story.description.length > 1500
+            ? story.description.slice(0, 1500) + "..."
+            : story.description
+        }
       </p>
     </div>
   </div>
 </Container>
 
 <script is:inline>
-  window.addEventListener("load", () => {
-    if (typeof gsap !== "undefined") {
-      gsap.registerPlugin(ScrollTrigger);
+  const initAnimation = () => {
+    // Wait for the DOM to be ready
+    requestAnimationFrame(() => {
+      if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined")
+        return;
 
-      // Get the text content
       const storyText = document.getElementById("story-text");
+      if (!storyText) return;
 
-      if (storyText) {
-        // Split the text content into lines
-        const textContent = storyText.innerHTML;
-        const words = textContent.split(" ");
+      // Prevent duplicate spans
+      if (storyText.querySelector(".word")) return;
 
-        // Clear the original content
-        storyText.innerHTML = "";
+      const textContent = storyText.innerHTML;
+      const words = textContent.split(" ");
+      storyText.innerHTML = "";
 
-        // Create spans for each word
-        words.forEach((word, index) => {
-          const span = document.createElement("span");
-          span.innerHTML = word + (index < words.length - 1 ? " " : "");
-          span.className = "word inline-block";
-          storyText.appendChild(span);
-        });
+      words.forEach((word, index) => {
+        const span = document.createElement("span");
+        span.innerHTML = word + (index < words.length - 1 ? " " : "");
+        span.className = "word inline-block";
+        storyText.appendChild(span);
+      });
 
-        // Get all word elements
-        const wordElements = gsap.utils.toArray(".word");
+      const wordElements = gsap.utils.toArray(".word");
 
-        // Create a scrolling animation
-        ScrollTrigger.create({
-          trigger: "#story-wrapper",
-          start: "top bottom", // Start when the top of the text hits the bottom of the viewport
-          end: "bottom top", // End when the bottom of the text leaves the top of the viewport
-          markers: false,
-          onUpdate: (self) => {
-            // Get the center of the viewport
-            const viewportCenter = window.innerHeight / 2;
+      ScrollTrigger.create({
+        trigger: "#story-wrapper",
+        start: "top bottom",
+        end: "bottom top",
+        onUpdate: (self) => {
+          const viewportCenter = window.innerHeight / 2;
 
-            // Apply the Gaussian effect to each word
-            wordElements.forEach((word) => {
-              // Get the word's position
-              const rect = word.getBoundingClientRect();
-              const wordCenter = rect.top + rect.height / 2;
+          wordElements.forEach((word) => {
+            const rect = word.getBoundingClientRect();
+            const wordCenter = rect.top + rect.height / 2;
+            const distance = Math.abs(wordCenter - viewportCenter);
+            const maxDistance = window.innerHeight / 3;
+            const normalizedDistance = Math.min(distance / maxDistance, 1);
+            const gaussianValue = Math.exp(-(normalizedDistance ** 2 * 6));
 
-              // Calculate distance from viewport center (normalized)
-              // Wider range - using window.innerHeight / 3 instead of / 4
-              const distance = Math.abs(wordCenter - viewportCenter);
-              const maxDistance = window.innerHeight / 3;
-              const normalizedDistance = Math.min(distance / maxDistance, 1);
-
-              // Less steep Gaussian-like function for more affected lines
-              // Reduced multiplier from 12 to 4 for a wider bell curve
-              const gaussianValue = Math.exp(
-                -(normalizedDistance * normalizedDistance * 6)
-              );
-
-              // Apply the color change
-              gsap.to(word, {
-                color: `rgba(255, 255, 255, ${gaussianValue})`,
-                duration: 0.1,
-                overwrite: true,
-              });
+            gsap.to(word, {
+              color: `rgba(255, 255, 255, ${gaussianValue})`,
+              duration: 0.1,
+              overwrite: true,
             });
-          },
-        });
-      }
-    }
+          });
+        },
+      });
+    });
+  };
+
+  // Initial load
+  window.addEventListener("load", initAnimation);
+
+  // Astro client-side navigation
+  document.addEventListener("astro:after-swap", () => {
+    setTimeout(initAnimation, 0); // Slight delay to wait for DOM update
   });
 </script>
 
