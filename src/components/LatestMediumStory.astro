@@ -2,36 +2,42 @@
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 
-let story: StoryItem = {
-  title: "",
-  description: "",
-  date: new Date(),
-  link: "",
-};
-
 type StoryItem = {
   title: string;
   description: string;
   date: Date;
-
   link: string;
 };
 
-const fetchStories = async () => {
-  const response = await fetch(
+const stripHtml = (html: string) => {
+  // Replace paragraph and break tags with newlines first
+  let withBreaks = html
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n");
+  // Remove other tags
+  return withBreaks.replace(/<\/?[^>]+(>|$)/g, "").trim();
+};
+
+const fetchStory = async (): Promise<StoryItem> => {
+  const res = await fetch(
     "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@paul.pietzko"
   );
-  const data = await response.json();
-
-  story = {
-    title: data.items[0].title,
-    description: data.items[0].description,
-    date: new Date(data.items[0].pubDate),
-    link: data.items[0].link,
+  const { items } = await res.json();
+  const first = items[0];
+  return {
+    title: first.title,
+    description: first.description,
+    date: new Date(first.pubDate),
+    link: first.link,
   };
 };
 
-await fetchStories();
+const story = await fetchStory();
+
+const paragraphs = stripHtml(story.description)
+  .slice(0, 1500)
+  .split(/\n\s*\n/)
+  .filter(Boolean);
 ---
 
 <Container size="xl">
@@ -39,7 +45,11 @@ await fetchStories();
     <div class="sticky top-0 pt-16 z-10">
       <SubTitle
         title="Latest Story"
-        text={`${story.title} • ${story.date.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })}`}
+        text={`${story.title} • ${story.date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        })}`}
       />
     </div>
 
@@ -47,60 +57,58 @@ await fetchStories();
       class="text-xl sm:text-2xl md:text-3xl leading-relaxed text-justify hyphens-auto mt-4 overflow-hidden"
       id="story-wrapper"
     >
-      <p id="story-text">
-        {
-          story.description.length > 1500
-            ? story.description.slice(0, 1500) + "..."
-            : story.description
-        }
-      </p>
+      {paragraphs.map((p) => <p>{p.trim()}</p>)}
+      {stripHtml(story.description).length > 1500 && <p>...</p>}
     </div>
   </div>
 </Container>
 
 <script is:inline>
+  const wrapWords = (element) => {
+    if (!element) return;
+    if (element.querySelector(".word")) return;
+
+    element.querySelectorAll("p").forEach((p) => {
+      const words = (p.textContent || "").split(/\s+/);
+      p.innerHTML = "";
+      words.forEach((word, i) => {
+        const span = document.createElement("span");
+        span.textContent = word;
+        span.className = "word inline-block";
+        p.appendChild(span);
+        if (i < words.length - 1) p.appendChild(document.createTextNode(" "));
+      });
+    });
+  };
+
   const initAnimation = () => {
-    // Wait for the DOM to be ready
     requestAnimationFrame(() => {
       if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined")
         return;
 
-      const storyText = document.getElementById("story-text");
-      if (!storyText) return;
+      const wrapper = document.getElementById("story-wrapper");
+      if (!wrapper) return;
 
-      // Prevent duplicate spans
-      if (storyText.querySelector(".word")) return;
+      wrapWords(wrapper);
 
-      const textContent = storyText.innerHTML;
-      const words = textContent.split(" ");
-      storyText.innerHTML = "";
-
-      words.forEach((word, index) => {
-        const span = document.createElement("span");
-        span.innerHTML = word + (index < words.length - 1 ? " " : "");
-        span.className = "word inline-block";
-        storyText.appendChild(span);
-      });
-
-      const wordElements = gsap.utils.toArray(".word");
+      const words = gsap.utils.toArray(".word");
 
       ScrollTrigger.create({
         trigger: "#story-wrapper",
         start: "top bottom",
         end: "bottom top",
-        onUpdate: (self) => {
-          const viewportCenter = window.innerHeight / 2;
+        onUpdate: () => {
+          const center = window.innerHeight / 2;
+          const maxDist = window.innerHeight / 3;
 
-          wordElements.forEach((word) => {
+          words.forEach((word) => {
             const rect = word.getBoundingClientRect();
             const wordCenter = rect.top + rect.height / 2;
-            const distance = Math.abs(wordCenter - viewportCenter);
-            const maxDistance = window.innerHeight / 3;
-            const normalizedDistance = Math.min(distance / maxDistance, 1);
-            const gaussianValue = Math.exp(-(normalizedDistance ** 2 * 6));
+            const dist = Math.min(Math.abs(wordCenter - center) / maxDist, 1);
+            const opacity = Math.exp(-dist * dist * 6);
 
             gsap.to(word, {
-              color: `rgba(255, 255, 255, ${gaussianValue})`,
+              color: `rgba(255,255,255,${opacity})`,
               duration: 0.1,
               overwrite: true,
             });
@@ -110,16 +118,12 @@ await fetchStories();
     });
   };
 
-  // Initial load
   window.addEventListener("load", initAnimation);
-
-  // Astro client-side navigation
-  document.addEventListener("astro:after-swap", () => {
-    setTimeout(initAnimation, 0); // Slight delay to wait for DOM update
-  });
+  document.addEventListener("astro:after-swap", () =>
+    setTimeout(initAnimation, 0)
+  );
 </script>
 
-<!-- Load GSAP -->
 <script
   is:inline
   src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
