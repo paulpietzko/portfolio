@@ -21,11 +21,11 @@
     "bgColor": "bg-[rgba(255,105,180,0.2)]"
   },
   {
-    "name": "NodeJS",
-    "link": "https://nodejs.org/en",
-    "description": "JavaScript runtime",
-    "imageUrl": "/images/logos/nodejs.svg",
-    "bgColor": "bg-[rgba(139,195,74,0.2)]"
+    "name": "ASP.NET Core",
+    "link": "https://learn.microsoft.com/aspnet/core/",
+    "description": "Cross-platform web framework for .NET",
+    "imageUrl": "/images/logos/aspnetcore.svg",
+    "bgColor": "bg-[rgba(108,66,156,0.3)]"
   },
   {
     "name": "Java",
