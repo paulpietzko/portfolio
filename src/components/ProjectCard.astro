@@ -4,6 +4,10 @@ const { link, imgSrc, imgAlt, title, text, extraClasses = "" } = Astro.props;
 
 <a
   href={link}
+  onclick="track('ProjectClick',
+  {
+    label: title,
+  })"
   class={`relative group overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md ${extraClasses}`}
 >
   <!-- Project Image -->
