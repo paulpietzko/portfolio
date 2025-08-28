@@ -7,8 +7,11 @@ import solidJs from "@astrojs/solid-js";
 
 import vercel from "@astrojs/vercel";
 
+import sitemap from "@astrojs/sitemap";
+
 // https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind(), solidJs()],
+  site: 'https://www.paulpietzko.com',
+  integrations: [tailwind(), solidJs(), sitemap()],
   adapter: vercel(),
 });
