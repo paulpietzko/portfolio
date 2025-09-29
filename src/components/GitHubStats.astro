@@ -18,6 +18,7 @@ const commitsLastYear = await fetchUserCommits("paulpietzko");
     <SubTitle
       title="Alltime Stats"
       text="Here are some stats about my contributions on GitHub."
+      link="#stats"
     />
 
     <div
@@ -48,6 +49,7 @@ const commitsLastYear = await fetchUserCommits("paulpietzko");
     <SubTitle
       title="My Commits over the last Year'"
       text="Here is a chart showing my commit history over the last year."
+      link="#commit-history"
     />
     <div class="mt-8 mb-[5rem]">
       <CommitHistoryChart client:visible data={commitsLastYear} />

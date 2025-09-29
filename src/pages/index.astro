@@ -11,12 +11,21 @@ import Events from "../components/Events.astro";
 
 <Layout>
   <div class="selection:bg-green-400">
-    <Hero />
+  <Hero />
+  <div id="projects">
     <Projects />
-    <Skills />
-    <Events />
-    <LatestMediumStory />
-    <GitHubStats />
-    <Footer />
   </div>
+  <div id="skills">
+    <Skills />
+  </div>
+  <div id="events">
+    <Events />
+  </div>
+  <div id="blog">
+    <LatestMediumStory />
+  </div>
+  <div id="stats">
+    <GitHubStats />
+  </div>
+  <Footer />
 </Layout>

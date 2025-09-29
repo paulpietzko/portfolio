@@ -1,16 +1,16 @@
 ---
-const { title, text } = Astro.props;
+const { title, text, link } = Astro.props;
 ---
 
 <div class="mb-10">
   <h2
     class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200 mb-4"
   >
-    {title}
+    <a href={link}>
+      {title}
+    </a>
   </h2>
-  <p
-    class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-stone-500"
-  >
+  <p class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-stone-500">
     {text}
   </p>
 </div>
