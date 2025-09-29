@@ -3,7 +3,7 @@ import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import eventsData from "../data/EventsData.json";
 
-const columns = 3;
+const columns = 2;
 const columned = Array.from({ length: columns }, (_, col) =>
   eventsData.filter((_, i) => i % columns === col)
 );
@@ -27,26 +27,26 @@ const columned = Array.from({ length: columns }, (_, col) =>
                   rel="noopener noreferrer"
                   class="group block rounded-lg overflow-hidden shadow hover:shadow-lg transition relative"
                 >
-                  <div class="relative overflow-hidden h-60">
+                  <div class="relative overflow-hidden">
                     <img
                       src={item.imageUrl}
                       alt={item.name}
-                      class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 transform group-hover:scale-95"
+                      class="w-full h-auto transition-transform duration-1000 transform group-hover:scale-95"
                     />
-                    <img
-                      src={item.hoverImageUrl || item.imageUrl}
-                      alt={item.name}
-                      class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 transform group-hover:opacity-100 group-hover:scale-105"
-                    />
+                    {item.hoverImageUrl && (
+                      <img
+                        src={item.hoverImageUrl}
+                        alt={item.name}
+                        class="absolute top-0 left-0 w-full h-auto opacity-0 transition-all duration-1000 transform group-hover:opacity-100 group-hover:scale-105"
+                      />
+                    )}
                   </div>
                   <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex flex-col justify-end p-4 pointer-events-none">
-                    <span class="text-xs text-gray-300 mb-1">
+                    <span class="text-sm text-gray-300 mb-2">
                       {item.date || "2023-09-01"}
                     </span>
-                    <h3 class="font-semibold text-lg text-white">
-                      {item.name}
-                    </h3>
-                    <p class="text-sm text-gray-200">{item.description}</p>
+                    <h3 class="font-bold text-2xl text-white">{item.name}</h3>
+                    <p class="text-base text-gray-200">{item.description}</p>
                   </div>
                 </a>
               ))}
