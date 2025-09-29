@@ -1,0 +1,36 @@
+---
+import Container from "../layouts/Container.astro";
+import SubTitle from "./SubTitle.astro";
+const items = Array.from({ length: 9 }, (_, i) => ({
+  height: `${40 + Math.floor(Math.random() * 30)}`,
+}));
+const columns = 3;
+const columned = Array.from({ length: columns }, (_, col) =>
+  items.filter((_, i) => i % columns === col)
+);
+---
+
+<div class="mb-[5rem] pt-16 overflow-x-hidden">
+  <Container size="xl">
+    <SubTitle
+      title="Events I attended"
+      text="Here are some of the events I attended in recently."
+    />
+    <div class="flex flex-wrap -mx-2">
+      {
+        columned.map((col, colIndex) => (
+          <div class="flex-1 px-2">
+            <div class="space-y-4">
+              {col.map((item, i) => (
+                <div
+                  class="bg-gray-300 w-full rounded-lg"
+                  style={`height: ${item.height}vh`}
+                />
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </Container>
+</div>
