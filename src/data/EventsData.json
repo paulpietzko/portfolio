@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Swiss {ai} Weeks",
+    "link": "https://swiss-ai-weeks.ch/",
+    "description": "The first and largest AI event in Switzerland.",
+    "imageUrl": "/images/events/swiss-ai-weeks.png",
+    "hoverImageUrl": "/images/events/swiss-ai-weeks-hover.png",
+    "date": "2023-03-15"
+  }
+]

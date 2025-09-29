@@ -1,12 +1,11 @@
 ---
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
-const items = Array.from({ length: 9 }, (_, i) => ({
-  height: `${40 + Math.floor(Math.random() * 30)}`,
-}));
+import eventsData from "../data/EventsData.json";
+
 const columns = 3;
 const columned = Array.from({ length: columns }, (_, col) =>
-  items.filter((_, i) => i % columns === col)
+  eventsData.filter((_, i) => i % columns === col)
 );
 ---
 
@@ -14,7 +13,7 @@ const columned = Array.from({ length: columns }, (_, col) =>
   <Container size="xl">
     <SubTitle
       title="Events I attended"
-      text="Here are some of the events I attended in recently."
+      text="Here are some of the events I attended recently."
     />
     <div class="flex flex-wrap -mx-2">
       {
@@ -22,10 +21,34 @@ const columned = Array.from({ length: columns }, (_, col) =>
           <div class="flex-1 px-2">
             <div class="space-y-4">
               {col.map((item, i) => (
-                <div
-                  class="bg-gray-300 w-full rounded-lg"
-                  style={`height: ${item.height}vh`}
-                />
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group block rounded-lg overflow-hidden shadow hover:shadow-lg transition relative"
+                >
+                  <div class="relative overflow-hidden h-60">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 transform group-hover:scale-95"
+                    />
+                    <img
+                      src={item.hoverImageUrl || item.imageUrl}
+                      alt={item.name}
+                      class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 transform group-hover:opacity-100 group-hover:scale-105"
+                    />
+                  </div>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex flex-col justify-end p-4 pointer-events-none">
+                    <span class="text-xs text-gray-300 mb-1">
+                      {item.date || "2023-09-01"}
+                    </span>
+                    <h3 class="font-semibold text-lg text-white">
+                      {item.name}
+                    </h3>
+                    <p class="text-sm text-gray-200">{item.description}</p>
+                  </div>
+                </a>
               ))}
             </div>
           </div>
