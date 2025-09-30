@@ -3,7 +3,7 @@ import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import eventsData from "../data/EventsData.json";
 
-const columns = 2;
+const columns = 1;
 const columned = Array.from({ length: columns }, (_, col) =>
   eventsData.filter((_, i) => i % columns === col)
 );
@@ -16,10 +16,10 @@ const columned = Array.from({ length: columns }, (_, col) =>
       text="Here are some of the events I attended recently."
       link="#events"
     />
-    <div class="flex flex-wrap -mx-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       {
         columned.map((col, colIndex) => (
-          <div class="flex-1 px-2">
+          <div>
             <div class="space-y-4">
               {col.map((item, i) => (
                 <a
