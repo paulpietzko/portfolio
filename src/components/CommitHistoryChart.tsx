@@ -1,4 +1,4 @@
-import { createEffect, onCleanup } from "solid-js";
+import { onMount, createEffect, onCleanup } from "solid-js";
 import {
   Chart,
   LineController,
@@ -29,39 +29,23 @@ const CommitHistoryChart = (props: CommitHistoryChartProps) => {
   let canvasRef: HTMLCanvasElement | null = null;
   let chartInstance: Chart | null = null;
 
-  createEffect(() => {
-    if (!canvasRef) {
-      console.error("Canvas reference is not available");
-      return;
-    }
-
+  // Create chart on mount
+  onMount(() => {
+    if (!canvasRef) return;
     const ctx = canvasRef.getContext("2d");
-    if (!ctx) {
-      console.error("Failed to get 2D context from canvas");
-      return;
-    }
+    if (!ctx) return;
 
-    // Destroy any existing chart instance
-    if (chartInstance) {
-      chartInstance.destroy();
-    }
-
-    // Convert reactive Proxy to a plain array
-    const plainData = [...props.data];
-
-    // Create a new Chart.js instance
     chartInstance = new Chart(ctx, {
       type: "line",
       data: {
         labels: Array.from({ length: 12 }, (_, i) =>
-          new Date(
-            new Date().setMonth(new Date().getMonth() - (11 - i))
-          ).toLocaleString("default", { month: "short" })
+          new Date(new Date().setMonth(new Date().getMonth() - (11 - i)))
+            .toLocaleString("default", { month: "short" })
         ),
         datasets: [
           {
             label: "Commits Per Month",
-            data: plainData,
+            data: [...props.data],
             borderColor: "rgba(75, 192, 192, 1)",
             backgroundColor: "rgba(75, 192, 192, 0.2)",
             fill: true,
@@ -87,14 +71,21 @@ const CommitHistoryChart = (props: CommitHistoryChartProps) => {
         },
       },
     });
-
-    // Trigger resize to ensure proper rendering
-    chartInstance.resize();
   });
 
+  // Update chart when data changes
+  createEffect(() => {
+    if (chartInstance && props.data) {
+      chartInstance.data.datasets[0].data = [...props.data];
+      chartInstance.update();
+    }
+  });
+
+  // Cleanup chart
   onCleanup(() => {
     if (chartInstance) {
       chartInstance.destroy();
+      chartInstance = null;
     }
   });
 
