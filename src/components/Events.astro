@@ -3,7 +3,7 @@ import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import eventsData from "../data/EventsData.json";
 
-const columns = 1;
+const columns = 2;
 const columned = Array.from({ length: columns }, (_, col) =>
   eventsData.filter((_, i) => i % columns === col)
 );
@@ -44,7 +44,11 @@ const columned = Array.from({ length: columns }, (_, col) =>
                   </div>
                   <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex flex-col justify-end p-4 pointer-events-none">
                     <span class="text-sm text-gray-300 mb-2">
-                      {item.date || "2023-09-01"}
+                      {new Date(item.date).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </span>
                     <h3 class="font-bold text-2xl text-white">{item.name}</h3>
                     <p class="text-base text-gray-200">{item.description}</p>

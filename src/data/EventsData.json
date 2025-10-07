@@ -3,8 +3,16 @@
     "name": "Swiss {ai} Weeks",
     "link": "https://swiss-ai-weeks.ch/",
     "description": "The first and largest AI event in Switzerland.",
-    "imageUrl": "/images/events/swiss-ai-weeks.png",
-    "hoverImageUrl": "/images/events/swiss-ai-weeks-hover.png",
-    "date": "2023-03-15"
+    "imageUrl": "/images/events/swiss-ai-weeks/swiss-ai-weeks.png",
+    "hoverImageUrl": "/images/events/swiss-ai-weeks/swiss-ai-weeks-hover.png",
+    "date": "2025-09-26"
+  },
+  {
+    "name": "DNN Connect",
+    "link": "https://dnncommunity.org/blogs/Post/20416/DNN-Connect-2025-Thank-you",
+    "description": "The yearly largest event for the DNN (DotNetNuke) community.",
+    "imageUrl": "/images/events/dnn-connect/dnn-connect.png",
+    "hoverImageUrl": "/images/events/dnn-connect/dnn-connect-hover.png",
+    "date": "2025-05-05"
   }
 ]
