@@ -14,5 +14,21 @@
     "imageUrl": "/images/events/swiss-ai-weeks/swiss-ai-weeks.png",
     "hoverImageUrl": "/images/events/swiss-ai-weeks/swiss-ai-weeks-hover.png",
     "date": "2025-09-26"
+  },
+  {
+    "name": "LieMudRun",
+    "link": "https://liemudrun.li/liemudrun-2025/",
+    "description": "The annual youth camp organized by TV Buchs SG.",
+    "imageUrl": "/images/events/liemudrun/liemudrun.png",
+    "hoverImageUrl": "/images/events/liemudrun/liemudrun-hover.png",
+    "date": "2025-09-20"
+  },
+  {
+    "name": "Jugilager",
+    "link": "https://tvbuchs-sg.ch/jugilager-sonntag-8/",
+    "description": "The annual youth camp organized by TV Buchs SG.",
+    "imageUrl": "/images/events/jugilager/jugilager.png",
+    "hoverImageUrl": "/images/events/jugilager/jugilager-hover.png",
+    "date": "2025-10-12"
   }
 ]

@@ -10,8 +10,8 @@ const sortedEvents = [...eventsData].sort((a, b) => {
   return tb - ta; // newest first
 });
 
-// Split into two columns (visual layout still controlled by Tailwind grid classes)
-const columns = 2;
+// Split into three columns (visual layout still controlled by Tailwind grid classes)
+const columns = 3;
 const columned = Array.from({ length: columns }, (_, col) =>
   sortedEvents.filter((_, i) => i % columns === col)
 );
@@ -24,7 +24,7 @@ const columned = Array.from({ length: columns }, (_, col) =>
       text="Here are some of the events I attended recently."
       link="#events"
     />
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       {
         columned.map((col, colIndex) => (
           <div>
@@ -50,7 +50,7 @@ const columned = Array.from({ length: columns }, (_, col) =>
                       />
                     )}
                   </div>
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex flex-col justify-end p-4 pointer-events-none">
+                  <div class="absolute inset-0 bg-gradient-to-tr from-black to-transparent flex flex-col justify-end p-4 pointer-events-none">
                     <span class="text-sm text-gray-300 mb-2">
                       {item.date
                         ? new Date(item.date).toLocaleDateString("en-US", {
