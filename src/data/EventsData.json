@@ -8,6 +8,14 @@
     "date": "2025-05-05"
   },
   {
+    "name": "ETF Lausanne",
+    "link": "https://dnncommunity.org/blogs/Post/20416/DNN-Connect-2025-Thank-you",
+    "description": "",
+    "imageUrl": "/images/events/etf/etf.png",
+    "hoverImageUrl": "/images/events/etf/etf-hover.png",
+    "date": "2025-06-20"
+  },
+  {
     "name": "Swiss {ai} Weeks",
     "link": "https://swiss-ai-weeks.ch/",
     "description": "The first and largest AI event in Switzerland.",

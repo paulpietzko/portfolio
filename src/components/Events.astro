@@ -4,71 +4,82 @@ import SubTitle from "./SubTitle.astro";
 import eventsData from "../data/EventsData.json";
 
 // Sort events newest-first, defensively handling missing/invalid dates
-const sortedEvents = [...eventsData].sort((a, b) => {
+const events = [...eventsData].sort((a, b) => {
   const ta = Number(new Date(a?.date)) || 0;
   const tb = Number(new Date(b?.date)) || 0;
   return tb - ta; // newest first
 });
 
+console.log("events:", events);
+
 // Split into three columns (visual layout still controlled by Tailwind grid classes)
-const columns = 3;
-const columned = Array.from({ length: columns }, (_, col) =>
-  sortedEvents.filter((_, i) => i % columns === col)
-);
 ---
 
-<div class="mb-[5rem] pt-16 overflow-x-hidden">
+<div class="mb-[5rem] pt-16">
   <Container size="xl">
     <SubTitle
       title="Events I attended"
       text="Here are some of the events I attended recently."
       link="#events"
     />
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {
-        columned.map((col, colIndex) => (
-          <div>
-            <div class="space-y-4">
-              {col.map((item, i) => (
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="group block rounded-lg overflow-hidden shadow hover:shadow-lg transition relative"
-                >
-                  <div class="relative overflow-hidden">
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      class="w-full h-auto transition-transform duration-1000 transform group-hover:scale-95"
-                    />
-                    {item.hoverImageUrl && (
-                      <img
-                        src={item.hoverImageUrl}
-                        alt={item.name}
-                        class="absolute top-0 left-0 w-full h-auto opacity-0 transition-all duration-1000 transform group-hover:opacity-100 group-hover:scale-105"
-                      />
-                    )}
-                  </div>
-                  <div class="absolute inset-0 bg-gradient-to-tr from-black to-transparent flex flex-col justify-end p-4 pointer-events-none">
-                    <span class="text-sm text-gray-300 mb-2">
-                      {item.date
-                        ? new Date(item.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })
-                        : ""}
-                    </span>
-                    <h3 class="font-bold text-2xl text-white">{item.name}</h3>
-                    <p class="text-base text-gray-200">{item.description}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        ))
-      }
-    </div>
   </Container>
+  <div
+    class="flex flex-row gap-4 overflow-x-auto scrollbar-hide px-4 sm:px-6 md:px-8 lg:px-[10rem]"
+  >
+    {
+      events.map((item) => (
+        <div>
+          <div class="space-y-4">
+            <a
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group block rounded-lg overflow-hidden shadow hover:shadow-lg transition relative"
+            >
+              <div class="relative overflow-hidden">
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  class="w-full h-auto transition-transform duration-1000 transform group-hover:scale-95"
+                />
+                {item.hoverImageUrl && (
+                  <img
+                    src={item.hoverImageUrl}
+                    alt={item.name}
+                    class="absolute top-0 left-0 w-full h-auto opacity-0 transition-all duration-1000 transform group-hover:opacity-100 group-hover:scale-105"
+                  />
+                )}
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-tr from-black to-transparent flex flex-col justify-end p-4 pointer-events-none">
+                <span class="text-sm text-gray-300 mb-2">
+                  {item.date
+                    ? new Date(item.date).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : ""}
+                </span>
+                <h3 class="font-bold text-2xl text-white">{item.name}</h3>
+                <p class="text-base text-gray-200">{item.description}</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      ))
+    }
+  </div>
 </div>
+
+<style>
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+</style>
