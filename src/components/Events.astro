@@ -9,10 +9,6 @@ const events = [...eventsData].sort((a, b) => {
   const tb = Number(new Date(b?.date)) || 0;
   return tb - ta; // newest first
 });
-
-console.log("events:", events);
-
-// Split into three columns (visual layout still controlled by Tailwind grid classes)
 ---
 
 <div class="mb-[5rem] pt-16">
@@ -28,7 +24,7 @@ console.log("events:", events);
   >
     {
       events.map((item) => (
-        <div>
+        <div class="w-80 flex-shrink-0">
           <div class="space-y-4">
             <a
               href={item.link}
@@ -46,7 +42,7 @@ console.log("events:", events);
                   <img
                     src={item.hoverImageUrl}
                     alt={item.name}
-                    class="absolute top-0 left-0 w-full h-auto opacity-0 transition-all duration-1000 transform group-hover:opacity-100 group-hover:scale-105"
+                    class="absolute top-0 left-0 w-full h-full object-cover opacity-0 transition-all duration-1000 transform group-hover:opacity-100 group-hover:scale-105"
                   />
                 )}
               </div>
