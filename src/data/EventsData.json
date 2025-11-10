@@ -9,11 +9,19 @@
   },
   {
     "name": "ETF Lausanne",
-    "link": "https://dnncommunity.org/blogs/Post/20416/DNN-Connect-2025-Thank-you",
+    "link": "https://tvbuchs-sg.ch/13-schlussrang-von-374-vereinen/",
     "description": "",
     "imageUrl": "/images/events/etf/etf.png",
     "hoverImageUrl": "/images/events/etf/etf-hover.png",
     "date": "2025-06-20"
+  },
+  {
+    "name": "EFZ Diplom Ceremony",
+    "link": "https://ict-berufsbildung-ost.ch/qvfeier-25/",
+    "description": "The graduation ceremony for Software Developer apprentices in Eastern Switzerland.",
+    "imageUrl": "/images/events/efz/efz.png",
+    "hoverImageUrl": "/images/events/efz/efz-hover.png",
+    "date": "2025-07-01"
   },
   {
     "name": "Swiss {ai} Weeks",
@@ -25,7 +33,7 @@
   },
   {
     "name": "LieMudRun",
-    "link": "https://liemudrun.li/liemudrun-2025/",
+    "link": "https://www.2sic.com/news/post/teamgeist-pur-2sic-rockt-den-liemudrun-2025",
     "description": "The annual youth camp organized by TV Buchs SG.",
     "imageUrl": "/images/events/liemudrun/liemudrun.png",
     "hoverImageUrl": "/images/events/liemudrun/liemudrun-hover.png",
@@ -38,5 +46,13 @@
     "imageUrl": "/images/events/jugilager/jugilager.png",
     "hoverImageUrl": "/images/events/jugilager/jugilager-hover.png",
     "date": "2025-10-12"
+  },
+  {
+    "name": "Refine",
+    "link": "https://www.flickr.com/photos/203855764@N08/albums/",
+    "description": "A festival with spirit where faith comes to life through music, workshops, and community.",
+    "imageUrl": "/images/events/refine/refine.png",
+    "hoverImageUrl": "/images/events/refine/refine-hover.png",
+    "date": "2025-11-01"
   }
 ]
