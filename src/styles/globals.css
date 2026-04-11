@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark-100: #0a0a0a;
+  --color-dark-200: #1A1A1A;
+  --color-dark-300: #262626;
+  --color-dark-400: #404040;
+  --color-dark-700: #4D4D4D;
+}
+
+/* === Base Styles === */
+@layer base {
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+}
