@@ -3,12 +3,6 @@ import { ClientRouter } from "astro:transitions";
 import '../styles/globals.css';
 ---
 
-<script>
-  import "nano-analytics";
-  import "nano-insights";
-  import { track } from "nano-custom";
-</script>
-
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -59,16 +53,6 @@ import '../styles/globals.css';
   </body>
 
   <ClientRouter />
-
-  <nano-analytics
-    projectKey="674ecacd44"
-  />
-  <nano-insights
-    projectKey="674ecacd44"
-  />
-  <nano-custom
-    projectKey="674ecacd44"
-  />
 </html>
 
 <style>
