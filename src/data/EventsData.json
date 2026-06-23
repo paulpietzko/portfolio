@@ -54,5 +54,13 @@
     "imageUrl": "/images/events/refine/refine.png",
     "hoverImageUrl": "/images/events/refine/refine-hover.png",
     "date": "2025-11-01"
+  },
+  {
+    "name": "Rekrutenschule",
+    "link": "https://www.instagram.com/infanterieschule_12/?hl=en",
+    "description": "Every swiss male above the age of 18 has to serve in the swiss army. During 18 weeks, the recruits are trained to become soldiers.",
+    "imageUrl": "/images/events/rekrutenschule/rekrutenschule.png",
+    "hoverImageUrl": "/images/events/rekrutenschule/rekrutenschule-hover.png",
+    "date": "2026-01-12"
   }
 ]
