@@ -14,18 +14,18 @@
     "bgColor": "bg-[rgba(255,255,255,0.1)]"
   },
   {
-    "name": "Astro",
-    "link": "https://astro.build",
-    "description": "Static site builder",
-    "imageUrl": "/images/logos/astro.svg",
-    "bgColor": "bg-[rgba(255,105,180,0.2)]"
+    "name": "PostgreSQL",
+    "link": "https://www.postgresql.org/",
+    "description": "Relational database",
+    "imageUrl": "/images/logos/postgres.svg",
+    "bgColor": "bg-[rgba(51,103,145,0.35)]"
   },
   {
-    "name": "ASP.NET Core",
-    "link": "https://learn.microsoft.com/aspnet/core/",
-    "description": "Cross-platform web framework for .NET",
-    "imageUrl": "/images/logos/aspnetcore.svg",
-    "bgColor": "bg-[rgba(108,66,156,0.3)]"
+    "name": "Go",
+    "link": "https://go.dev/",
+    "description": "Programming language",
+    "imageUrl": "/images/logos/go.svg",
+    "bgColor": "bg-[rgba(0,173,216,0.2)]"
   },
   {
     "name": "Java",
@@ -35,10 +35,10 @@
     "bgColor": "bg-[rgba(244,68,58,0.2)]"
   },
   {
-    "name": "TypeScript",
-    "link": "https://www.typescriptlang.org",
-    "description": "JavaScript but better",
-    "imageUrl": "/images/logos/typescript.svg",
-    "bgColor": "bg-[rgba(49,120,198,0.2)]"
+    "name": "SQL",
+    "link": "https://en.wikipedia.org/wiki/SQL",
+    "description": "Querying and shaping data",
+    "imageUrl": "/images/logos/sql.svg",
+    "bgColor": "bg-[rgba(224,179,65,0.2)]"
   }
 ]

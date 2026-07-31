@@ -115,11 +115,15 @@ const links = [
     transform: translate3d(0, -100%, 0);
   }
 
-  /* The whole bar is difference-blended against the page, so it flips from
-     white to black by itself when the timeline washes the page white. */
+  /* Colour is driven straight off the wash instead of mix-blend-mode: the
+     blend never picked up the fixed wash layer as its backdrop, so the bar
+     went invisible over the white timeline. color-mix is deterministic. */
   .site-nav__blend {
-    mix-blend-mode: difference;
-    color: #fff;
+    color: color-mix(
+      in oklab,
+      #fff,
+      var(--color-ink) calc(var(--wash) * 100%)
+    );
   }
 
   .wordmark {
@@ -202,7 +206,8 @@ const links = [
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: #fff;
+    /* Fills with the text colour, so the hover state inverts with the page */
+    background: currentColor;
     transform: scaleX(0);
     transform-origin: 0 50%;
     transition: transform var(--dur-mid) var(--ease-out-expo);
@@ -217,7 +222,11 @@ const links = [
   }
 
   .cta:hover > span {
-    color: #000;
+    color: color-mix(
+      in oklab,
+      var(--color-ink),
+      #fff calc(var(--wash) * 100%)
+    );
   }
 
   .burger {

@@ -104,9 +104,17 @@ const entries = timelineData;
 
   /* --- rail ------------------------------------------------------------- */
 
+  /* The rail paints above the entries so the big bullet covers each small
+     dot as it passes, instead of the dots showing through it. */
   .timeline__rail {
     position: relative;
+    z-index: 2;
     align-self: stretch;
+  }
+
+  .timeline__entries {
+    position: relative;
+    z-index: 1;
   }
 
   /* The line spans exactly from the first entry's dot to the end of the

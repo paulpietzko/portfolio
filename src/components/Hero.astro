@@ -41,7 +41,7 @@ const facts = [
   <Container size="xl">
     <div class="hero__inner" data-reveal-group="110">
       <p class="hero__eyebrow eyebrow" data-reveal="up">
-        <span class="hero__dot"></span> Full stack developer — available for work
+        Full stack developer — Switzerland
       </p>
 
       <h1 class="hero__name">
@@ -50,9 +50,8 @@ const facts = [
       </h1>
 
       <p class="hero__lede" data-reveal="up">
-        I build fast, considered web software — from Angular and .NET
-        line-of-business apps to my own devtool SaaS. {`${years} ${years === 1 ? "year" : "years"}`} in,
-        still shipping.
+        I build web software that holds up under real use — from Angular front
+        ends to Go services, plus a devtool SaaS of my own.
       </p>
 
       <dl class="hero__facts" data-reveal="up">
@@ -91,24 +90,29 @@ const facts = [
 
   .hero__media {
     position: absolute;
-    right: -10%;
-    bottom: -10%;
-    width: min(46rem, 88vw);
+    /* Sits flush in the corner rather than overhanging it: the mask below
+       reaches full transparency at the nearest edge, so the image can never
+       meet a viewport edge while still partly opaque — that was the hard
+       "cut-off" line. */
+    right: 0;
+    bottom: 0;
+    width: min(62rem, 96vw);
     aspect-ratio: 1;
-    opacity: 0.3;
-    /* Fades into the page without needing an overlay element on top */
+    opacity: 0.34;
+    /* `closest-side` ties the fade radius to the nearest edge, so the falloff
+       always completes inside the box no matter how it is sized. */
     -webkit-mask-image: radial-gradient(
-      75% 75% at 60% 40%,
-      #000 35%,
-      transparent 78%
+      circle closest-side at 50% 46%,
+      #000 58%,
+      transparent 100%
     );
     mask-image: radial-gradient(
-      75% 75% at 60% 40%,
-      #000 35%,
-      transparent 78%
+      circle closest-side at 50% 46%,
+      #000 58%,
+      transparent 100%
     );
-    transform: translate3d(0, calc(var(--p, 0) * 14vh), 0)
-      scale(calc(1 + var(--p, 0) * 0.08));
+    transform: translate3d(0, calc(var(--p, 0) * 12vh), 0)
+      scale(calc(1 + var(--p, 0) * 0.05));
     will-change: transform;
   }
 
@@ -147,24 +151,6 @@ const facts = [
     gap: 0.6rem;
     color: var(--fg-2);
     margin-bottom: clamp(1.25rem, 3vh, 2rem);
-  }
-
-  .hero__dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-accent-soft);
-    box-shadow: 0 0 0 0 rgb(10 207 131 / 0.5);
-    animation: pulse 2.4s var(--ease-out-quart) infinite;
-  }
-
-  @keyframes pulse {
-    70% {
-      box-shadow: 0 0 0 8px rgb(10 207 131 / 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgb(10 207 131 / 0);
-    }
   }
 
   .hero__name {
@@ -267,6 +253,18 @@ const facts = [
   @media (min-width: 1024px) {
     .hero__cue {
       display: flex;
+    }
+  }
+
+  /* On a phone the text is bottom-aligned, so the portrait moves into the
+     empty space above it rather than sitting behind the paragraph. */
+  @media (max-width: 767px) {
+    .hero__media {
+      top: 2%;
+      bottom: auto;
+      right: -12vw;
+      width: 118vw;
+      opacity: 0.26;
     }
   }
 </style>

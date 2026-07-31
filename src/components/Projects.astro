@@ -13,7 +13,7 @@ const projects = [
     role: "Founder · Design & engineering",
     text: "My own SaaS: a universal log parser and visualiser for developers, shipped as a desktop app for macOS and Windows.",
     stack: ["Desktop", "TypeScript", "Product"],
-    tilt: 8,
+    tilt: 13,
   },
   {
     link: "https://2sxc.org/en/",
@@ -24,7 +24,7 @@ const projects = [
     role: "Developer · 2sic internship",
     text: "A CMS for DNN and Oqtane built on the 1-second paradigm, where every interaction has to land in under a second. I contributed features across the stack.",
     stack: [".NET", "Razor", "TypeScript"],
-    tilt: -8,
+    tilt: -13,
   },
   {
     link: "https://school-sys.org/en/",
@@ -35,7 +35,7 @@ const projects = [
     role: "Final exam project",
     text: "A system helping daycares in Arusha and Cape Town teach with modern methods. I built the material management module end to end.",
     stack: ["Angular", "REST", "IPA"],
-    tilt: 8,
+    tilt: 13,
   },
 ];
 ---
@@ -49,43 +49,44 @@ const projects = [
       link="#work"
     />
 
-    <div class="projects__deck" data-reveal-group="120">
-      {
-        projects.map((project, i) => (
-          <ProjectCard {...project} index={i} />
-        ))
-      }
-    </div>
   </Container>
+
+  <!-- Outside the container on purpose: the deck runs the full screen width -->
+  <div class="projects__deck" data-reveal-group="120">
+    {projects.map((project, i) => <ProjectCard {...project} index={i} />)}
+  </div>
 </section>
 
 <style>
   .projects {
     padding-block: clamp(4rem, 9vh, 7rem);
-    overflow: clip;
+    /* Clips the deck's horizontal bleed without cropping the tilted corners */
+    overflow-x: clip;
   }
 
   .projects__deck {
     display: flex;
     flex-direction: column;
     gap: clamp(1.5rem, 3vw, 2.5rem);
-    padding-block: clamp(0.5rem, 2vh, 1.5rem);
+    padding: clamp(0.5rem, 2vh, 1.5rem) clamp(1rem, 4vw, 3rem);
   }
 
   @media (min-width: 768px) {
     .projects__deck {
       flex-direction: row;
       align-items: center;
-      gap: clamp(0.75rem, 1.5vw, 1.5rem);
-      /* Let the fan spill past the container — the cards are tilted anyway */
-      width: calc(100% + clamp(1rem, 5vw, 5rem));
-      margin-inline: calc(clamp(1rem, 5vw, 5rem) / -2);
+      gap: clamp(0.5rem, 1vw, 1rem);
+      /* Full screen width. Just enough inset that the tilt can push the
+         outer cards' corners off-screen without taking their titles with
+         them — the labels sit ~1.75rem inside each card. */
+      padding-inline: clamp(0.5rem, 1.5vw, 1.5rem);
+      margin-top: clamp(2rem, 6vh, 4rem);
     }
 
     /* Centre card sits proud of the other two */
     .projects__deck > :global(.project:nth-child(2)) {
       z-index: 2;
-      scale: 1.05;
+      scale: 1.08;
     }
   }
 </style>

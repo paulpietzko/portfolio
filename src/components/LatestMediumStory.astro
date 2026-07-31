@@ -166,7 +166,9 @@ const wordCount = Math.max(cursor, 1);
   .story__word {
     display: inline-block;
     color: #fff;
-    opacity: clamp(0.12, calc((var(--p, 1) * var(--n) - var(--i)) * 0.28), 1);
+    /* A steeper multiplier lights more words per unit of scroll, and the
+       floor keeps unlit text legible instead of nearly invisible. */
+    opacity: clamp(0.28, calc((var(--p, 1) * var(--n) - var(--i)) * 0.9), 1);
   }
 
   .story__more {
@@ -215,8 +217,10 @@ const wordCount = Math.max(cursor, 1);
     body.style.setProperty("--p", "0");
 
     return trackRect(body, (rect, vh) => {
-      // Filled by the time the block's bottom clears the upper third
-      const p = range(rect.top, vh * 0.82, vh * 0.4 - rect.height);
+      // Fully lit once the block's bottom reaches the lower third, so the
+      // text is readable while it is still on screen rather than only after
+      // most of it has scrolled past.
+      const p = range(rect.top, vh * 0.95, vh * 0.72 - rect.height);
       body.style.setProperty("--p", p.toFixed(4));
     });
   });

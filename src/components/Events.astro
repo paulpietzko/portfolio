@@ -2,6 +2,7 @@
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import eventsData from "../data/EventsData.json";
+import { aspectRatio } from "../utils/ImageSize";
 
 const events = [...eventsData].sort((a, b) => {
   const ta = Number(new Date(a?.date)) || 0;
@@ -10,36 +11,52 @@ const events = [...eventsData].sort((a, b) => {
 });
 
 /**
- * Pack the cards into fixed-height columns on the server, so the masonry is
- * deterministic instead of relying on flex column-wrap to guess. Each column
- * is worth ROWS units; the cycle deliberately mixes one full-height card,
- * a pair and a trio so columns don't all look alike — and so the rail ends
- * up wide enough to be worth travelling across.
+ * Card heights come from the images themselves, not a fixed pattern: each
+ * photo's real pixel ratio picks a row span whose slot has roughly the same
+ * shape, so a panorama gets a wide card and a portrait gets a tall one and
+ * `object-fit: cover` barely has to crop anything.
  */
 const ROWS = 6;
-const CYCLE = [6, 3, 3, 2, 2, 2];
 
-type Cell = { event: (typeof events)[number]; span: number };
-
-const columns: Cell[][] = [];
-let column: Cell[] = [];
-let used = 0;
-
-const closeColumn = () => {
-  if (!column.length) return;
-  column[column.length - 1].span += ROWS - used;
-  columns.push(column);
-  column = [];
-  used = 0;
+const spanFor = (imageUrl: string) => {
+  const ratio = aspectRatio(imageUrl);
+  if (ratio === null) return 3; // unknown file — take the middle option
+  if (ratio >= 2.0) return 2; // panorama
+  if (ratio >= 1.35) return 3; // landscape
+  if (ratio >= 0.95) return 4; // square-ish
+  return 6; // portrait
 };
 
-events.forEach((event, i) => {
-  const span = CYCLE[i % CYCLE.length];
-  if (used + span > ROWS) closeColumn();
-  column.push({ event, span });
-  used += span;
-});
-closeColumn();
+type Cell = { event: (typeof events)[number]; span: number; start?: number };
+
+const remaining = events.map((event) => ({ event, span: spanFor(event.imageUrl) }));
+const columns: Cell[][] = [];
+
+// First-fit with look-ahead: keeps roughly chronological order while still
+// filling each column, instead of stranding a lone card in the last one.
+while (remaining.length) {
+  const column: Cell[] = [];
+  let used = 0;
+
+  for (;;) {
+    const next = remaining.findIndex((cell) => used + cell.span <= ROWS);
+    if (next === -1) break;
+    const [cell] = remaining.splice(next, 1);
+    column.push(cell);
+    used += cell.span;
+  }
+
+  // A column that didn't fill sits centred rather than pinned to the top
+  if (used < ROWS && column.length) {
+    let row = Math.floor((ROWS - used) / 2) + 1;
+    for (const cell of column) {
+      cell.start = row;
+      row += cell.span;
+    }
+  }
+
+  columns.push(column);
+}
 
 const formatDate = (date: string) =>
   date
@@ -66,10 +83,10 @@ const formatDate = (date: string) =>
         {
           columns.map((cells) => (
             <div class="gallery__col">
-              {cells.map(({ event, span }) => (
+              {cells.map(({ event, span, start }) => (
                 <a
                   class="card"
-                  style={`--span:${span}`}
+                  style={`--span:${span};${start ? `--start:${start};` : ""}`}
                   href={event.link}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -119,36 +136,29 @@ const formatDate = (date: string) =>
 
   /* --- the scroll-driven track ----------------------------------------- */
 
-  .gallery {
-    /* Vertical scroll distance == horizontal travel, so the gallery moves
-       exactly as fast as the page does. --travel is measured in JS. */
-    height: calc(100svh + var(--travel, 0px));
-  }
-
+  /* No pinning and no viewport-height band — the gallery is a normal block
+     that happens to travel right-to-left as the page scrolls past it. */
   .gallery__stage {
-    position: sticky;
-    top: 0;
-    height: 100svh;
-    display: flex;
-    align-items: center;
     overflow: hidden;
   }
 
   .gallery__rail {
     display: flex;
     gap: clamp(0.75rem, 1.2vw, 1.25rem);
-    height: min(72svh, 40rem);
+    height: clamp(24rem, 62vh, 38rem);
     padding-inline: clamp(1rem, 5vw, 5rem);
     transform: translate3d(calc(var(--p, 0) * var(--travel, 0px) * -1), 0, 0);
     will-change: transform;
   }
 
+  /* Explicit row units, so every card's height is exactly its span
+     regardless of what else ended up in the column. */
   .gallery__col {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: repeat(6, minmax(0, 1fr));
     gap: clamp(0.75rem, 1.2vw, 1.25rem);
     flex: none;
-    width: clamp(15rem, 25vw, 22rem);
+    width: clamp(16rem, 28vw, 25rem);
     height: 100%;
   }
 
@@ -156,7 +166,7 @@ const formatDate = (date: string) =>
 
   .card {
     position: relative;
-    flex: var(--span, 2) 1 0;
+    grid-row: var(--start, auto) / span var(--span, 3);
     display: block;
     overflow: hidden;
     border-radius: 0.9rem;
@@ -256,13 +266,7 @@ const formatDate = (date: string) =>
   /* --- no pinning on small screens or with reduced motion --------------- */
 
   @media (max-width: 767px), (prefers-reduced-motion: reduce) {
-    .gallery {
-      height: auto;
-    }
-
     .gallery__stage {
-      position: static;
-      height: auto;
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scrollbar-width: none;
@@ -331,9 +335,13 @@ const formatDate = (date: string) =>
     );
     imagesReady.then(measure);
 
-    const stop = trackProgress(gallery, "pin", (p) =>
-      gallery.style.setProperty("--p", p.toFixed(4)),
-    );
+    // The travel now happens while the gallery crosses the viewport. Using
+    // the middle 70% of that window means the first and last cards are
+    // actually readable rather than only reachable at the extremes.
+    const stop = trackProgress(gallery, "cover", (p) => {
+      const eased = Math.min(Math.max((p - 0.15) / 0.7, 0), 1);
+      gallery.style.setProperty("--p", eased.toFixed(4));
+    });
 
     return () => {
       stop();

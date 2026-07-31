@@ -3,7 +3,7 @@ import Container from "../layouts/Container.astro";
 
 const socials = [
   {
-    name: "X",
+    name: "Twitter",
     href: "https://x.com/paulpietzko",
     label: "Follow Paul Pietzko on X",
     viewBox: "0 0 512 512",
@@ -42,11 +42,7 @@ const headline = "let’s connect"
 
 <footer class="footer">
   <Container size="xl">
-    <p class="footer__eyebrow eyebrow" data-reveal="up">
-      Currently open to new work
-    </p>
-
-    <h2 class="footer__title mask-line" aria-label="let’s connect">
+    <h2 class="footer__title mask-line" aria-label="let’s connect" data-fit>
       <span>
         {
           headline.map((word, w) => (
@@ -124,29 +120,23 @@ const headline = "let’s connect"
     padding-top: clamp(4rem, 12vh, 8rem);
   }
 
-  .footer__eyebrow {
-    display: inline-block;
-    margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
-    padding: 0.35rem 0.8rem;
-    border: 1px solid var(--hairline);
-    border-radius: 999px;
-    color: var(--fg-2);
-  }
-
+  /*
+   * The headline always spans the container exactly. --fit-size is measured
+   * in JS once the webfont has settled; the clamp is the pre-measurement
+   * fallback and what no-JS visitors get.
+   */
   .footer__title {
     font-family: var(--font-poster);
     font-weight: 400;
-    font-size: clamp(2.75rem, 13vw, 11rem);
+    font-size: var(--fit-size, clamp(2.75rem, 13vw, 11rem));
     line-height: 0.92;
     letter-spacing: -0.02em;
     color: var(--fg-1);
-    text-wrap: balance;
+    white-space: nowrap;
   }
 
-  /* Words are unbreakable; only the space between them may wrap */
   .footer__word {
     display: inline-block;
-    white-space: nowrap;
   }
 
   /* Each letter lifts on its own when you run the cursor across it */
@@ -252,3 +242,61 @@ const headline = "let’s connect"
     color: var(--fg-1);
   }
 </style>
+
+<script>
+  import { register } from "../scripts/motion";
+
+  register(() => {
+    const title = document.querySelector<HTMLElement>("[data-fit]");
+    if (!title) return;
+
+    const words = [
+      ...title.querySelectorAll<HTMLElement>(".footer__word"),
+    ];
+    if (!words.length) return;
+
+    /**
+     * Measures the words themselves rather than the heading box — the box is
+     * `overflow: hidden`, so its scrollWidth collapses to clientWidth as soon
+     * as the text fits and the ratio would always come back as 1.
+     *
+     * Text width scales linearly with font-size, so one probe gives the exact
+     * size that fills the container; a second pass mops up rounding.
+     */
+    const fit = () => {
+      for (let pass = 0; pass < 2; pass++) {
+        const probe = pass === 0 ? 100 : parseFloat(title.style.fontSize) || 100;
+        title.style.fontSize = `${probe}px`;
+
+        const left = words[0].getBoundingClientRect().left;
+        const right = words[words.length - 1].getBoundingClientRect().right;
+        const natural = right - left;
+        const available = title.clientWidth;
+        if (natural <= 0 || available <= 0) return;
+
+        const next = (probe * available) / natural;
+        if (!Number.isFinite(next) || next <= 0) return;
+        title.style.fontSize = `${next}px`;
+      }
+    };
+
+    fit();
+    // The webfont changes the metrics, so measure again once it has loaded
+    document.fonts?.ready.then(fit);
+
+    let frame = 0;
+    const onResize = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        fit();
+      });
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(frame);
+    };
+  });
+</script>

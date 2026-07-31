@@ -20,7 +20,7 @@ const skills = skillsData as SkillType[];
     <SubTitle
       index="02"
       title="My techstack"
-      text="The tools I reach for first. Frameworks come and go — most of this is really just TypeScript and C# wearing different hats."
+      text="The tools I reach for first. Frameworks come and go — most of the work is the same two things underneath: shaping data, and getting it on screen fast."
       link="#stack"
     />
 
@@ -35,10 +35,23 @@ const skills = skillsData as SkillType[];
     padding-block: clamp(4rem, 9vh, 7rem);
   }
 
+  /* Always three columns at desktop, never four */
   .skills__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    grid-template-columns: 1fr;
     gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  }
+
+  @media (min-width: 640px) {
+    .skills__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .skills__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 </style>
 
