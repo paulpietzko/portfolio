@@ -2,46 +2,106 @@
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import ProjectCard from "./ProjectCard.astro";
+
+const projects = [
+  {
+    link: "https://www.logier.dev",
+    imgSrc: "/images/logier.png",
+    imgAlt: "Logier devtool desktop app",
+    title: "Logier",
+    year: "2025",
+    role: "Founder · Design & engineering",
+    text: "My own SaaS: a universal log parser and visualiser for developers, shipped as a desktop app for macOS and Windows.",
+    stack: ["Desktop", "TypeScript", "Product"],
+    tilt: 8,
+  },
+  {
+    link: "https://2sxc.org/en/",
+    imgSrc: "/images/2sxc.png",
+    imgAlt: "2sxc content management system",
+    title: "2sxc",
+    year: "2024–25",
+    role: "Developer · 2sic internship",
+    text: "A CMS for DNN and Oqtane built on the 1-second paradigm, where every interaction has to land in under a second. I contributed features across the stack.",
+    stack: [".NET", "Razor", "TypeScript"],
+    tilt: -8,
+  },
+  {
+    link: "https://school-sys.org/en/",
+    imgSrc: "/images/school-sys.png",
+    imgAlt: "SchoolSys education platform",
+    title: "SchoolSys",
+    year: "2025",
+    role: "Final exam project",
+    text: "A system helping daycares in Arusha and Cape Town teach with modern methods. I built the material management module end to end.",
+    stack: ["Angular", "REST", "IPA"],
+    tilt: 8,
+  },
+];
 ---
 
-<div class="mb-[5rem] pt-16 overflow-x-hidden">
+<section class="projects" id="work" data-projects>
   <Container size="xl">
     <SubTitle
+      index="01"
       title="Projects I work on"
-      text="Here are some of the projects I worked on in the past."
-      link="#projects"
+      text="A product of my own, a CMS used by thousands of sites, and a system for daycares two continents away."
+      link="#work"
     />
+
+    <div class="projects__deck" data-reveal-group="120">
+      {
+        projects.map((project, i) => (
+          <ProjectCard {...project} index={i} />
+        ))
+      }
+    </div>
   </Container>
+</section>
 
-  <section class="flex flex-col md:flex-row justify-between my-[6rem]">
-    <!-- Left Card -->
-    <ProjectCard
-      link="https://www.logier.dev"
-      imgSrc="/images/logier.png"
-      imgAlt="Logier.dev"
-      title="Logier Devtool Desktop App"
-      text="My own Saas: A universal log parser/ visiualizer for developers. It's a desktop application for both Windows and MacOS."
-      extraClasses="rotate-12 -ml-8 scale-110"
-    />
+<style>
+  .projects {
+    padding-block: clamp(4rem, 9vh, 7rem);
+    overflow: clip;
+  }
 
-    <!-- Center Card -->
-    <ProjectCard
-      link="https://2sxc.org/en/"
-      imgSrc="/images/2sxc.png"
-      imgAlt="2sxc"
-      title="2sxc CMS"
-      text="2sxc is revolutionizing content management on DNN and Oqtane with the 1-second-paradigm. Every interaction takes less than 1 second. As part of an internship, I contributed to the development of this CMS."
-      extraClasses="-rotate-12 scale-110"
-    />
+  .projects__deck {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding-block: clamp(0.5rem, 2vh, 1.5rem);
+  }
 
-    <!-- Right Card -->
-    <ProjectCard
-      link="https://school-sys.org/en/"
-      imgSrc="/images/school-sys.png"
-      imgAlt="SchoolSys"
-      title="Swiss School System"
-      text="SchoolSys is a system designed to help daycares in Arusha (Tanzania) and Cape Town (South Africa) teach children using modern methods to empower young children. For my final exam project, I developed material management system for the App."
-      extraClasses="rotate-12 -mr-8 scale-110"
-    />
-  </section>
-</div>
+  @media (min-width: 768px) {
+    .projects__deck {
+      flex-direction: row;
+      align-items: center;
+      gap: clamp(0.75rem, 1.5vw, 1.5rem);
+      /* Let the fan spill past the container — the cards are tilted anyway */
+      width: calc(100% + clamp(1rem, 5vw, 5rem));
+      margin-inline: calc(clamp(1rem, 5vw, 5rem) / -2);
+    }
+
+    /* Centre card sits proud of the other two */
+    .projects__deck > :global(.project:nth-child(2)) {
+      z-index: 2;
+      scale: 1.05;
+    }
+  }
+</style>
+
+<script>
+  import { register, trackProgress } from "../scripts/motion";
+
+  register(() => {
+    const section = document.querySelector<HTMLElement>("[data-projects]");
+    if (!section) return;
+
+    // 0 at the edges of the viewport, 1 when the section sits dead centre —
+    // the cards fan open on the way in and fold back on the way out.
+    return trackProgress(section, "cover", (p) => {
+      const settle = 1 - Math.abs(p - 0.5) * 2;
+      section.style.setProperty("--settle", Math.max(settle, 0).toFixed(4));
+    });
+  });
+</script>

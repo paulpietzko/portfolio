@@ -1,14 +1,126 @@
 ---
 import Container from "../../layouts/Container.astro";
 import Layout from "../../layouts/Layout.astro";
+
+const socials = [
+  { label: "GitHub", handle: "@paulpietzko", href: "https://github.com/paulpietzko" },
+  {
+    label: "LinkedIn",
+    handle: "in/paulpietzko",
+    href: "https://www.linkedin.com/in/paulpietzko/",
+  },
+  { label: "X", handle: "@paulpietzko", href: "https://x.com/paulpietzko" },
+  { label: "Medium", handle: "@paul.pietzko", href: "https://medium.com/@paul.pietzko" },
+  {
+    label: "Email",
+    handle: "paul.pietzko@icloud.com",
+    href: "mailto:paul.pietzko@icloud.com",
+  },
+];
 ---
 
-<Layout>
-  <Container size="xl">
-    <ul>
-      <li><a href="https://github.com/paulpietzko">GitHub</a></li>
-      <li><a href="https://www.linkedin.com/in/paulpietzko/">LinkedIn</a></li>
-      <li><a href="https://x.com/paulpietzko">X</a></li>
-    </ul>
-  </Container>
+<Layout
+  title="Socials | Paul Pietzko"
+  description="Every place you can find Paul Pietzko online."
+>
+  <main class="socials">
+    <Container size="sm">
+      <a class="socials__back" href="/">← paulpietzko.com</a>
+      <h1 class="socials__title mask-line"><span>Find me</span></h1>
+
+      <ul class="socials__list" data-reveal-group="70">
+        {
+          socials.map((social) => (
+            <li data-reveal="up">
+              <a href={social.href} target="_blank" rel="noopener noreferrer">
+                <span class="socials__label">{social.label}</span>
+                <span class="socials__handle">{social.handle}</span>
+                <span class="socials__arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </main>
 </Layout>
+
+<style>
+  .socials {
+    display: grid;
+    align-content: center;
+    min-height: 100svh;
+    padding-block: clamp(3rem, 10vh, 6rem);
+  }
+
+  .socials__back {
+    display: inline-block;
+    margin-bottom: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-3);
+    transition: color var(--dur-fast) ease;
+  }
+
+  .socials__back:hover {
+    color: var(--fg-1);
+  }
+
+  .socials__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 9vw, 5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--fg-1);
+    margin-bottom: 2.5rem;
+  }
+
+  .socials__list {
+    list-style: none;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .socials__list a {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 1.15rem;
+    border-bottom: 1px solid var(--hairline);
+    transition: padding-left var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .socials__list a:hover {
+    padding-left: 0.7rem;
+  }
+
+  .socials__label {
+    flex: none;
+    width: 7rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--fg-1);
+  }
+
+  .socials__handle {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-3);
+  }
+
+  .socials__arrow {
+    color: var(--color-accent);
+    opacity: 0;
+    translate: -4px 4px;
+    transition:
+      opacity var(--dur-mid) var(--ease-out-quart),
+      translate var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .socials__list a:hover .socials__arrow {
+    opacity: 1;
+    translate: 0 0;
+  }
+</style>

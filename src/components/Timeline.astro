@@ -1,0 +1,390 @@
+---
+import Container from "../layouts/Container.astro";
+import SubTitle from "./SubTitle.astro";
+import timelineData from "../data/TimelineData.json";
+
+// Entries are authored oldest-first in src/data/TimelineData.json.
+const entries = timelineData;
+---
+
+<section class="timeline" id="path" data-timeline>
+  <Container size="xl">
+    <div class="timeline__intro">
+      <SubTitle
+        index="03"
+        title="How I got here"
+        text="Apprenticeship, first real codebase, a diploma, a product of my own. The short version, in order."
+        link="#path"
+      />
+    </div>
+
+    <div class="timeline__track">
+      <!-- The rail: line, progress fill, and the bullet that sticks to the
+           middle of the viewport and re-labels itself per entry. -->
+      <div class="timeline__rail" aria-hidden="true">
+        <span class="timeline__line"></span>
+        <span class="timeline__fill"></span>
+
+        <!-- Bounds the sticky bullet to exactly the run of the line, so it
+             can never drift off the end of the rail. -->
+        <div class="timeline__zone">
+          <div class="timeline__slot">
+            <div class="timeline__bullet">
+              <span class="timeline__ring"></span>
+              <span class="timeline__reel">
+                {entries.map((entry) => <span>{entry.year}</span>)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ol class="timeline__entries">
+        {
+          entries.map((entry, i) => (
+            <li
+              class="tl-entry"
+              data-entry={i}
+              style={`--accent:${entry.accent}`}
+            >
+              <p class="tl-entry__when eyebrow">{entry.when}</p>
+              <h3 class="tl-entry__title">{entry.title}</h3>
+              <p class="tl-entry__org">{entry.org}</p>
+              <p class="tl-entry__body">{entry.description}</p>
+              <ul class="tl-entry__tags">
+                {entry.tags.map((tag) => (
+                  <li>{tag}</li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </Container>
+</section>
+
+<style>
+  .timeline {
+    /* The wash turns the page white behind this section, so the whole
+       foreground scale flips to ink for everything nested inside. */
+    --fg-1: #0a0a0a;
+    --fg-2: #57534e;
+    --fg-3: #a8a29e;
+    --hairline: rgb(10 10 10 / 0.13);
+
+    --bullet: clamp(3.5rem, 11vw, 8rem);
+    --rail: var(--bullet);
+    --gutter: clamp(1.25rem, 4vw, 3.5rem);
+    /* Space the rail keeps running past the last entry so the bullet has
+       somewhere to land */
+    --tail: 20svh;
+
+    position: relative;
+    color: var(--fg-2);
+    /* Lead-in and run-out so the page is fully white before any ink text
+       shows, and fully dark again before the next section arrives. */
+    padding-block: clamp(9rem, 26vh, 16rem) clamp(12rem, 34vh, 22rem);
+  }
+
+  .timeline__intro {
+    max-width: 46rem;
+    margin-bottom: clamp(3rem, 10vh, 7rem);
+  }
+
+  .timeline__track {
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    column-gap: var(--gutter);
+    align-items: start;
+    /* Keeps the rail and the text as one optical block instead of stranding
+       the entries against a wide empty right margin */
+    max-width: 64rem;
+  }
+
+  /* --- rail ------------------------------------------------------------- */
+
+  .timeline__rail {
+    position: relative;
+    align-self: stretch;
+  }
+
+  /* The line spans exactly from the first entry's dot to the end of the
+     tail, so the fill and the bullet share one coordinate system. */
+  .timeline__line,
+  .timeline__fill {
+    position: absolute;
+    left: 50%;
+    top: 0.45rem;
+    bottom: var(--tail);
+    width: 1px;
+    translate: -50% 0;
+  }
+
+  .timeline__line {
+    background: var(--hairline);
+  }
+
+  .timeline__fill {
+    background: var(--accent, #0a0a0a);
+    transform: scaleY(var(--p, 0));
+    transform-origin: 50% 0;
+    transition: background-color var(--dur-slow) var(--ease-out-quart);
+  }
+
+  /* Same top and bottom edges as .timeline__line */
+  .timeline__zone {
+    position: absolute;
+    inset: 0.45rem 0 var(--tail) 0;
+  }
+
+  .timeline__slot {
+    position: sticky;
+    /* Parks the bullet's centre on the middle of the viewport */
+    top: calc(50svh - var(--bullet) / 2);
+    height: var(--bullet);
+  }
+
+  .timeline__bullet {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--bullet);
+    height: var(--bullet);
+    border-radius: 50%;
+    background: var(--accent, #0a0a0a);
+    color: #fff;
+    box-shadow: 0 1.5rem 3rem -1rem rgb(10 10 10 / 0.35);
+    transition:
+      background-color var(--dur-slow) var(--ease-out-quart),
+      scale var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .timeline__bullet.is-stepping {
+    scale: 1.07;
+  }
+
+  /* Ring showing progress through the whole timeline */
+  .timeline__ring {
+    position: absolute;
+    /* Scaled off the bullet so the ring never overhangs the screen edge
+       on narrow viewports */
+    inset: calc(var(--bullet) * -0.09);
+    border-radius: 50%;
+    background: conic-gradient(
+      from -90deg,
+      var(--accent, #0a0a0a) calc(var(--p, 0) * 360deg),
+      rgb(10 10 10 / 0.12) 0
+    );
+    -webkit-mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 2px),
+      #000 calc(100% - 2px)
+    );
+    mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 2px),
+      #000 calc(100% - 2px)
+    );
+  }
+
+  /* Year reel — one label per entry, slid into place */
+  .timeline__reel {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  .timeline__reel > span {
+    display: grid;
+    place-items: center;
+    height: var(--bullet);
+    font-family: var(--font-mono);
+    font-size: clamp(0.6rem, 1.5vw, 1.05rem);
+    letter-spacing: 0.02em;
+    translate: 0 calc(var(--active, 0) * -100%);
+    transition: translate var(--dur-slow) var(--ease-in-out-quint);
+  }
+
+  /* --- entries ---------------------------------------------------------- */
+
+  .timeline__entries {
+    display: grid;
+    gap: clamp(5rem, 22vh, 14rem);
+    padding-bottom: var(--tail);
+    list-style: none;
+  }
+
+  .tl-entry {
+    position: relative;
+    max-width: 40rem;
+    opacity: 0.32;
+    transition:
+      opacity var(--dur-slow) var(--ease-out-quart),
+      translate var(--dur-slow) var(--ease-out-expo);
+    translate: 0 0.75rem;
+  }
+
+  .tl-entry[data-active] {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  /* The dot on the rail, positioned back onto the line by exact geometry */
+  .tl-entry::before {
+    content: "";
+    position: absolute;
+    top: 0.45rem;
+    left: calc(-1 * (var(--gutter) + var(--rail) / 2));
+    width: 9px;
+    height: 9px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: var(--color-paper);
+    box-shadow: inset 0 0 0 1px var(--fg-3);
+    transition:
+      box-shadow var(--dur-mid) var(--ease-out-quart),
+      scale var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .tl-entry[data-active]::before {
+    background: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+    scale: 1.35;
+  }
+
+  .tl-entry__when {
+    color: var(--accent);
+    margin-bottom: 0.9rem;
+  }
+
+  .tl-entry__title {
+    font-size: clamp(1.5rem, 3.2vw, 2.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    color: var(--fg-1);
+  }
+
+  .tl-entry__org {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--fg-3);
+  }
+
+  .tl-entry__body {
+    margin-top: 1.1rem;
+    font-size: clamp(0.95rem, 1.4vw, 1.0625rem);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .tl-entry__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+    list-style: none;
+  }
+
+  .tl-entry__tags li {
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-2);
+  }
+
+  @media (max-width: 640px) {
+    .timeline__entries {
+      gap: 4.5rem;
+    }
+    .tl-entry {
+      opacity: 0.55;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-entry {
+      opacity: 1;
+      translate: none;
+    }
+  }
+</style>
+
+<script>
+  import { register, trackRect, range, clamp } from "../scripts/motion";
+
+  register(() => {
+    const section = document.querySelector<HTMLElement>("[data-timeline]");
+    if (!section) return;
+
+    const root = document.documentElement;
+    const line = section.querySelector<HTMLElement>(".timeline__line");
+    const bullet = section.querySelector<HTMLElement>(".timeline__bullet");
+    const entries = [
+      ...section.querySelectorAll<HTMLElement>("[data-entry]"),
+    ];
+    if (!line || !bullet || !entries.length) return;
+
+    let active = -1;
+    let stepTimer = 0;
+
+    const setActive = (next: number) => {
+      if (next === active) return;
+      active = next;
+      const entry = entries[next];
+
+      entries.forEach((el, i) =>
+        el.toggleAttribute("data-active", i <= next),
+      );
+
+      section.style.setProperty("--active", String(Math.max(next, 0)));
+      section.style.setProperty(
+        "--accent",
+        getComputedStyle(entry ?? entries[0]).getPropertyValue("--accent"),
+      );
+
+      // Small pop so the change reads as a step, not a fade
+      bullet.classList.add("is-stepping");
+      window.clearTimeout(stepTimer);
+      stepTimer = window.setTimeout(
+        () => bullet.classList.remove("is-stepping"),
+        260,
+      );
+    };
+
+    const stop = trackRect(section, (rect, vh) => {
+      /* The page finishes turning white exactly as the section's top edge
+         reaches the top of the viewport — the section's own lead-in padding
+         keeps the ink text below the fold until then. */
+      const fadeIn = range(rect.top, vh * 0.55, vh * 0.05);
+      const fadeOut = range(rect.bottom, 0, vh * 0.5);
+      root.style.setProperty("--wash", Math.min(fadeIn, fadeOut).toFixed(4));
+
+      /* Rail fill runs down to wherever the sticky bullet is parked. The
+         line and the bullet share a coordinate system, so this is exact. */
+      const lineRect = line.getBoundingClientRect();
+      const mid = vh / 2;
+      const p = clamp((mid - lineRect.top) / (lineRect.height || 1));
+      section.style.setProperty("--p", p.toFixed(4));
+
+      /* The active entry is the last one whose top has passed the middle. */
+      let next = 0;
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].getBoundingClientRect().top <= mid + 24) next = i;
+        else break;
+      }
+      setActive(next);
+    });
+
+    return () => {
+      stop();
+      window.clearTimeout(stepTimer);
+      root.style.setProperty("--wash", "0");
+    };
+  });
+</script>

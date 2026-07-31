@@ -1,28 +1,234 @@
 ---
-const { link, imgSrc, imgAlt, title, text, extraClasses = "" } = Astro.props;
+interface Props {
+  link: string;
+  imgSrc: string;
+  imgAlt: string;
+  title: string;
+  text: string;
+  role?: string;
+  year?: string;
+  stack?: string[];
+  /** Resting tilt in degrees; straightens as the card reaches the viewport centre. */
+  tilt?: number;
+  index?: number;
+}
+
+const {
+  link,
+  imgSrc,
+  imgAlt,
+  title,
+  text,
+  role,
+  year,
+  stack = [],
+  tilt = 0,
+  index = 0,
+} = Astro.props;
 ---
 
 <a
+  class="project"
   href={link}
-  onclick="track('ProjectClick',
-  {
-    label: title,
-  })"
-  class={`relative group overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl shadow-md ${extraClasses}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  style={`--rot:${tilt}deg; --i:${index}`}
+  data-reveal="scale"
 >
-  <!-- Project Image -->
-  <img
-    src={imgSrc}
-    alt={imgAlt}
-    class="h-full w-full rounded-xl sm:rounded-2xl md:rounded-3xl transition-transform duration-300 group-hover:scale-105"
-  />
+  <div class="project__frame">
+    <img src={imgSrc} alt={imgAlt} loading="lazy" decoding="async" />
 
-  <!-- Hover Overlay -->
-  <div
-    class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity
-           flex flex-col justify-center items-center text-white p-4"
-  >
-    <h3 class="text-xl font-bold">{title}</h3>
-    <p class="mt-2 text-center max-w-sm">{text}</p>
+    <div class="project__scrim"></div>
+
+    <div class="project__meta">
+      <div class="project__heading">
+        <h3>{title}</h3>
+        {year && <span class="eyebrow">{year}</span>}
+      </div>
+      {role && <p class="project__role">{role}</p>}
+      <p class="project__text">{text}</p>
+      {
+        stack.length > 0 && (
+          <ul class="project__stack">
+            {stack.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    <span class="project__arrow" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="16" height="16">
+        <path
+          d="M7 17L17 7M17 7H8M17 7v9"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </span>
   </div>
 </a>
+
+<style>
+  .project {
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+    /* Fanned at rest, straightening as the section settles in the middle
+       of the viewport. --settle is written by Projects.astro. */
+    rotate: calc(var(--rot) * (1 - var(--settle, 0)));
+    translate: 0 calc((1 - var(--settle, 0)) * 1.5rem);
+    transition:
+      rotate var(--dur-mid) var(--ease-out-quart),
+      translate var(--dur-mid) var(--ease-out-quart);
+  }
+
+  .project__frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: clamp(0.75rem, 1.4vw, 1.25rem);
+    aspect-ratio: 16 / 11;
+    background: var(--color-dark-200);
+    box-shadow: 0 1.5rem 3.5rem -1.5rem rgb(0 0 0 / 0.9);
+    isolation: isolate;
+    transition: box-shadow var(--dur-slow) var(--ease-out-quart);
+  }
+
+  .project:hover .project__frame {
+    box-shadow: 0 2rem 4.5rem -1.5rem rgb(0 0 0 / 1);
+  }
+
+  .project__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    scale: 1.02;
+    transition:
+      scale var(--dur-xslow) var(--ease-out-expo),
+      filter var(--dur-slow) var(--ease-out-quart);
+  }
+
+  .project:hover img {
+    scale: 1.08;
+    filter: saturate(0.75) brightness(0.6);
+  }
+
+  .project__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgb(0 0 0 / 0.94) 0%,
+      rgb(0 0 0 / 0.75) 28%,
+      rgb(0 0 0 / 0.3) 55%,
+      rgb(0 0 0 / 0) 85%
+    );
+  }
+
+  .project__meta {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: clamp(1rem, 2vw, 1.75rem);
+    color: #fff;
+  }
+
+  .project__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .project__heading h3 {
+    font-size: clamp(1.05rem, 1.7vw, 1.4rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  .project__heading .eyebrow {
+    color: var(--color-accent);
+    flex: none;
+  }
+
+  .project__role {
+    margin-top: 0.35rem;
+    font-size: 0.8125rem;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  /* Description and stack stay folded away until hover */
+  .project__text,
+  .project__stack {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition:
+      max-height var(--dur-slow) var(--ease-out-expo),
+      opacity var(--dur-mid) var(--ease-out-quart),
+      margin-top var(--dur-slow) var(--ease-out-expo);
+  }
+
+  .project__text {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: rgb(255 255 255 / 0.78);
+  }
+
+  .project__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+  }
+
+  .project__stack li {
+    padding: 0.2rem 0.55rem;
+    border: 1px solid rgb(255 255 255 / 0.25);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  .project:hover .project__text,
+  .project:focus-visible .project__text {
+    max-height: 9rem;
+    opacity: 1;
+    margin-top: 0.85rem;
+  }
+
+  .project:hover .project__stack,
+  .project:focus-visible .project__stack {
+    max-height: 4rem;
+    opacity: 1;
+    margin-top: 0.9rem;
+  }
+
+  .project__arrow {
+    position: absolute;
+    top: clamp(0.75rem, 1.5vw, 1.25rem);
+    right: clamp(0.75rem, 1.5vw, 1.25rem);
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-ink);
+    scale: 0;
+    rotate: -35deg;
+    transition:
+      scale var(--dur-mid) var(--ease-out-expo),
+      rotate var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .project:hover .project__arrow,
+  .project:focus-visible .project__arrow {
+    scale: 1;
+    rotate: 0deg;
+  }
+</style>

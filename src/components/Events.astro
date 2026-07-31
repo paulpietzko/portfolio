@@ -3,86 +3,341 @@ import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import eventsData from "../data/EventsData.json";
 
-// Sort events newest-first, defensively handling missing/invalid dates
 const events = [...eventsData].sort((a, b) => {
   const ta = Number(new Date(a?.date)) || 0;
   const tb = Number(new Date(b?.date)) || 0;
   return tb - ta; // newest first
 });
+
+/**
+ * Pack the cards into fixed-height columns on the server, so the masonry is
+ * deterministic instead of relying on flex column-wrap to guess. Each column
+ * is worth ROWS units; the cycle deliberately mixes one full-height card,
+ * a pair and a trio so columns don't all look alike — and so the rail ends
+ * up wide enough to be worth travelling across.
+ */
+const ROWS = 6;
+const CYCLE = [6, 3, 3, 2, 2, 2];
+
+type Cell = { event: (typeof events)[number]; span: number };
+
+const columns: Cell[][] = [];
+let column: Cell[] = [];
+let used = 0;
+
+const closeColumn = () => {
+  if (!column.length) return;
+  column[column.length - 1].span += ROWS - used;
+  columns.push(column);
+  column = [];
+  used = 0;
+};
+
+events.forEach((event, i) => {
+  const span = CYCLE[i % CYCLE.length];
+  if (used + span > ROWS) closeColumn();
+  column.push({ event, span });
+  used += span;
+});
+closeColumn();
+
+const formatDate = (date: string) =>
+  date
+    ? new Date(date).toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      })
+    : "";
 ---
 
-<div class="mb-[5rem] pt-16">
+<section class="events" id="events">
   <Container size="xl">
     <SubTitle
-      title="Events I attended"
-      text="Here are some of the events I attended recently."
+      index="04"
+      title="Places I turned up"
+      text="Conferences, ceremonies, a mud run and eighteen weeks of military service. Scroll on — the gallery moves with you."
       link="#events"
     />
   </Container>
 
-  {/* Masonry Container */}
-  <div
-    class="flex flex-col flex-wrap content-start gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide px-4 sm:px-6 md:px-8 lg:px-[10rem] h-[700px]"
-  >
-    {
-      events.map((item) => (
-        <div class="w-80 flex-none mb-4 mr-4">
-          <div class="space-y-4 h-full">
-            <a
-              href={item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="group block rounded-lg overflow-hidden shadow hover:shadow-lg transition relative h-full"
-            >
-              <div class="relative overflow-hidden bg-dark-200">
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  class="w-full h-auto object-cover transition-transform duration-1000 transform group-hover:scale-95"
-                />
-                {item.hoverImageUrl && (
-                  <img
-                    src={item.hoverImageUrl}
-                    alt={item.name}
-                    class="absolute top-0 left-0 w-full h-full object-cover opacity-0 transition-all duration-1000 transform group-hover:opacity-100 group-hover:scale-105"
-                  />
-                )}
-              </div>
-              <div class="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4 pointer-events-none">
-                <span class="text-sm text-gray-300 mb-2">
-                  {item.date
-                    ? new Date(item.date).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : ""}
-                </span>
-                <h3 class="font-bold text-2xl text-white">{item.name}</h3>
-                <p class="text-base text-gray-200 line-clamp-3">
-                  {item.description}
-                </p>
-              </div>
-            </a>
-          </div>
-        </div>
-      ))
-    }
+  <div class="gallery" data-gallery>
+    <div class="gallery__stage">
+      <div class="gallery__rail" data-rail>
+        {
+          columns.map((cells) => (
+            <div class="gallery__col">
+              {cells.map(({ event, span }) => (
+                <a
+                  class="card"
+                  style={`--span:${span}`}
+                  href={event.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div class="card__media">
+                    <img
+                      src={event.imageUrl}
+                      alt={event.name}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {event.hoverImageUrl && (
+                      <img
+                        class="card__media-hover"
+                        src={event.hoverImageUrl}
+                        alt=""
+                        aria-hidden="true"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                  </div>
 
-    {/* Spacer to preserve right padding on horizontal scroll */}
-    <div class="w-4 sm:w-6 md:w-8 lg:w-[10rem] h-full flex-none"></div>
+                  <div class="card__body">
+                    <span class="card__date eyebrow">
+                      {formatDate(event.date)}
+                    </span>
+                    <h3 class="card__title">{event.name}</h3>
+                    {event.description && (
+                      <p class="card__text">{event.description}</p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
 <style>
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  .events {
+    padding-block: clamp(4rem, 9vh, 7rem) clamp(5rem, 13vh, 9rem);
   }
 
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+  /* --- the scroll-driven track ----------------------------------------- */
+
+  .gallery {
+    /* Vertical scroll distance == horizontal travel, so the gallery moves
+       exactly as fast as the page does. --travel is measured in JS. */
+    height: calc(100svh + var(--travel, 0px));
+  }
+
+  .gallery__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .gallery__rail {
+    display: flex;
+    gap: clamp(0.75rem, 1.2vw, 1.25rem);
+    height: min(72svh, 40rem);
+    padding-inline: clamp(1rem, 5vw, 5rem);
+    transform: translate3d(calc(var(--p, 0) * var(--travel, 0px) * -1), 0, 0);
+    will-change: transform;
+  }
+
+  .gallery__col {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.75rem, 1.2vw, 1.25rem);
+    flex: none;
+    width: clamp(15rem, 25vw, 22rem);
+    height: 100%;
+  }
+
+  /* --- cards ------------------------------------------------------------ */
+
+  .card {
+    position: relative;
+    flex: var(--span, 2) 1 0;
+    display: block;
+    overflow: hidden;
+    border-radius: 0.9rem;
+    background: var(--color-dark-200);
+    isolation: isolate;
+  }
+
+  .card__media {
+    position: absolute;
+    inset: 0;
+  }
+
+  .card__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Slight counter-drift gives the rail some depth as it travels */
+    scale: 1.12;
+    translate: calc(var(--p, 0) * 1.5rem) 0;
+    transition:
+      scale var(--dur-xslow) var(--ease-out-expo),
+      opacity var(--dur-slow) var(--ease-out-quart);
+  }
+
+  .card__media-hover {
+    opacity: 0;
+  }
+
+  .card:hover .card__media img {
+    scale: 1.2;
+  }
+
+  .card:hover .card__media-hover {
+    opacity: 1;
+  }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgb(0 0 0 / 0.85) 0%,
+      rgb(0 0 0 / 0.45) 38%,
+      rgb(0 0 0 / 0) 72%
+    );
+    z-index: 1;
+    transition: opacity var(--dur-slow) var(--ease-out-quart);
+  }
+
+  .card__body {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 2;
+    padding: clamp(1rem, 1.6vw, 1.5rem);
+    color: #fff;
+  }
+
+  .card__date {
+    display: block;
+    color: var(--color-accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .card__title {
+    font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .card__text {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: rgb(255 255 255 / 0.72);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    /* Held back until hover so the grid reads as images first */
+    max-height: 0;
+    opacity: 0;
+    transition:
+      max-height var(--dur-slow) var(--ease-out-expo),
+      opacity var(--dur-mid) var(--ease-out-quart);
+  }
+
+  .card:hover .card__text,
+  .card:focus-visible .card__text {
+    max-height: 5rem;
+    opacity: 1;
+  }
+
+  /* --- no pinning on small screens or with reduced motion --------------- */
+
+  @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .gallery {
+      height: auto;
+    }
+
+    .gallery__stage {
+      position: static;
+      height: auto;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      scroll-snap-type: x mandatory;
+    }
+
+    .gallery__stage::-webkit-scrollbar {
+      display: none;
+    }
+
+    .gallery__rail {
+      transform: none;
+      height: 30rem;
+    }
+
+    .gallery__col {
+      scroll-snap-align: center;
+      width: 15rem;
+    }
+
+    .card__media img {
+      translate: none;
+    }
+
+    .card__text {
+      max-height: 5rem;
+      opacity: 1;
+    }
   }
 </style>
+
+<script>
+  import { register, trackProgress, prefersReducedMotion } from "../scripts/motion";
+
+  register(() => {
+    const gallery = document.querySelector<HTMLElement>("[data-gallery]");
+    const rail = gallery?.querySelector<HTMLElement>("[data-rail]");
+    const stage = gallery?.querySelector<HTMLElement>(".gallery__stage");
+    if (!gallery || !rail || !stage) return;
+
+    const pinned = () =>
+      window.matchMedia("(min-width: 768px)").matches && !prefersReducedMotion();
+
+    const measure = () => {
+      if (!pinned()) {
+        gallery.style.removeProperty("--travel");
+        return;
+      }
+      const travel = Math.max(0, rail.scrollWidth - stage.clientWidth);
+      gallery.style.setProperty("--travel", `${Math.round(travel)}px`);
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    // Card images change the rail width once they land
+    const imagesReady = Promise.all(
+      [...rail.querySelectorAll("img")]
+        .filter((img) => !img.complete)
+        .map(
+          (img) =>
+            new Promise<void>((resolve) => {
+              img.addEventListener("load", () => resolve(), { once: true });
+              img.addEventListener("error", () => resolve(), { once: true });
+            }),
+        ),
+    );
+    imagesReady.then(measure);
+
+    const stop = trackProgress(gallery, "pin", (p) =>
+      gallery.style.setProperty("--p", p.toFixed(4)),
+    );
+
+    return () => {
+      stop();
+      window.removeEventListener("resize", measure);
+    };
+  });
+</script>

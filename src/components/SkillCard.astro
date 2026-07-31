@@ -1,21 +1,130 @@
 ---
+interface Props {
+  bgColor: string;
+  imageUrl: string;
+  name: string;
+  description: string;
+  link: string;
+}
+
 const { bgColor, imageUrl, name, description, link } = Astro.props;
 ---
 
-<a href={link} class="flex flex-1 gap-5 p-2.5 rounded-xl border border-dark-200 bg-dark-200 hover:bg-dark-300 hover:border-dark-700 transition-colors duration-200">
-  <div class={`p-3 ${bgColor} rounded-lg w-fit`}>
-    <img
-      src={imageUrl}
-      width={1000}
-      height={1000}
-      alt={`${name} logo`}
-      class="size-8"
-    />
-  </div>
-  <div>
-    <h4 class="text-lg font-medium">{name}</h4>
-    <p class="text-sm">
-      {description}
-    </p>
-  </div>
+<a
+  class="skill"
+  href={link}
+  target="_blank"
+  rel="noopener noreferrer"
+  data-reveal="up"
+  data-spotlight
+>
+  <span class="skill__glow" aria-hidden="true"></span>
+
+  <span class:list={["skill__icon", bgColor]}>
+    <img src={imageUrl} width="32" height="32" alt="" loading="lazy" />
+  </span>
+
+  <span class="skill__body">
+    <span class="skill__name">{name}</span>
+    <span class="skill__desc">{description}</span>
+  </span>
+
+  <span class="skill__arrow" aria-hidden="true">↗</span>
 </a>
+
+<style>
+  .skill {
+    position: relative;
+    display: flex;
+    gap: 1.15rem;
+    padding: 1.15rem;
+    border: 1px solid var(--hairline);
+    border-radius: 0.9rem;
+    background: var(--color-dark-200);
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      border-color var(--dur-mid) var(--ease-out-quart),
+      translate var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .skill:hover {
+    border-color: rgb(255 255 255 / 0.28);
+    translate: 0 -3px;
+  }
+
+  /* Pointer-following spotlight; --mx/--my are written by Skills.astro */
+  .skill__glow {
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    opacity: 0;
+    background: radial-gradient(
+      14rem circle at var(--mx, 50%) var(--my, 50%),
+      rgb(242 225 76 / 0.14),
+      transparent 65%
+    );
+    transition: opacity var(--dur-mid) var(--ease-out-quart);
+  }
+
+  .skill:hover .skill__glow {
+    opacity: 1;
+  }
+
+  .skill__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 0.7rem;
+    transition: scale var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .skill:hover .skill__icon {
+    scale: 1.08;
+  }
+
+  .skill__icon img {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+  }
+
+  .skill__body {
+    display: block;
+  }
+
+  .skill__name {
+    display: block;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--fg-1);
+  }
+
+  .skill__desc {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--fg-2);
+  }
+
+  .skill__arrow {
+    position: absolute;
+    top: 1rem;
+    right: 1.1rem;
+    font-size: 0.8rem;
+    color: var(--fg-3);
+    opacity: 0;
+    translate: -4px 4px;
+    transition:
+      opacity var(--dur-mid) var(--ease-out-quart),
+      translate var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .skill:hover .skill__arrow {
+    opacity: 1;
+    translate: 0 0;
+  }
+</style>

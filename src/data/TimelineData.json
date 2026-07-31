@@ -1,0 +1,74 @@
+[
+  {
+    "year": "2021",
+    "when": "August 2021",
+    "title": "Started the apprenticeship",
+    "org": "Informatiker EFZ, Applikationsentwicklung",
+    "description": "Four years of Swiss vocational training: school two days a week, real production code the other three. The fastest way I know to learn how software actually gets built.",
+    "tags": ["Java", "C#", "Fundamentals"],
+    "accent": "#8a7cc2"
+  },
+  {
+    "year": "2024",
+    "when": "August 2024",
+    "title": "Joined 2sic",
+    "org": "2sxc — CMS for DNN & Oqtane",
+    "description": "Contributed to a CMS built around the 1-second paradigm, where every interaction has to land in under a second. Learning to work inside a large existing codebase changed how I write my own.",
+    "tags": [".NET", "Razor", "TypeScript"],
+    "accent": "#2f6fed"
+  },
+  {
+    "year": "2025",
+    "when": "May 2025",
+    "title": "First developer conference",
+    "org": "DNN Connect, Netherlands",
+    "description": "Three days with the DNN community. Meeting the people behind the tools I use every day made the work feel a lot less abstract.",
+    "tags": ["Community", "Talks"],
+    "accent": "#12a67a"
+  },
+  {
+    "year": "2025",
+    "when": "June 2025",
+    "title": "Final exam project",
+    "org": "SchoolSys",
+    "description": "Built a material management system for daycares in Arusha and Cape Town. Full stack, shipped solo, on a clock — the most useful pressure test of the whole apprenticeship.",
+    "tags": ["Angular", "REST", "IPA"],
+    "accent": "#d4453f"
+  },
+  {
+    "year": "2025",
+    "when": "July 2025",
+    "title": "Graduated",
+    "org": "EFZ diploma ceremony",
+    "description": "Qualified as a software developer. Four years in, with a stack of projects behind me and a much clearer idea of what I want to build next.",
+    "tags": ["EFZ", "Milestone"],
+    "accent": "#e8a400"
+  },
+  {
+    "year": "2025",
+    "when": "Late 2025",
+    "title": "Shipped my own SaaS",
+    "org": "Logier",
+    "description": "A universal log parser and visualiser for developers, as a desktop app for macOS and Windows. My first product where I own every decision — from the parser core to the pricing page.",
+    "tags": ["Product", "Desktop", "Solo"],
+    "accent": "#0acf83"
+  },
+  {
+    "year": "2026",
+    "when": "January 2026",
+    "title": "Rekrutenschule",
+    "org": "Swiss Armed Forces",
+    "description": "Eighteen weeks of basic military service. No IDE, no keyboard — and a genuinely useful reset on how I think about discipline and working in a team.",
+    "tags": ["Service", "Teamwork"],
+    "accent": "#57534e"
+  },
+  {
+    "year": "Now",
+    "when": "Today",
+    "title": "What's next",
+    "org": "Open to good problems",
+    "description": "Building Logier, writing about what I learn, and looking for work where the craft actually matters. If that sounds like your team, say hello.",
+    "tags": ["Available", "Full stack"],
+    "accent": "#0a0a0a"
+  }
+]

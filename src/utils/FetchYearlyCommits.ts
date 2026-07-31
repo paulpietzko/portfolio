@@ -18,11 +18,6 @@ query ($login: String!, $from: DateTime!, $to: DateTime!) {
 }
 `;
 
-const chunk = <T>(arr: T[], size: number): T[][] =>
-  Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-    arr.slice(i * size, i * size + size)
-  );
-
 async function fetchGraphQL(
   query: string,
   variables: Record<string, any>,
@@ -52,12 +47,12 @@ async function fetchGraphQL(
   return json.data;
 }
 
+/** Returns 12 zeroes rather than throwing when GitHub is unavailable. */
 const fetchUserCommits = async (username: string): Promise<number[]> => {
   const token = import.meta.env.GITHUB_TOKEN;
   if (!token) {
-    throw new Error(
-      "GitHub token is missing. Set GITHUB_TOKEN in your environment."
-    );
+    console.warn("[github] skipping commit history — missing GITHUB_TOKEN");
+    return new Array(12).fill(0);
   }
 
   const now = new Date();
@@ -71,7 +66,13 @@ const fetchUserCommits = async (username: string): Promise<number[]> => {
     to: now.toISOString(),
   };
 
-  const data = await fetchGraphQL(QUERY, variables, token);
+  let data: any;
+  try {
+    data = await fetchGraphQL(QUERY, variables, token);
+  } catch (error) {
+    console.warn("[github] failed to fetch commit history:", error);
+    return new Array(12).fill(0);
+  }
 
   const weeks =
     data?.user?.contributionsCollection?.contributionCalendar?.weeks;

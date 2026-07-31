@@ -11,30 +11,56 @@ interface SkillType {
   bgColor: string;
   link: string;
 }
+
+const skills = skillsData as SkillType[];
 ---
 
-<Container size="xl">
-  <div class="mb-[5rem] pt-16">
-    <div class="relative z-10" id="about">
-      <SubTitle
-        title="My Techstack"
-        text="Here are some of the main technologies I work with."
-        link="#skills"
-      />
+<section class="skills" id="stack" data-skills>
+  <Container size="xl">
+    <SubTitle
+      index="02"
+      title="My techstack"
+      text="The tools I reach for first. Frameworks come and go — most of this is really just TypeScript and C# wearing different hats."
+      link="#stack"
+    />
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {
-          skillsData.map((skill: SkillType) => (
-            <SkillCard
-              link={skill.link}
-              name={skill.name}
-              description={skill.description}
-              imageUrl={skill.imageUrl}
-              bgColor={skill.bgColor}
-            />
-          ))
-        }
-      </div>
+    <div class="skills__grid" data-reveal-group="70">
+      {skills.map((skill) => <SkillCard {...skill} />)}
     </div>
-  </div>
-</Container>
+  </Container>
+</section>
+
+<style>
+  .skills {
+    padding-block: clamp(4rem, 9vh, 7rem);
+  }
+
+  .skills__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  }
+</style>
+
+<script>
+  import { register } from "../scripts/motion";
+
+  register(() => {
+    const section = document.querySelector<HTMLElement>("[data-skills]");
+    if (!section) return;
+
+    // One listener on the grid rather than one per card
+    const onMove = (event: PointerEvent) => {
+      const card = (event.target as HTMLElement)?.closest<HTMLElement>(
+        "[data-spotlight]",
+      );
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+      card.style.setProperty("--my", `${event.clientY - rect.top}px`);
+    };
+
+    section.addEventListener("pointermove", onMove);
+    return () => section.removeEventListener("pointermove", onMove);
+  });
+</script>

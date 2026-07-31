@@ -1,17 +1,242 @@
 @import "tailwindcss";
 
+/* ===========================================================================
+   Design tokens
+   =========================================================================== */
+
 @theme {
+  /* Surfaces — kept from the original palette so existing pages stay valid */
   --color-dark-100: #0a0a0a;
-  --color-dark-200: #1A1A1A;
-  --color-dark-300: #262626;
-  --color-dark-400: #404040;
-  --color-dark-700: #4D4D4D;
+  --color-dark-200: #141414;
+  --color-dark-300: #1f1f1f;
+  --color-dark-400: #2e2e2e;
+  --color-dark-700: #4d4d4d;
+
+  /* Semantic */
+  --color-ink: #0a0a0a;
+  --color-paper: #fbfbf9;
+  --color-accent: #f2e14c;
+  --color-accent-soft: #0acf83;
+
+  /* Type */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-display: "DM Serif Display", ui-serif, Georgia, serif;
+  --font-poster: "Anton SC", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-/* === Base Styles === */
+:root {
+  /* Motion */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+  --dur-fast: 200ms;
+  --dur-mid: 450ms;
+  --dur-slow: 800ms;
+  --dur-xslow: 1200ms;
+
+  /* Foreground scale for the dark theme */
+  --fg-1: rgb(255 255 255 / 0.94);
+  --fg-2: rgb(255 255 255 / 0.62);
+  --fg-3: rgb(255 255 255 / 0.38);
+  --hairline: rgb(255 255 255 / 0.12);
+
+  /* Driven by the timeline section: 0 = dark page, 1 = white page */
+  --wash: 0;
+}
+
+/* ===========================================================================
+   Base
+   =========================================================================== */
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* The page background lives on <html> so it propagates to the canvas and
+     the wash layer (z-index: -1) can sit on top of it. */
+  html {
+    background-color: var(--color-dark-100);
+  }
+
+  body {
+    background: transparent;
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
   button,
   [role="button"] {
     cursor: pointer;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+/* ===========================================================================
+   The wash — a fixed white sheet the timeline fades in behind the content,
+   so the whole page turns white instead of just one panel.
+   =========================================================================== */
+
+.page-wash {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-paper);
+  opacity: var(--wash);
+  pointer-events: none;
+  will-change: opacity;
+}
+
+/*
+ * Nothing may sit on a half-washed page: light-on-dark text over a 50% white
+ * backdrop is unreadable. So the two sides of the crossfade take turns —
+ * the timeline arrives with the white, everything else leaves with it.
+ * Guarded by .js so the page is fully legible if the script never runs.
+ */
+.js .timeline {
+  opacity: clamp(0, calc(var(--wash) * 2.7 - 1.2), 1);
+}
+
+.js main > :not(.timeline) {
+  opacity: clamp(0, calc(1.35 - var(--wash) * 2.7), 1);
+}
+
+/* ===========================================================================
+   Reveal primitives
+   Hidden states only apply once the engine has added `.js`, so the page
+   stays fully readable if the script never runs.
+   =========================================================================== */
+
+.js [data-reveal] {
+  --reveal-delay: 0ms;
+  --reveal-shift: 28px;
+  opacity: 0;
+  transition:
+    opacity var(--dur-slow) var(--ease-out-quart) var(--reveal-delay),
+    transform var(--dur-slow) var(--ease-out-expo) var(--reveal-delay),
+    filter var(--dur-slow) var(--ease-out-quart) var(--reveal-delay),
+    clip-path var(--dur-slow) var(--ease-out-expo) var(--reveal-delay);
+  will-change: opacity, transform;
+}
+
+.js [data-reveal="up"] {
+  transform: translate3d(0, var(--reveal-shift), 0);
+}
+.js [data-reveal="right"] {
+  transform: translate3d(calc(var(--reveal-shift) * -1), 0, 0);
+}
+.js [data-reveal="scale"] {
+  transform: scale(0.94);
+}
+.js [data-reveal="blur"] {
+  filter: blur(12px);
+  transform: translate3d(0, calc(var(--reveal-shift) * 0.5), 0);
+}
+.js [data-reveal="mask"] {
+  clip-path: inset(0 0 105% 0);
+  opacity: 1;
+}
+
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  clip-path: inset(-30% -10% -30% 0);
+  will-change: auto;
+}
+
+/* A line of type that wipes up from behind its own baseline */
+.mask-line {
+  /* Room for descenders, cancelled out again so line spacing is unaffected.
+     Tight line-heights need more — override --mask-pad at the call site. */
+  --mask-pad: 0.16em;
+  display: block;
+  overflow: hidden;
+  padding-bottom: var(--mask-pad);
+  margin-bottom: calc(var(--mask-pad) * -1);
+}
+.js .mask-line > * {
+  display: block;
+  transform: translate3d(0, 110%, 0);
+  transition: transform var(--dur-xslow) var(--ease-out-expo)
+    var(--reveal-delay);
+}
+.js .mask-line.is-in > * {
+  transform: none;
+}
+
+/* ===========================================================================
+   Shared bits
+   =========================================================================== */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.hairline {
+  height: 1px;
+  background: var(--hairline);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===========================================================================
+   Reduced motion — keep the state changes, drop the travel
+   =========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal],
+  .js .mask-line > * {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+  }
+
+  .js .mask-line > * {
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

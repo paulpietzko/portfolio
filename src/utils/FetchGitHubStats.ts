@@ -36,12 +36,15 @@ interface UserStats {
   followers: number;
 }
 
-const fetchStats = async (username: string): Promise<UserStats> => {
-  if (!username) throw new Error("Missing GitHub username");
-
+/**
+ * Returns null instead of throwing: GitHub is a third-party dependency and a
+ * missing token or an API blip should degrade the section, not fail the build.
+ */
+const fetchStats = async (username: string): Promise<UserStats | null> => {
   const token = import.meta.env.GITHUB_TOKEN;
-  if (!token) {
-    throw new Error("GitHub token is missing");
+  if (!username || !token) {
+    console.warn("[github] skipping stats — missing username or GITHUB_TOKEN");
+    return null;
   }
 
   const variables = { login: username };
@@ -74,12 +77,8 @@ const fetchStats = async (username: string): Promise<UserStats> => {
       followers: user.followers.totalCount,
     };
   } catch (error) {
-    console.error(error);
-    if (error instanceof Error) {
-      throw new Error("Failed to fetch GitHub stats: " + error.message);
-    } else {
-      throw new Error("Failed to fetch GitHub stats");
-    }
+    console.warn("[github] failed to fetch stats:", error);
+    return null;
   }
 };
 

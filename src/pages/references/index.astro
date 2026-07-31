@@ -4,87 +4,169 @@ import Navbar from "../../components/Navbar.astro";
 import SubTitle from "../../components/SubTitle.astro";
 import Container from "../../layouts/Container.astro";
 import Layout from "../../layouts/Layout.astro";
+
+const groups = [
+  {
+    title: "Libraries",
+    items: [
+      {
+        name: "Chart.js",
+        href: "https://www.chartjs.org/",
+        text: "A simple yet flexible JavaScript charting library.",
+      },
+      {
+        name: "Tailwind CSS",
+        href: "https://tailwindcss.com/",
+        text: "Utility-first CSS, used here alongside plain custom properties.",
+      },
+      {
+        name: "Solid",
+        href: "https://www.solidjs.com/",
+        text: "Fine-grained reactivity for the two interactive islands on this site.",
+      },
+    ],
+  },
+  {
+    title: "Frameworks & hosting",
+    items: [
+      {
+        name: "Astro",
+        href: "https://astro.build/",
+        text: "The site itself — server-rendered, shipping almost no JavaScript.",
+      },
+      {
+        name: "Vercel",
+        href: "https://vercel.com/",
+        text: "Hosting and deployment straight off the main branch.",
+      },
+    ],
+  },
+  {
+    title: "Inspirations",
+    items: [
+      {
+        name: "Astro Sphere",
+        href: "https://astro-sphere-demo.vercel.app",
+        text: "A demo showcasing the capabilities of Astro.",
+      },
+      {
+        name: "Sankalp Jaiswal",
+        href: "https://sankalp-jaiswal-portfolio.vercel.app",
+        text: "A personal portfolio built with modern web technologies.",
+      },
+      {
+        name: "Andrija Web",
+        href: "https://andrijaweb.vercel.app",
+        text: "A portfolio website demonstrating web development skills.",
+      },
+    ],
+  },
+];
 ---
 
-<Layout>
+<Layout
+  title="References | Paul Pietzko"
+  description="Libraries, frameworks and sites that helped shape this portfolio."
+>
   <Navbar />
-  <Container size="xl">
-    <div class="min-h-screen bg-background pt-[8rem] -my-4">
-      <div class="container mx-auto max-w-4xl">
-        <SubTitle
-          title="References"
-          text="Here are some of the libraries and resources that have inspired and helped in the creation of this project"
-        />
 
-        <h2 class="text-2xl font-bold mt-8">Libraries</h2>
-        <ul class="list-disc list-inside space-y-2 mt-4">
-          <li>
-            <a
-              href="https://www.chartjs.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-500 hover:underline">Chart.js</a
-            > - A simple yet flexible JavaScript charting library.
-          </li>
-          <li>
-            <a
-              href="https://greensock.com/gsap/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-500 hover:underline">GSAP</a
-            > - A robust JavaScript toolset for creating animations.
-          </li>
-        </ul>
+  <main class="refs">
+    <Container size="md">
+      <SubTitle
+        title="References"
+        text="The libraries, tools and sites that helped shape this portfolio. Credit where it is due."
+      />
 
-        <h2 class="text-2xl font-bold mt-8">Inspirations</h2>
-        <ul class="list-disc list-inside space-y-2 mt-4">
-          <li>
-            <a
-              href="https://astro-sphere-demo.vercel.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-500 hover:underline">Astro Sphere Demo</a
-            > - A demo showcasing the capabilities of Astro.
-          </li>
-          <li>
-            <a
-              href="https://sankalp-jaiswal-portfolio.vercel.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-500 hover:underline">Sankalp Jaiswal Portfolio</a
-            > - A personal portfolio built with modern web technologies.
-          </li>
-          <li>
-            <a
-              href="https://andrijaweb.vercel.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-500 hover:underline">Andrija Web</a
-            > - A portfolio website demonstrating web development skills.
-          </li>
-        </ul>
-
-        <h2 class="text-2xl font-bold mt-8">Frameworks</h2>
-        <ul class="list-disc list-inside space-y-2 mt-4">
-          <li>
-            <a
-              href="https://tailwindcss.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-500 hover:underline">Tailwind CSS</a
-            > - A utility-first CSS framework for rapid UI development.
-          </li>
-          <li>
-            <a
-              href="https://astro.build/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-500 hover:underline">Astro</a
-            > - A modern static site builder.
-          </li>
-        </ul>
+      <div class="refs__groups">
+        {
+          groups.map((group) => (
+            <section class="refs__group" data-reveal="up">
+              <h2 class="eyebrow refs__group-title">{group.title}</h2>
+              <ul>
+                {group.items.map((item) => (
+                  <li>
+                    <a href={item.href} target="_blank" rel="noopener noreferrer">
+                      <span class="refs__name">
+                        {item.name}
+                        <span class="refs__arrow" aria-hidden="true">
+                          ↗
+                        </span>
+                      </span>
+                      <span class="refs__text">{item.text}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
       </div>
-    </div>
-  </Container>
+    </Container>
+  </main>
+
   <Footer />
 </Layout>
+
+<style>
+  .refs {
+    padding-top: clamp(7rem, 18vh, 11rem);
+    padding-bottom: clamp(4rem, 10vh, 7rem);
+  }
+
+  .refs__groups {
+    display: grid;
+    gap: clamp(2.5rem, 6vh, 4rem);
+  }
+
+  .refs__group-title {
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--hairline);
+    color: var(--fg-3);
+  }
+
+  .refs__group ul {
+    list-style: none;
+  }
+
+  .refs__group a {
+    display: grid;
+    gap: 0.2rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--hairline);
+    transition: padding-left var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .refs__group a:hover {
+    padding-left: 0.6rem;
+  }
+
+  .refs__name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--fg-1);
+  }
+
+  .refs__arrow {
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    opacity: 0;
+    translate: -3px 3px;
+    transition:
+      opacity var(--dur-mid) var(--ease-out-quart),
+      translate var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .refs__group a:hover .refs__arrow {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .refs__text {
+    font-size: 0.9rem;
+    color: var(--fg-2);
+  }
+</style>

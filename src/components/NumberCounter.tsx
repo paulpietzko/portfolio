@@ -1,44 +1,68 @@
-import { createEffect } from "solid-js";
+import { onMount, onCleanup } from "solid-js";
 
 interface NumberCounterProps {
   number: number;
+  /** Milliseconds the count-up takes. */
+  duration?: number;
 }
 
-const NumberCounter = (props: NumberCounterProps) => {
-  let counterRef: HTMLParagraphElement | null = null;
+const easeOutExpo = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
-  createEffect(() => {
-    const animateValue = (
-      obj: HTMLElement,
-      start: number,
-      end: number,
-      duration: number
-    ) => {
-      let startTimestamp: number | null = null;
-      const step = (timestamp: number) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        obj.textContent = Math.floor(progress * (end - start) + start).toString();
-        if (progress < 1) {
-          requestAnimationFrame(step);
-        }
+const NumberCounter = (props: NumberCounterProps) => {
+  let el: HTMLParagraphElement | undefined;
+  let raf = 0;
+  let observer: IntersectionObserver | undefined;
+
+  const format = (value: number) => value.toLocaleString("en-US");
+
+  onMount(() => {
+    if (!el) return;
+
+    const target = props.number ?? 0;
+    const duration = props.duration ?? 1800;
+
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (reduced) {
+      el.textContent = format(target);
+      return;
+    }
+
+    // Only count once the number is actually on screen
+    const run = () => {
+      let start: number | null = null;
+      const step = (now: number) => {
+        if (start === null) start = now;
+        const t = Math.min((now - start) / duration, 1);
+        el!.textContent = format(Math.round(easeOutExpo(t) * target));
+        if (t < 1) raf = requestAnimationFrame(step);
       };
-      requestAnimationFrame(step);
+      raf = requestAnimationFrame(step);
     };
 
-    if (counterRef) {
-      const start = 0; // Adjust starting value if needed
-      const end = props.number; // Final value from props
-      const duration = 2000; // Animation duration in milliseconds
-      animateValue(counterRef, start, end, duration);
-    }
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer?.disconnect();
+          run();
+        }
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(el);
+  });
+
+  onCleanup(() => {
+    // Also runs when the SSR render tree is disposed, where there is no rAF
+    if (typeof cancelAnimationFrame === "function") cancelAnimationFrame(raf);
+    observer?.disconnect();
   });
 
   return (
-    <p
-      ref={(el) => (counterRef = el)}
-      class="text-6xl font-bold text-[rgba(10,207,131)]"
-    >
+    <p ref={el} class="counter">
       0
     </p>
   );

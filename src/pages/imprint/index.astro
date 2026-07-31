@@ -1,38 +1,39 @@
 ---
-import Container from "../../layouts/Container.astro";
 import Layout from "../../layouts/Layout.astro";
 import LegalLayout from "../../layouts/Legal-Layout.astro";
 ---
 
-<Layout>
+<Layout
+  title="Imprint | Paul Pietzko"
+  description="Imprint and contact details for paulpietzko.com."
+>
   <LegalLayout title="Imprint">
-    <Container size="xl">
       <p>
         Paul Pietzko<br />
         9470 Buchs<br />
         Switzerland
       </p>
       <div>
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Contact</h2>
+        <h2>Contact</h2>
         <p>
           Phone: +41 78 241 28 12
           <br />
           E-Mail:{" "}
-          <a href="mailto:info@aspecs.ch" class="text-primary hover:underline">
+          <a href="mailto:info@aspecs.ch">
             info@aspecs.ch
           </a>
         </p>
       </div>
 
       <div>
-        <h2 class="text-2xl font-semibold mt-8 mb-4">
+        <h2>
           Responsible for content
         </h2>
         <p>Paul Pietzko</p>
       </div>
 
       <div>
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Disclaimer</h2>
+        <h2>Disclaimer</h2>
         <p>
           The contents of our pages have been created with the utmost care.
           However, I cannot guarantee the contents' accuracy, completeness, or
@@ -43,6 +44,5 @@ import LegalLayout from "../../layouts/Legal-Layout.astro";
           circumstances pointing to illegal activity.
         </p>
       </div>
-    </Container>
   </LegalLayout>
 </Layout>

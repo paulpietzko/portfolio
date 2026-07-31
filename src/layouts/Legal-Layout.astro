@@ -3,44 +3,150 @@ import Footer from "../components/Footer.astro";
 import Navbar from "../components/Navbar.astro";
 import Container from "./Container.astro";
 
+interface Props {
+  title: string;
+}
+
 const { title } = Astro.props;
+
+const pages = [
+  { label: "Imprint", href: "/imprint" },
+  { label: "Terms", href: "/terms" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Cookies", href: "/cookies" },
+];
+
+const current = Astro.url.pathname.replace(/\/$/, "");
 ---
 
 <Navbar />
-<Container size="xl">
-  <div class="min-h-screen bg-background pt-[8rem] -my-4">
-    <div class="container mx-auto max-w-4xl mb-8">
-      <nav class="mb-16">
-        <ul class="flex justify-center space-x-4 border-b">
-          <li>
-            <button>
-              <a href="imprint" class="link link-hover">Imprint</a>
-            </button>
-          </li>
-          <li>
-            <button>
-              <a href="terms" class="link link-hover">Terms</a>
-            </button>
-          </li>
-          <li>
-            <button>
-              <a href="privacy" class="link link-hover">Privacy</a>
-            </button>
-          </li>
-          <li>
-            <button>
-              <a href="cookies" class="link link-hover">Cookies</a>
-            </button>
-          </li>
-        </ul>
-      </nav>
-      <h1
-        class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200 mb-4"
-      >
-        {title}
-      </h1>
+
+<main class="legal">
+  <Container size="sm">
+    <nav class="legal__tabs" aria-label="Legal pages">
+      <ul>
+        {
+          pages.map((page) => (
+            <li>
+              <a
+                href={page.href}
+                aria-current={current === page.href ? "page" : undefined}
+              >
+                {page.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <h1 class="legal__title mask-line"><span>{title}</span></h1>
+
+    <div class="legal__body" data-reveal="up">
       <slot />
     </div>
-  </div>
-</Container>
+  </Container>
+</main>
+
 <Footer />
+
+<style>
+  .legal {
+    min-height: 70vh;
+    padding-top: clamp(7rem, 18vh, 11rem);
+    padding-bottom: clamp(4rem, 10vh, 7rem);
+  }
+
+  .legal__tabs {
+    margin-bottom: clamp(3rem, 8vh, 5rem);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .legal__tabs ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.75rem;
+    list-style: none;
+  }
+
+  .legal__tabs a {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.85rem;
+    font-size: 0.9rem;
+    color: var(--fg-3);
+    transition: color var(--dur-fast) ease;
+  }
+
+  .legal__tabs a::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 -1px 0;
+    height: 1px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .legal__tabs a:hover,
+  .legal__tabs a[aria-current="page"] {
+    color: var(--fg-1);
+  }
+
+  .legal__tabs a:hover::after,
+  .legal__tabs a[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  .legal__title {
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: var(--fg-1);
+    margin-bottom: 2.5rem;
+  }
+
+  .legal__body {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--fg-2);
+    text-wrap: pretty;
+  }
+
+  .legal__body :global(h2) {
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--fg-1);
+  }
+
+  .legal__body :global(p + p) {
+    margin-top: 1rem;
+  }
+
+  .legal__body :global(.lead) {
+    font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+    line-height: 1.65;
+    color: var(--fg-1);
+  }
+
+  .legal__body :global(ul) {
+    margin-top: 1rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .legal__body :global(li) {
+    margin-top: 0.4rem;
+  }
+
+  .legal__body :global(a) {
+    color: var(--fg-1);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-accent);
+  }
+</style>

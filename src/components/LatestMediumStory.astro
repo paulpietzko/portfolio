@@ -2,133 +2,222 @@
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 
-type StoryItem = {
+type Story = {
   title: string;
-  description: string;
-  date: Date;
+  paragraphs: string[];
+  date: Date | null;
   link: string;
+  truncated: boolean;
 };
 
-const stripHtml = (html: string) => {
-  // Replace paragraph and break tags with newlines first
-  let withBreaks = html
-    .replace(/<\/p>/gi, "\n\n")
-    .replace(/<br\s*\/?>/gi, "\n");
-  // Remove other tags
-  return withBreaks.replace(/<\/?[^>]+(>|$)/g, "").trim();
+const MAX_CHARS = 1400;
+const FEED =
+  "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@paul.pietzko";
+
+// Medium's RSS body is HTML. Every block-level close becomes a break,
+// otherwise captions run straight into the following paragraph.
+const BLOCK_END =
+  /<\/(p|div|h[1-6]|li|ul|ol|figure|figcaption|blockquote|pre|section)>/gi;
+
+const stripHtml = (html: string) =>
+  html
+    .replace(BLOCK_END, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/?[^>]+(>|$)/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/[ \t]+/g, " ")
+    .trim();
+
+// Articles often embed ASCII trees and code blocks, which read as noise once
+// the markup is gone.
+const isProse = (paragraph: string) => {
+  const art = (paragraph.match(/[│├└─┌┐┘┬┴┼|+\\/_]/g) ?? []).length;
+  return art / paragraph.length < 0.06;
 };
 
-const fetchStory = async (): Promise<StoryItem> => {
-  const res = await fetch(
-    "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@paul.pietzko"
-  );
-  const { items } = await res.json();
-  const first = items[0];
-  return {
-    title: first.title,
-    description: first.description,
-    date: new Date(first.pubDate),
-    link: first.link,
-  };
+const fetchStory = async (): Promise<Story | null> => {
+  try {
+    const res = await fetch(FEED);
+    if (!res.ok) return null;
+    const { items } = await res.json();
+    const first = items?.[0];
+    if (!first) return null;
+
+    const body = stripHtml(first.description ?? "");
+    return {
+      title: first.title,
+      link: first.link,
+      date: first.pubDate ? new Date(first.pubDate) : null,
+      truncated: body.length > MAX_CHARS,
+      paragraphs: body
+        .slice(0, MAX_CHARS)
+        .split(/\n\s*\n/)
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0 && isProse(p)),
+    };
+  } catch {
+    // The feed is a third-party service — never let it fail the build
+    return null;
+  }
 };
 
 const story = await fetchStory();
 
-const paragraphs = stripHtml(story.description)
-  .slice(0, 1500)
-  .split(/\n\s*\n/)
-  .filter(Boolean);
+// Words are split here rather than in the browser, so the illumination is
+// driven by a single CSS variable instead of per-word DOM surgery.
+let cursor = 0;
+const lines = (story?.paragraphs ?? []).map((paragraph) =>
+  paragraph.split(/\s+/).map((word) => ({ word, index: cursor++ })),
+);
+const wordCount = Math.max(cursor, 1);
 ---
 
-<Container size="xl">
-  <div class="mb-[5rem] relative" id="story-container">
-    <div class="sticky top-0 pt-16 z-10">
-      <SubTitle
-        title="Latest Story"
-        text={`${story.title} • ${story.date.toLocaleDateString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric",
-        })}`}
-        link="#blog"
-      />
-    </div>
+{
+  story && (
+    <section class="story" id="writing" data-story>
+      <Container size="xl">
+        <div class="story__head">
+          <SubTitle
+            index="05"
+            title="Latest story"
+            text={[
+              story.title,
+              story.date?.toLocaleDateString("en-US", {
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+              }),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+            link={story.link}
+          />
+        </div>
 
-    <div
-      class="text-xl sm:text-2xl md:text-3xl leading-relaxed text-justify hyphens-auto mt-4 overflow-hidden"
-      id="story-wrapper"
-    >
-      {paragraphs.map((p) => <p>{p.trim()}</p>)}
-      {stripHtml(story.description).length > 1500 && <p>...</p>}
-    </div>
-  </div>
-</Container>
+        <div
+          class="story__body"
+          style={`--n:${wordCount}`}
+          data-story-body
+        >
+          {lines.map((words) => (
+            <p>
+              {words.map(({ word, index }) => (
+                <>
+                  <span class="story__word" style={`--i:${index}`}>
+                    {word}
+                  </span>{" "}
+                </>
+              ))}
+            </p>
+          ))}
+          {story.truncated && <p class="story__more">…</p>}
+        </div>
 
-<script is:inline>
-  const wrapWords = (element) => {
-    if (!element) return;
-    if (element.querySelector(".word")) return;
+        <a class="story__link" href={story.link} target="_blank" rel="noopener noreferrer">
+          <span>Read the whole thing on Medium</span>
+          <span class="story__link-arrow" aria-hidden="true">↗</span>
+        </a>
+      </Container>
+    </section>
+  )
+}
 
-    element.querySelectorAll("p").forEach((p) => {
-      const words = (p.textContent || "").split(/\s+/);
-      p.innerHTML = "";
-      words.forEach((word, i) => {
-        const span = document.createElement("span");
-        span.textContent = word;
-        span.className = "word inline-block";
-        p.appendChild(span);
-        if (i < words.length - 1) p.appendChild(document.createTextNode(" "));
-      });
+<style>
+  .story {
+    padding-block: clamp(4rem, 9vh, 7rem);
+  }
+
+  .story__head {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding-top: clamp(4rem, 10vh, 7rem);
+    /* Solid behind the heading itself, then a short fade so the running text
+       dissolves under it instead of colliding with it */
+    padding-bottom: 5rem;
+    background: linear-gradient(
+      to bottom,
+      var(--color-dark-100) 0 calc(100% - 5rem),
+      transparent 100%
+    );
+  }
+
+  .story__head :global(.section-head) {
+    margin-bottom: 0;
+  }
+
+  .story__body {
+    font-size: clamp(1.15rem, 2.6vw, 2rem);
+    line-height: 1.55;
+    letter-spacing: -0.015em;
+    text-wrap: pretty;
+  }
+
+  .story__body p + p {
+    margin-top: 1.2em;
+  }
+
+  /*
+   * The whole illumination is one custom property. --p sweeps 0→1 as the
+   * block passes the viewport, and each word compares its own index against
+   * the moving edge. No per-word JavaScript, no layout reads.
+   */
+  .story__word {
+    display: inline-block;
+    color: #fff;
+    opacity: clamp(0.12, calc((var(--p, 1) * var(--n) - var(--i)) * 0.28), 1);
+  }
+
+  .story__more {
+    color: var(--fg-3);
+  }
+
+  .story__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: clamp(2.5rem, 6vh, 4rem);
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 0.95rem;
+    color: var(--fg-1);
+    transition: border-color var(--dur-mid) var(--ease-out-quart);
+  }
+
+  .story__link:hover {
+    border-color: var(--color-accent);
+  }
+
+  .story__link-arrow {
+    color: var(--color-accent);
+    transition: translate var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .story__link:hover .story__link-arrow {
+    translate: 3px -3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story__word {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  import { register, trackRect, range, prefersReducedMotion } from "../scripts/motion";
+
+  register(() => {
+    const body = document.querySelector<HTMLElement>("[data-story-body]");
+    if (!body || prefersReducedMotion()) return;
+
+    body.style.setProperty("--p", "0");
+
+    return trackRect(body, (rect, vh) => {
+      // Filled by the time the block's bottom clears the upper third
+      const p = range(rect.top, vh * 0.82, vh * 0.4 - rect.height);
+      body.style.setProperty("--p", p.toFixed(4));
     });
-  };
-
-  const initAnimation = () => {
-    requestAnimationFrame(() => {
-      if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined")
-        return;
-
-      const wrapper = document.getElementById("story-wrapper");
-      if (!wrapper) return;
-
-      wrapWords(wrapper);
-
-      const words = gsap.utils.toArray(".word");
-
-      ScrollTrigger.create({
-        trigger: "#story-wrapper",
-        start: "top bottom",
-        end: "bottom top",
-        onUpdate: () => {
-          const center = window.innerHeight / 2;
-          const maxDist = window.innerHeight / 3;
-
-          words.forEach((word) => {
-            const rect = word.getBoundingClientRect();
-            const wordCenter = rect.top + rect.height / 2;
-            const dist = Math.min(Math.abs(wordCenter - center) / maxDist, 1);
-            const opacity = Math.exp(-dist * dist * 6);
-
-            gsap.to(word, {
-              color: `rgba(255,255,255,${opacity})`,
-              duration: 0.1,
-              overwrite: true,
-            });
-          });
-        },
-      });
-    });
-  };
-
-  window.addEventListener("load", initAnimation);
-  document.addEventListener("astro:after-swap", () =>
-    setTimeout(initAnimation, 0)
-  );
+  });
 </script>
-
-<script
-  is:inline
-  src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script
-  is:inline
-  src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"
-></script>

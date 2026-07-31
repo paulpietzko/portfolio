@@ -1,62 +1,77 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import '../styles/globals.css';
+import "../styles/globals.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title = "Paul Pietzko — Full Stack Developer",
+  description = "Portfolio of Paul Pietzko, a full stack developer from Switzerland. Projects, tech stack, writing, and a few things I got up to along the way.",
+  image = "/images/portfolio-hero-image.png",
+} = Astro.props;
+
+const origin = Astro.site ?? new URL("https://www.paulpietzko.com");
+const canonical = new URL(Astro.url.pathname, origin);
+const socialImage = new URL(image, origin);
 ---
 
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <title>Portfolio | Paul Pietzko</title>
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
 
-    <!-- Sitemap -->
-    <link rel="sitemap" href="/sitemap-index.xml" />
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://www.paulpietzko.com" />
-
-    <!-- Metadata -->
-    <meta
-      name="description"
-      content="Portfolio website of Paul Pietzko. Discover projects, skills, and contact information."
+    <!-- Fonts: one request, preconnected, non-blocking swap -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Anton+SC&family=DM+Serif+Display:ital@0;1&family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap"
     />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="canonical" href={canonical.href} />
+
+    <meta name="description" content={description} />
     <meta name="author" content="Paul Pietzko" />
     <meta
       name="keywords"
-      content="Paul Pietzko, portfolio, web developer, projects, skills, contact"
+      content="Paul Pietzko, portfolio, full stack developer, Switzerland, Astro, Angular, TypeScript"
     />
-    <meta property="og:title" content="Portfolio | Paul Pietzko" />
+
+    <meta property="og:title" content={title} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.paulpietzko.com" />
-    <meta
-      property="og:description"
-      content="Portfolio website of Paul Pietzko. Discover projects, skills, and contact information."
-    />
-    <meta property="og:site_name" content="Paul Pietzko Portfolio" />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={socialImage.href} />
+    <meta property="og:site_name" content="Paul Pietzko" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Portfolio | Paul Pietzko" />
-    <meta
-      name="twitter:description"
-      content="Portfolio website of Paul Pietzko. Discover projects, skills, and contact information."
-    />
-    <meta
-      name="twitter:image"
-      content="https://www.paulpietzko.com/og-image.png"
-    />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage.href} />
     <meta name="twitter:site" content="@paulpietzko" />
+
+    <!-- Set before first paint so reveal targets never flash in unstyled -->
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
+
+    <ClientRouter />
   </head>
 
-  <body class="bg-dark-100 text-white/70">
+  <body class="antialiased" style="color: var(--fg-2)">
+    <div class="page-wash" aria-hidden="true"></div>
     <slot />
   </body>
-
-  <ClientRouter />
 </html>
 
-<style>
-  html {
-    scroll-behavior: smooth;
-  }
-</style>
+<script>
+  import "../scripts/motion";
+</script>

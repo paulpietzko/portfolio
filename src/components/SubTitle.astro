@@ -1,16 +1,95 @@
 ---
-const { title, text, link } = Astro.props;
+interface Props {
+  title: string;
+  text?: string;
+  link?: string;
+  /** Small monospaced counter shown above the title, e.g. "01". */
+  index?: string;
+  align?: "left" | "center";
+}
+
+const { title, text, link, index, align = "left" } = Astro.props;
+const Tag = link ? "a" : "span";
 ---
 
-<div class="mb-10">
-  <h2
-    class="text-3xl min-[430px]:text-4xl md:text-5xl font-bold dark:text-stone-200 mb-4"
-  >
-    <a href={link}>
-      {title}
-    </a>
+<div class:list={["section-head", align === "center" && "is-center"]}>
+  {
+    index && (
+      <p class="eyebrow section-head__index" data-reveal="up">
+        <span>{index}</span>
+        <span class="section-head__rule" />
+      </p>
+    )
+  }
+
+  <h2 class="section-head__title mask-line">
+    <Tag href={link}>{title}</Tag>
   </h2>
-  <p class="text-sm min-[430px]:text-base max-w-lg md:max-w-3xl text-stone-500">
-    {text}
-  </p>
+
+  {
+    text && (
+      <p class="section-head__text" data-reveal="up" style="--reveal-delay:160ms">
+        {text}
+      </p>
+    )
+  }
 </div>
+
+<style>
+  .section-head {
+    margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .section-head.is-center {
+    text-align: center;
+  }
+
+  .section-head__index {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--fg-3);
+    margin-bottom: 1.25rem;
+  }
+
+  .is-center .section-head__index {
+    justify-content: center;
+  }
+
+  .section-head__rule {
+    flex: 1;
+    max-width: 6rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.4;
+  }
+
+  .section-head__title {
+    font-size: clamp(2rem, 5.5vw, 4rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    color: var(--fg-1);
+  }
+
+  .section-head__title a {
+    transition: opacity var(--dur-fast) ease;
+  }
+
+  .section-head__title a:hover {
+    opacity: 0.6;
+  }
+
+  .section-head__text {
+    max-width: 42rem;
+    margin-top: 1.25rem;
+    font-size: clamp(0.95rem, 1.4vw, 1.0625rem);
+    line-height: 1.65;
+    color: var(--fg-2);
+    text-wrap: pretty;
+  }
+
+  .is-center .section-head__text {
+    margin-inline: auto;
+  }
+</style>

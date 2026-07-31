@@ -2,59 +2,281 @@
 import Container from "../layouts/Container.astro";
 import Navbar from "./Navbar.astro";
 
-// Get the current year and calculate the years of experience since 2021-08-01
-const currentYear = new Date().getFullYear();
-const yearsOfExperience =
-  currentYear -
-  2024 -
-  (new Date().getMonth() < 7 ||
-  (new Date().getMonth() === 7 && new Date().getDate() < 1)
-    ? 1
-    : 0);
+// Professional experience is counted from 1 August 2024, matching the
+// "Joined 2sic" entry in src/data/TimelineData.json.
+const START = new Date("2024-08-01");
+const now = new Date();
+let years = now.getFullYear() - START.getFullYear();
+if (
+  now.getMonth() < START.getMonth() ||
+  (now.getMonth() === START.getMonth() && now.getDate() < START.getDate())
+) {
+  years -= 1;
+}
+years = Math.max(years, 0);
+
+const facts = [
+  { label: "Based in", value: "Buchs SG, CH" },
+  { label: "Experience", value: `${years} ${years === 1 ? "year" : "years"}` },
+  { label: "Focus", value: "Full stack · Web" },
+];
 ---
 
-<section class="h-screen w-full flex flex-col text-white relative">
+<header class="hero" id="top" data-hero>
   <Navbar />
 
-  <!-- Hero Content -->
+  <div class="hero__media" aria-hidden="true">
+    <img
+      src="/images/portfolio-hero-image.png"
+      alt=""
+      width="3515"
+      height="3515"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </div>
+
+  <div class="hero__glow" aria-hidden="true"></div>
+
   <Container size="xl">
-    <div class="absolute bottom-[8rem] z-10">
-      <h1 class="name text-[16vw] md:text-[12vw] font-bold leading-[0.8]">
-        Paul <span
-          class="text-[20vw] md:text-[16vw] block w-fit bg-yellow-300 text-dark-100 px-2 rounded-md"
-        >Pietzko</span>
-      </h1>
-      <p
-        class="mt-4 text-gray-300 max-w-md text-sm md:text-base lg:text-lg xl:text-xl"
-      >
-        I'm a Full Stack Junior Developer from Switzerland with {yearsOfExperience} year
-        of professional experience.
+    <div class="hero__inner" data-reveal-group="110">
+      <p class="hero__eyebrow eyebrow" data-reveal="up">
+        <span class="hero__dot"></span> Full stack developer — available for work
       </p>
+
+      <h1 class="hero__name">
+        <span class="mask-line"><span>Paul</span></span>
+        <span class="mask-line"><span class="hero__hl">Pietzko</span></span>
+      </h1>
+
+      <p class="hero__lede" data-reveal="up">
+        I build fast, considered web software — from Angular and .NET
+        line-of-business apps to my own devtool SaaS. {`${years} ${years === 1 ? "year" : "years"}`} in,
+        still shipping.
+      </p>
+
+      <dl class="hero__facts" data-reveal="up">
+        {
+          facts.map((fact) => (
+            <div>
+              <dt class="eyebrow">{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
     </div>
   </Container>
 
-  <!-- Overlay Image with Gradient -->
-  <div class="absolute right-0 bottom-0 w-[50rem] h-[50rem]">
-    <img
-      src="/images/portfolio-hero-image.png"
-      alt="Paul Pietzko"
-      class="opacity-40"
-    />
-    <div
-      class="absolute inset-0 pointer-events-none"
-      style="background: linear-gradient(to bottom, transparent, #0a0a0a);"
-    >
-    </div>
-  </div>
-</section>
+  <a class="hero__cue" href="#work" aria-label="Scroll to work">
+    <span class="eyebrow">Scroll</span>
+    <span class="hero__cue-rail"><span class="hero__cue-dot"></span></span>
+  </a>
+</header>
 
-<!-- Tailwind Styles -->
 <style>
-  @import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap");
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 100svh;
+    padding-top: clamp(6rem, 14vh, 9rem);
+    padding-bottom: clamp(3rem, 9vh, 6rem);
+    overflow: clip;
+    color: var(--fg-1);
+  }
 
-  .name {
-    font-family: "DM Serif Display", serif;
-    font-weight: 500;
-    font-style: normal;
+  /* --- background ------------------------------------------------------- */
+
+  .hero__media {
+    position: absolute;
+    right: -10%;
+    bottom: -10%;
+    width: min(46rem, 88vw);
+    aspect-ratio: 1;
+    opacity: 0.3;
+    /* Fades into the page without needing an overlay element on top */
+    -webkit-mask-image: radial-gradient(
+      75% 75% at 60% 40%,
+      #000 35%,
+      transparent 78%
+    );
+    mask-image: radial-gradient(
+      75% 75% at 60% 40%,
+      #000 35%,
+      transparent 78%
+    );
+    transform: translate3d(0, calc(var(--p, 0) * 14vh), 0)
+      scale(calc(1 + var(--p, 0) * 0.08));
+    will-change: transform;
+  }
+
+  .hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__glow {
+    position: absolute;
+    left: -20vw;
+    top: -30vh;
+    width: 70vw;
+    height: 70vw;
+    background: radial-gradient(
+      circle,
+      rgb(242 225 76 / 0.07),
+      transparent 62%
+    );
+    pointer-events: none;
+  }
+
+  /* --- content ---------------------------------------------------------- */
+
+  .hero__inner {
+    position: relative;
+    z-index: 10;
+    transform: translate3d(0, calc(var(--p, 0) * -8vh), 0);
+    opacity: calc(1 - var(--p, 0) * 1.1);
+  }
+
+  .hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--fg-2);
+    margin-bottom: clamp(1.25rem, 3vh, 2rem);
+  }
+
+  .hero__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent-soft);
+    box-shadow: 0 0 0 0 rgb(10 207 131 / 0.5);
+    animation: pulse 2.4s var(--ease-out-quart) infinite;
+  }
+
+  @keyframes pulse {
+    70% {
+      box-shadow: 0 0 0 8px rgb(10 207 131 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgb(10 207 131 / 0);
+    }
+  }
+
+  .hero__name {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3.5rem, 14vw, 10rem);
+    line-height: 0.94;
+    letter-spacing: -0.02em;
+  }
+
+  .hero__name .mask-line {
+    --mask-pad: 0.3em;
+  }
+
+  .hero__hl {
+    /* The highlight box only hugs the word, not the whole line */
+    width: fit-content;
+    background: var(--color-accent);
+    color: var(--color-ink);
+    padding-inline: 0.06em;
+    padding-block: 0.02em 0.12em;
+    border-radius: 0.06em;
+  }
+
+  .hero__lede {
+    max-width: 34rem;
+    margin-top: clamp(1.5rem, 4vh, 2.5rem);
+    font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+    line-height: 1.6;
+    color: var(--fg-2);
+    text-wrap: pretty;
+  }
+
+  .hero__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(1.5rem, 5vw, 3.5rem);
+    margin-top: clamp(2rem, 5vh, 3rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--hairline);
+    max-width: 42rem;
+  }
+
+  .hero__facts dt {
+    color: var(--fg-3);
+    margin-bottom: 0.4rem;
+  }
+
+  .hero__facts dd {
+    font-size: 0.95rem;
+    color: var(--fg-1);
+  }
+
+  /* --- scroll cue ------------------------------------------------------- */
+
+  .hero__cue {
+    position: absolute;
+    right: clamp(1rem, 4vw, 3rem);
+    bottom: clamp(4rem, 10vh, 7rem);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    color: var(--fg-3);
+    writing-mode: vertical-rl;
+    opacity: calc(1 - var(--p, 0) * 3);
+    transition: color var(--dur-fast) ease;
+  }
+
+  .hero__cue:hover {
+    color: var(--fg-1);
+  }
+
+  .hero__cue-rail {
+    position: relative;
+    width: 1px;
+    height: 4.5rem;
+    background: var(--hairline);
+    overflow: hidden;
+  }
+
+  .hero__cue-dot {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 1px;
+    height: 45%;
+    background: currentColor;
+    animation: cue 2.2s var(--ease-in-out-quint) infinite;
+  }
+
+  @keyframes cue {
+    0% {
+      transform: translateY(-110%);
+    }
+    100% {
+      transform: translateY(240%);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero__cue {
+      display: flex;
+    }
   }
 </style>
+
+<script>
+  import { register, trackProgressVar } from "../scripts/motion";
+
+  register(() => {
+    const hero = document.querySelector<HTMLElement>("[data-hero]");
+    if (!hero) return;
+    return trackProgressVar(hero, "exit", "--p");
+  });
+</script>

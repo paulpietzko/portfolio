@@ -1,89 +1,426 @@
 ---
 import Container from "../layouts/Container.astro";
+
+const links = [
+  { label: "Work", href: "/#work" },
+  { label: "Stack", href: "/#stack" },
+  { label: "Path", href: "/#path" },
+  { label: "Events", href: "/#events" },
+  { label: "Writing", href: "/#writing" },
+];
 ---
 
-<nav
-  class="absolute z-40 left-0 right-0 flex flex-wrap items-center justify-between mx-auto mt-4"
->
-  <Container size="xl">
-    <div class="flex w-full justify-between items-center">
-      <!-- Hamburger Button -->
-      <button
-        class="sm:hidden text-white focus:outline-none z-20"
-        data-menu-toggle
-        aria-label="Open main menu"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16m-7 6h7"></path>
-        </svg>
-      </button>
-      <!-- Navigation Links -->
-      <ul
-        class="hidden sm:flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 text-white font-light text-sm"
-        id="mobile-menu"
-      >
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>
-          <a
-            href="https://medium.com/@paul.pietzko"
-            class="hover:underline flex items-center"
-            target="_blank"
-          >
-            Blog
-            <img src="/icons/arrow-outward.svg" class="size-3 ml-1" />
-          </a>
-        </li>
-        <li>
-          <a href="references" class="hover:underline">References</a>
-        </li>
-        <li><a href="imprint" class="hover:underline">Imprint</a></li>
-      </ul>
+<!-- Reading progress. Deliberately outside the blended layer so it can
+     colour-mix itself against the wash instead of being inverted. -->
+<div class="scroll-progress" aria-hidden="true"></div>
 
-      <!-- Get in Touch Button -->
-      <a
-        href="mailto:paul.pietzko@icloud.com"
-        class="relative border rounded-md border-white px-4 py-2 text-white overflow-hidden group"
-      >
-        <span
-          class="absolute inset-0 bg-white transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"
-        ></span>
-        <button
-          onclick="track('GetInTouch')"
-          class="relative z-10 text-white group-hover:text-black"
-        >
-          Get in Touch
-        </button>
-      </a>
-    </div>
-  </Container>
+<nav class="site-nav" data-nav aria-label="Main">
+  <div class="site-nav__blend">
+    <Container size="xl">
+      <div class="flex w-full items-center justify-between gap-6 py-5">
+        <a href="/" class="wordmark" aria-label="Paul Pietzko — home">
+          <span class="wordmark__mark">PP</span>
+          <span class="wordmark__text">Paul Pietzko</span>
+        </a>
+
+        <ul class="nav-links">
+          {
+            links.map((link) => (
+              <li>
+                <a href={link.href} data-nav-link={link.href.split("#")[1]}>
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="flex items-center gap-3">
+          <a href="mailto:paul.pietzko@icloud.com" class="cta">
+            <span>Get in touch</span>
+          </a>
+
+          <button
+            class="burger"
+            data-menu-open
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="site-menu"
+          >
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </Container>
+  </div>
 </nav>
 
+<!-- Mobile menu lives outside the blended layer so it keeps its own colours -->
+<div class="menu" id="site-menu" data-menu hidden>
+  <button class="menu__close" data-menu-close aria-label="Close menu">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+      <path
+        d="M5 5l14 14M19 5L5 19"
+        stroke="currentColor"
+        stroke-width="1.5"
+        fill="none"></path>
+    </svg>
+  </button>
+
+  <nav class="menu__inner" aria-label="Mobile">
+    <ul>
+      {
+        links.map((link, i) => (
+          <li style={`--i:${i}`}>
+            <a href={link.href} data-menu-link>
+              <span class="menu__index">0{i + 1}</span>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <a href="mailto:paul.pietzko@icloud.com" class="menu__mail">
+      paul.pietzko@icloud.com
+    </a>
+  </nav>
+</div>
+
+<style>
+  .scroll-progress {
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: 60;
+    height: 2px;
+    width: 100%;
+    transform: scaleX(var(--scroll, 0));
+    transform-origin: 0 50%;
+    background: color-mix(
+      in oklab,
+      var(--color-accent),
+      var(--color-ink) calc(var(--wash) * 100%)
+    );
+    pointer-events: none;
+  }
+
+  .site-nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    transition: transform var(--dur-mid) var(--ease-out-quart);
+  }
+
+  .site-nav[data-hidden] {
+    transform: translate3d(0, -100%, 0);
+  }
+
+  /* The whole bar is difference-blended against the page, so it flips from
+     white to black by itself when the timeline washes the page white. */
+  .site-nav__blend {
+    mix-blend-mode: difference;
+    color: #fff;
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .wordmark__mark {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid currentColor;
+    border-radius: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    transition: transform var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .wordmark:hover .wordmark__mark {
+    transform: rotate(-12deg) scale(1.06);
+  }
+
+  .wordmark__text {
+    display: none;
+    font-size: 0.9rem;
+  }
+
+  .nav-links {
+    display: none;
+    gap: 2rem;
+    font-size: 0.875rem;
+    font-weight: 300;
+  }
+
+  .nav-links a {
+    position: relative;
+    padding-block: 0.25rem;
+    opacity: 0.7;
+    transition: opacity var(--dur-fast) ease;
+  }
+
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .nav-links a:hover,
+  .nav-links a[aria-current="true"] {
+    opacity: 1;
+  }
+
+  .nav-links a:hover::after,
+  .nav-links a[aria-current="true"]::after {
+    transform: scaleX(1);
+  }
+
+  .cta {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid currentColor;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    isolation: isolate;
+  }
+
+  .cta::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #fff;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .cta > span {
+    transition: color var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .cta:hover::before {
+    transform: scaleX(1);
+  }
+
+  .cta:hover > span {
+    color: #000;
+  }
+
+  .burger {
+    display: grid;
+    gap: 5px;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .burger span {
+    display: block;
+    width: 22px;
+    height: 1px;
+    background: currentColor;
+    transition: transform var(--dur-mid) var(--ease-out-expo);
+  }
+
+  .burger:hover span:first-child {
+    transform: translateX(4px);
+  }
+
+  /* --- Mobile menu ------------------------------------------------------ */
+
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: var(--color-dark-100);
+    color: var(--fg-1);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity var(--dur-mid) var(--ease-out-quart);
+  }
+
+  .menu[hidden] {
+    display: none;
+  }
+
+  .menu.is-open {
+    opacity: 1;
+  }
+
+  .menu__close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    color: var(--fg-2);
+  }
+
+  .menu__inner {
+    text-align: center;
+  }
+
+  .menu__inner ul {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .menu__inner a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 12vw, 4rem);
+    line-height: 1.1;
+    color: var(--fg-1);
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity var(--dur-slow) var(--ease-out-quart) calc(var(--i) * 60ms),
+      transform var(--dur-slow) var(--ease-out-expo) calc(var(--i) * 60ms);
+  }
+
+  .menu.is-open .menu__inner a {
+    opacity: 1;
+    transform: none;
+  }
+
+  .menu__index {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-accent);
+  }
+
+  .menu__mail {
+    display: inline-block;
+    margin-top: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-3);
+  }
+
+  @media (min-width: 768px) {
+    .nav-links {
+      display: flex;
+    }
+    .wordmark__text {
+      display: inline;
+    }
+    .burger {
+      display: none;
+    }
+  }
+</style>
+
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const toggleButton = document.querySelector("[data-menu-toggle]");
-    const navList = document.getElementById("mobile-menu");
-    const overlay = document.getElementById("menu-overlay");
+  import { register, clamp } from "../scripts/motion";
 
-    // Toggle the visibility of the menu and overlay
-    toggleButton?.addEventListener("click", () => {
-      navList?.classList.toggle("hidden");
-      overlay?.classList.toggle("hidden");
-    });
+  register(() => {
+    const nav = document.querySelector<HTMLElement>("[data-nav]");
+    const bar = document.querySelector<HTMLElement>(".scroll-progress");
+    const menu = document.querySelector<HTMLElement>("[data-menu]");
+    const openBtn = document.querySelector<HTMLElement>("[data-menu-open]");
+    const closeBtn = document.querySelector<HTMLElement>("[data-menu-close]");
+    if (!nav) return;
 
-    // Close the menu when clicking the overlay
-    overlay?.addEventListener("click", () => {
-      navList?.classList.add("hidden");
-      overlay?.classList.add("hidden");
-    });
+    /* --- hide on scroll down, reveal on scroll up --- */
+    let lastY = window.scrollY;
+    let frame = 0;
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const y = window.scrollY;
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+
+        bar?.style.setProperty("--scroll", clamp(y / (max || 1)).toFixed(4));
+
+        const goingDown = y > lastY;
+        if (goingDown && y > 160 && !menu?.classList.contains("is-open")) {
+          nav.setAttribute("data-hidden", "");
+        } else {
+          nav.removeAttribute("data-hidden");
+        }
+        lastY = y;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    /* --- active section --- */
+    const linkFor = new Map<string, HTMLAnchorElement>();
+    for (const a of nav.querySelectorAll<HTMLAnchorElement>("[data-nav-link]")) {
+      if (a.dataset.navLink) linkFor.set(a.dataset.navLink, a);
+    }
+
+    const sections = [...linkFor.keys()]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    const spy = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          for (const a of linkFor.values()) a.removeAttribute("aria-current");
+          linkFor.get(entry.target.id)?.setAttribute("aria-current", "true");
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    sections.forEach((s) => spy.observe(s));
+
+    /* --- mobile menu --- */
+    let closeTimer = 0;
+
+    const setMenu = (open: boolean) => {
+      if (!menu) return;
+      window.clearTimeout(closeTimer);
+      openBtn?.setAttribute("aria-expanded", String(open));
+      document.body.style.overflow = open ? "hidden" : "";
+      if (open) {
+        menu.hidden = false;
+        requestAnimationFrame(() => menu.classList.add("is-open"));
+        closeBtn?.focus();
+      } else {
+        menu.classList.remove("is-open");
+        closeTimer = window.setTimeout(() => {
+          menu.hidden = true;
+        }, 450);
+      }
+    };
+
+    const open = () => setMenu(true);
+    const close = () => setMenu(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+
+    openBtn?.addEventListener("click", open);
+    closeBtn?.addEventListener("click", close);
+    document.addEventListener("keydown", onKey);
+    menu
+      ?.querySelectorAll("[data-menu-link]")
+      .forEach((a) => a.addEventListener("click", close));
+
+    return () => {
+      window.clearTimeout(closeTimer);
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("keydown", onKey);
+      spy.disconnect();
+      document.body.style.overflow = "";
+    };
   });
 </script>

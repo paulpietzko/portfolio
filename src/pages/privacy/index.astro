@@ -1,25 +1,26 @@
 ---
-import Container from "../../layouts/Container.astro";
 import Layout from "../../layouts/Layout.astro";
 import LegalLayout from "../../layouts/Legal-Layout.astro";
 ---
 
-<Layout>
+<Layout
+  title="Privacy Policy | Paul Pietzko"
+  description="How paulpietzko.com handles your data."
+>
   <LegalLayout title="Privacy Policy">
-    <Container size="xl">
-      <p class="text-lg">
+      <p class="lead">
         I take your privacy seriously. This policy outlines my practices
         regarding data collection and use.
       </p>
       <div>
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Data Collection</h2>
+        <h2>Data Collection</h2>
         <p>
           This site collects anonymous data to better understand how all of you
           interact with this. This helps me improve the overall user experience.
         </p>
       </div>
       <div>
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Cookies</h2>
+        <h2>Cookies</h2>
         <p>
           I use cookies to enhance user experience. These cookies are essential
           for the proper functioning of my website and do not store any personal
@@ -27,32 +28,32 @@ import LegalLayout from "../../layouts/Legal-Layout.astro";
         </p>
       </div>
       <div>
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Third-Party Services</h2>
+        <h2>Third-Party Services</h2>
         <p>
           My site may contain links to third-party websites. I'm not responsible
           for the privacy practices or content of these sites.
         </p>
       </div>
       <div>
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Changes to This Policy</h2>
+        <h2>Changes to This Policy</h2>
         <p>
           I may update this privacy policy from time to time. I encourage you to
           review this page periodically for any changes.
         </p>
       </div>
       <div>
-        <h2 class="text-2xl font-semibold mt-8 mb-4">Contact Me</h2>
+        <h2>Contact Me</h2>
         <p>
           If you have any questions about our privacy policy, please contact me
           at
           <a
             href="mailto:paul.pietzko@icloud.com"
-            class="text-primary hover:underline"
+           
           >
             paul.pietzko@icloud.com
           </a>.
         </p>
       </div>
-    </Container></LegalLayout
+</LegalLayout
   >
 </Layout>
