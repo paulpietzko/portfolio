@@ -108,7 +108,28 @@ const links = [
     position: fixed;
     inset: 0 0 auto 0;
     z-index: 50;
-    transition: transform var(--dur-mid) var(--ease-out-quart);
+    transition:
+      transform var(--dur-mid) var(--ease-out-quart),
+      backdrop-filter var(--dur-mid) var(--ease-out-quart),
+      background-color var(--dur-mid) var(--ease-out-quart);
+  }
+
+  /* Frosts once the page has scrolled under it. The tint follows the wash so
+     it stays light-on-dark and dark-on-light without a second rule. */
+  .site-nav[data-scrolled] {
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    background: color-mix(
+      in oklab,
+      rgb(10 10 10 / 0.55),
+      rgb(251 251 249 / 0.6) calc(var(--wash) * 100%)
+    );
+    border-bottom: 1px solid
+      color-mix(
+        in oklab,
+        rgb(255 255 255 / 0.1),
+        rgb(10 10 10 / 0.1) calc(var(--wash) * 100%)
+      );
   }
 
   .site-nav[data-hidden] {
@@ -355,6 +376,8 @@ const links = [
         const max = document.documentElement.scrollHeight - window.innerHeight;
 
         bar?.style.setProperty("--scroll", clamp(y / (max || 1)).toFixed(4));
+
+        nav.toggleAttribute("data-scrolled", y > 24);
 
         const goingDown = y > lastY;
         if (goingDown && y > 160 && !menu?.classList.contains("is-open")) {

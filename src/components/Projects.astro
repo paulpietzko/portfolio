@@ -2,11 +2,14 @@
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import ProjectCard from "./ProjectCard.astro";
+import logierImage from "../assets/projects/logier.png";
+import sxcImage from "../assets/projects/2sxc.png";
+import schoolSysImage from "../assets/projects/school-sys.png";
 
 const projects = [
   {
     link: "https://www.logier.dev",
-    imgSrc: "/images/logier.png",
+    imgSrc: logierImage,
     imgAlt: "Logier devtool desktop app",
     title: "Logier",
     year: "2025",
@@ -17,7 +20,7 @@ const projects = [
   },
   {
     link: "https://2sxc.org/en/",
-    imgSrc: "/images/2sxc.png",
+    imgSrc: sxcImage,
     imgAlt: "2sxc content management system",
     title: "2sxc",
     year: "2024–25",
@@ -28,7 +31,7 @@ const projects = [
   },
   {
     link: "https://school-sys.org/en/",
-    imgSrc: "/images/school-sys.png",
+    imgSrc: schoolSysImage,
     imgAlt: "SchoolSys education platform",
     title: "SchoolSys",
     year: "2025",
@@ -76,11 +79,20 @@ const projects = [
       flex-direction: row;
       align-items: center;
       gap: clamp(0.5rem, 1vw, 1rem);
-      /* Full screen width. Just enough inset that the tilt can push the
-         outer cards' corners off-screen without taking their titles with
-         them — the labels sit ~1.75rem inside each card. */
-      padding-inline: clamp(0.5rem, 1.5vw, 1.5rem);
+      /* Wider than the screen: the outer two cards run off both edges. */
+      width: 118vw;
+      margin-inline: -9vw;
       margin-top: clamp(2rem, 6vh, 4rem);
+    }
+
+    /* The bleed would take the outer cards' labels off-screen with them, so
+       their text block is nudged back inward by the same amount. */
+    .projects__deck > :global(.project:first-child .project__meta) {
+      padding-left: calc(9vw + clamp(1rem, 2vw, 1.75rem));
+    }
+
+    .projects__deck > :global(.project:last-child .project__meta) {
+      padding-right: calc(9vw + clamp(1rem, 2vw, 1.75rem));
     }
 
     /* Centre card sits proud of the other two */

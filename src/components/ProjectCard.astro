@@ -1,7 +1,10 @@
 ---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
 interface Props {
   link: string;
-  imgSrc: string;
+  imgSrc: ImageMetadata;
   imgAlt: string;
   title: string;
   text: string;
@@ -36,7 +39,17 @@ const {
   data-reveal="scale"
 >
   <div class="project__frame">
-    <img src={imgSrc} alt={imgAlt} loading="lazy" decoding="async" />
+    <Image
+      src={imgSrc}
+      alt={imgAlt}
+      width={1000}
+      widths={[420, 700, 1000]}
+      sizes="(max-width: 767px) 92vw, 34vw"
+      format="webp"
+      quality={70}
+      loading="lazy"
+      decoding="async"
+    />
 
     <div class="project__scrim"></div>
 

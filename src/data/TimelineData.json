@@ -4,7 +4,7 @@
     "when": "August 2021",
     "title": "Started the apprenticeship",
     "org": "Informatiker EFZ, Applikationsentwicklung",
-    "description": "Four years of Swiss vocational training: school two days a week, code the other three. The fastest way I know to learn how software actually gets built.",
+    "description": "Four years of Swiss vocational training — school two days a week, production code the other three. Nothing teaches you how software actually gets built like shipping it while you are still learning the language it is written in.",
     "tags": ["Java", "SQL", "Fundamentals"],
     "accent": "#8a7cc2"
   },
@@ -13,7 +13,7 @@
     "when": "August 2024",
     "title": "Internship at 2sic",
     "org": "2sxc — CMS for DNN & Oqtane",
-    "description": "Contributed to a CMS built around the 1-second paradigm, where every interaction has to land in under a second. Learning to work inside a large existing codebase changed how I write my own.",
+    "description": "My first properly large codebase, built around a rule that every interaction has to land in under a second. Working inside someone else's architecture — and being held to that number — changed how I write my own.",
     "tags": ["Angular", ".NET", "Razor", "TypeScript"],
     "accent": "#2f6fed"
   },
@@ -22,7 +22,7 @@
     "when": "July 2025",
     "title": "Graduated",
     "org": "EFZ diploma ceremony",
-    "description": "Qualified as a software developer. Four years in, with a stack of projects behind me and a much clearer idea of what I want to build next.",
+    "description": "Qualified as a software developer, with the Berufsmaturität in economics alongside it. Four years of work behind me, and a much clearer idea of what I wanted to build next.",
     "tags": ["EFZ", "BMS Wirtschaft"],
     "accent": "#e8a400"
   },
@@ -31,7 +31,7 @@
     "when": "January 2026",
     "title": "Rekrutenschule",
     "org": "Swiss Armed Forces",
-    "description": "Eighteen weeks of basic military service. No IDE, no keyboard — and a genuinely useful reset on how I think about discipline and working in a team.",
+    "description": "Eighteen weeks of basic military service. No IDE, no keyboard, no way to solve a problem by reading the docs — and a genuinely useful reset on discipline and getting things done as part of a team.",
     "tags": ["Service", "Teamwork"],
     "accent": "#57534e"
   },
@@ -40,17 +40,17 @@
     "when": "May 2026",
     "title": "Shipped my own SaaS",
     "org": "Logier",
-    "description": "A universal log parser and visualiser for developers, as a desktop app for macOS and Windows. My first product where I own every decision — from the parser core to the pricing page.",
+    "description": "A universal log parser and visualiser for developers, as a desktop app for macOS and Windows. The first product where every decision is mine — the parser core, the pricing page, and everything I got wrong in between.",
     "tags": ["Electron", "React", "Supabase", "Stripe"],
     "accent": "#0acf83"
   },
   {
     "year": "2026",
     "when": "September 2026",
-    "title": "University of Applied Sciences",
-    "org": "ZHAW",
-    "description": "",
-    "tags": ["Java"],
+    "title": "Back to school, on purpose",
+    "org": "ZHAW — University of Applied Sciences",
+    "description": "Studying computer science alongside the work. Four years of building things taught me what I can do; this is for the parts I only know how to look up.",
+    "tags": ["Java", "Computer science"],
     "accent": "#2986cc"
   }
 ]

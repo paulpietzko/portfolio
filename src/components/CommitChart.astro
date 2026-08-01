@@ -1,0 +1,185 @@
+---
+/**
+ * The commit history is already known at build time, so the chart is plain
+ * server-rendered SVG. That removes Chart.js (~160 kB) and the Solid runtime
+ * from the page entirely, and the chart is painted on first frame instead of
+ * after a hydration round-trip.
+ */
+interface Props {
+  data: number[];
+}
+
+const { data } = Astro.props;
+
+const W = 720;
+const H = 220;
+const PAD = { top: 16, right: 8, bottom: 26, left: 34 };
+
+const plotW = W - PAD.left - PAD.right;
+const plotH = H - PAD.top - PAD.bottom;
+
+const max = Math.max(...data, 1);
+// Round the axis up to a clean number so the gridlines read well
+const step = Math.pow(10, Math.floor(Math.log10(max))) / 2;
+const top = Math.ceil(max / step) * step;
+
+const x = (i: number) => PAD.left + (i / (data.length - 1 || 1)) * plotW;
+const y = (v: number) => PAD.top + plotH - (v / top) * plotH;
+
+const points = data.map((v, i) => [x(i), y(v)] as const);
+
+/** Catmull-Rom → cubic bézier, so the line curves without overshooting. */
+const smoothPath = (pts: readonly (readonly [number, number])[]) => {
+  if (pts.length < 2) return "";
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] ?? p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`;
+  }
+  return d;
+};
+
+const line = smoothPath(points);
+const area = `${line} L ${x(data.length - 1)} ${PAD.top + plotH} L ${x(0)} ${PAD.top + plotH} Z`;
+
+const ticks = [0, top / 2, top];
+
+const months = Array.from({ length: data.length }, (_, i) => {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - (data.length - 1 - i));
+  return d.toLocaleString("en-US", { month: "short" });
+});
+
+const gradientId = "commit-fill";
+---
+
+<figure class="chart">
+  <svg
+    viewBox={`0 0 ${W} ${H}`}
+    preserveAspectRatio="none"
+    role="img"
+    aria-label={`Monthly contributions over the last ${data.length} months, peaking at ${max}.`}
+  >
+    <defs>
+      <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--color-accent-soft)" stop-opacity="0.3" />
+        <stop offset="100%" stop-color="var(--color-accent-soft)" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+
+    {
+      ticks.map((tick) => (
+        <g class="chart__grid">
+          <line x1={PAD.left} x2={W - PAD.right} y1={y(tick)} y2={y(tick)} />
+          <text x={PAD.left - 8} y={y(tick)} dy="0.32em" text-anchor="end">
+            {tick}
+          </text>
+        </g>
+      ))
+    }
+
+    <path class="chart__area" d={area} fill={`url(#${gradientId})`} />
+    <!-- pathLength normalises the dash maths regardless of the real length -->
+    <path class="chart__line" d={line} pathLength="1" />
+
+    {
+      points.map(([px, py], i) => (
+        <g class="chart__point">
+          <circle cx={px} cy={py} r="3.5" />
+          <title>{`${months[i]}: ${data[i]} contributions`}</title>
+        </g>
+      ))
+    }
+
+    {
+      months.map((month, i) => (
+        <text class="chart__label" x={x(i)} y={H - 8} text-anchor="middle">
+          {month}
+        </text>
+      ))
+    }
+  </svg>
+</figure>
+
+<style>
+  .chart svg {
+    display: block;
+    width: 100%;
+    height: clamp(14rem, 26vw, 20rem);
+    overflow: visible;
+  }
+
+  .chart__grid line {
+    stroke: var(--hairline);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .chart__grid text,
+  .chart__label {
+    fill: var(--fg-3);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .chart__line {
+    fill: none;
+    stroke: var(--color-accent-soft);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    /* Drawn on once the section scrolls into view */
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  .chart__area {
+    opacity: 0;
+    transition: opacity 900ms var(--ease-out-quart) 350ms;
+  }
+
+  .chart__point circle {
+    fill: var(--color-accent-soft);
+    opacity: 0;
+    transition: opacity var(--dur-fast) ease;
+  }
+
+  .chart__point:hover circle {
+    opacity: 1;
+  }
+
+  /* `.is-in` is added by the shared reveal observer on the wrapper */
+  :global(.stats__chart.is-in) .chart__line {
+    animation: draw 1400ms var(--ease-out-quart) forwards;
+  }
+
+  :global(.stats__chart.is-in) .chart__area {
+    opacity: 1;
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chart__line {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+    .chart__area {
+      opacity: 1;
+      transition: none;
+    }
+  }
+</style>

@@ -1,8 +1,9 @@
 ---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import eventsData from "../data/EventsData.json";
-import { aspectRatio } from "../utils/ImageSize";
 
 const events = [...eventsData].sort((a, b) => {
   const ta = Number(new Date(a?.date)) || 0;
@@ -11,52 +12,29 @@ const events = [...eventsData].sort((a, b) => {
 });
 
 /**
- * Card heights come from the images themselves, not a fixed pattern: each
- * photo's real pixel ratio picks a row span whose slot has roughly the same
- * shape, so a panorama gets a wide card and a portrait gets a tall one and
- * `object-fit: cover` barely has to crop anything.
+ * Event photos live in src/assets so Astro can resize and re-encode them at
+ * build time. EventsData.json still refers to them as /images/events/... —
+ * this maps that path onto the bundled asset.
  */
-const ROWS = 6;
+const assets = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/events/**/*.{png,jpg,jpeg,webp,avif}",
+  { eager: true },
+);
 
-const spanFor = (imageUrl: string) => {
-  const ratio = aspectRatio(imageUrl);
-  if (ratio === null) return 3; // unknown file — take the middle option
-  if (ratio >= 2.0) return 2; // panorama
-  if (ratio >= 1.35) return 3; // landscape
-  if (ratio >= 0.95) return 4; // square-ish
-  return 6; // portrait
+const resolve = (url: string): ImageMetadata | null => {
+  const key = `/src/assets${url.replace(/^\/images/, "")}`;
+  const found = assets[key];
+  if (!found) console.warn(`[events] no image bundled for ${url}`);
+  return found?.default ?? null;
 };
 
-type Cell = { event: (typeof events)[number]; span: number; start?: number };
-
-const remaining = events.map((event) => ({ event, span: spanFor(event.imageUrl) }));
-const columns: Cell[][] = [];
-
-// First-fit with look-ahead: keeps roughly chronological order while still
-// filling each column, instead of stranding a lone card in the last one.
-while (remaining.length) {
-  const column: Cell[] = [];
-  let used = 0;
-
-  for (;;) {
-    const next = remaining.findIndex((cell) => used + cell.span <= ROWS);
-    if (next === -1) break;
-    const [cell] = remaining.splice(next, 1);
-    column.push(cell);
-    used += cell.span;
-  }
-
-  // A column that didn't fill sits centred rather than pinned to the top
-  if (used < ROWS && column.length) {
-    let row = Math.floor((ROWS - used) / 2) + 1;
-    for (const cell of column) {
-      cell.start = row;
-      row += cell.span;
-    }
-  }
-
-  columns.push(column);
-}
+const cards = events
+  .map((event) => ({
+    event,
+    image: resolve(event.imageUrl),
+    hover: event.hoverImageUrl ? resolve(event.hoverImageUrl) : null,
+  }))
+  .filter((card) => card.image !== null);
 
 const formatDate = (date: string) =>
   date
@@ -81,47 +59,50 @@ const formatDate = (date: string) =>
     <div class="gallery__stage">
       <div class="gallery__rail" data-rail>
         {
-          columns.map((cells) => (
-            <div class="gallery__col">
-              {cells.map(({ event, span, start }) => (
-                <a
-                  class="card"
-                  style={`--span:${span};${start ? `--start:${start};` : ""}`}
-                  href={event.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div class="card__media">
-                    <img
-                      src={event.imageUrl}
-                      alt={event.name}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    {event.hoverImageUrl && (
-                      <img
-                        class="card__media-hover"
-                        src={event.hoverImageUrl}
-                        alt=""
-                        aria-hidden="true"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    )}
-                  </div>
+          cards.map(({ event, image, hover }) => (
+            <a
+              class="card"
+              href={event.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="card__media">
+                <Image
+                  src={image!}
+                  alt={event.name}
+                  width={640}
+                  widths={[320, 640]}
+                  sizes="20rem"
+                  format="webp"
+                  quality={68}
+                  loading="lazy"
+                  decoding="async"
+                />
+                {hover && (
+                  <Image
+                    class="card__media-hover"
+                    src={hover}
+                    alt=""
+                    aria-hidden="true"
+                    width={640}
+                    widths={[320, 640]}
+                    sizes="20rem"
+                    format="webp"
+                    quality={68}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+              </div>
 
-                  <div class="card__body">
-                    <span class="card__date eyebrow">
-                      {formatDate(event.date)}
-                    </span>
-                    <h3 class="card__title">{event.name}</h3>
-                    {event.description && (
-                      <p class="card__text">{event.description}</p>
-                    )}
-                  </div>
-                </a>
-              ))}
-            </div>
+              <div class="card__body">
+                <span class="card__date eyebrow">{formatDate(event.date)}</span>
+                <h3 class="card__title">{event.name}</h3>
+                {event.description && (
+                  <p class="card__text">{event.description}</p>
+                )}
+              </div>
+            </a>
           ))
         }
       </div>
@@ -134,40 +115,46 @@ const formatDate = (date: string) =>
     padding-block: clamp(4rem, 9vh, 7rem) clamp(5rem, 13vh, 9rem);
   }
 
-  /* --- the scroll-driven track ----------------------------------------- */
+  /* --- pinned scroll ---------------------------------------------------- */
 
-  /* No pinning and no viewport-height band — the gallery is a normal block
-     that happens to travel right-to-left as the page scrolls past it. */
+  .gallery {
+    /* Vertical scroll distance equals horizontal travel, so the rail moves
+       exactly as fast as the page does. --travel is measured in JS. */
+    height: calc(100svh + var(--travel, 0px));
+  }
+
   .gallery__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: flex;
+    align-items: center;
     overflow: hidden;
   }
 
+  /*
+   * Column-wrap masonry: cards are a fixed width with their natural height,
+   * and the fixed rail height makes them wrap into ragged columns. Nothing
+   * is cropped, so every photo keeps its own orientation.
+   */
   .gallery__rail {
     display: flex;
+    flex-flow: column wrap;
+    align-content: flex-start;
     gap: clamp(0.75rem, 1.2vw, 1.25rem);
-    height: clamp(24rem, 62vh, 38rem);
+    height: min(74svh, 42rem);
     padding-inline: clamp(1rem, 5vw, 5rem);
     transform: translate3d(calc(var(--p, 0) * var(--travel, 0px) * -1), 0, 0);
     will-change: transform;
-  }
-
-  /* Explicit row units, so every card's height is exactly its span
-     regardless of what else ended up in the column. */
-  .gallery__col {
-    display: grid;
-    grid-template-rows: repeat(6, minmax(0, 1fr));
-    gap: clamp(0.75rem, 1.2vw, 1.25rem);
-    flex: none;
-    width: clamp(16rem, 28vw, 25rem);
-    height: 100%;
   }
 
   /* --- cards ------------------------------------------------------------ */
 
   .card {
     position: relative;
-    grid-row: var(--start, auto) / span var(--span, 3);
     display: block;
+    width: 20rem;
+    flex: none;
     overflow: hidden;
     border-radius: 0.9rem;
     background: var(--color-dark-200);
@@ -175,33 +162,32 @@ const formatDate = (date: string) =>
   }
 
   .card__media {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    display: block;
   }
 
-  .card__media img {
-    position: absolute;
-    inset: 0;
+  .card__media :global(img) {
+    display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* Slight counter-drift gives the rail some depth as it travels */
-    scale: 1.12;
-    translate: calc(var(--p, 0) * 1.5rem) 0;
+    height: auto;
     transition:
       scale var(--dur-xslow) var(--ease-out-expo),
       opacity var(--dur-slow) var(--ease-out-quart);
   }
 
-  .card__media-hover {
+  .card__media :global(.card__media-hover) {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    object-fit: cover;
     opacity: 0;
   }
 
-  .card:hover .card__media img {
-    scale: 1.2;
+  .card:hover .card__media :global(img) {
+    scale: 1.06;
   }
 
-  .card:hover .card__media-hover {
+  .card:hover .card__media :global(.card__media-hover) {
     opacity: 1;
   }
 
@@ -216,7 +202,7 @@ const formatDate = (date: string) =>
       rgb(0 0 0 / 0) 72%
     );
     z-index: 1;
-    transition: opacity var(--dur-slow) var(--ease-out-quart);
+    pointer-events: none;
   }
 
   .card__body {
@@ -249,7 +235,6 @@ const formatDate = (date: string) =>
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    /* Held back until hover so the grid reads as images first */
     max-height: 0;
     opacity: 0;
     transition:
@@ -266,11 +251,16 @@ const formatDate = (date: string) =>
   /* --- no pinning on small screens or with reduced motion --------------- */
 
   @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .gallery {
+      height: auto;
+    }
+
     .gallery__stage {
+      position: static;
+      height: auto;
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scrollbar-width: none;
-      scroll-snap-type: x mandatory;
     }
 
     .gallery__stage::-webkit-scrollbar {
@@ -280,15 +270,11 @@ const formatDate = (date: string) =>
     .gallery__rail {
       transform: none;
       height: 30rem;
+      will-change: auto;
     }
 
-    .gallery__col {
-      scroll-snap-align: center;
+    .card {
       width: 15rem;
-    }
-
-    .card__media img {
-      translate: none;
     }
 
     .card__text {
@@ -315,33 +301,31 @@ const formatDate = (date: string) =>
         gallery.style.removeProperty("--travel");
         return;
       }
+      // Column-wrap flex containers don't widen to fit their columns, so the
+      // real extent has to come from scrollWidth rather than offsetWidth.
       const travel = Math.max(0, rail.scrollWidth - stage.clientWidth);
       gallery.style.setProperty("--travel", `${Math.round(travel)}px`);
     };
 
     measure();
     window.addEventListener("resize", measure);
-    // Card images change the rail width once they land
-    const imagesReady = Promise.all(
-      [...rail.querySelectorAll("img")]
-        .filter((img) => !img.complete)
-        .map(
-          (img) =>
-            new Promise<void>((resolve) => {
-              img.addEventListener("load", () => resolve(), { once: true });
-              img.addEventListener("error", () => resolve(), { once: true });
-            }),
-        ),
-    );
-    imagesReady.then(measure);
 
-    // The travel now happens while the gallery crosses the viewport. Using
-    // the middle 70% of that window means the first and last cards are
-    // actually readable rather than only reachable at the extremes.
-    const stop = trackProgress(gallery, "cover", (p) => {
-      const eased = Math.min(Math.max((p - 0.15) / 0.7, 0), 1);
-      gallery.style.setProperty("--p", eased.toFixed(4));
-    });
+    // Card heights are intrinsic, so the columns only settle once the images
+    // have their boxes — Astro emits width/height, but re-measure anyway.
+    const images = [...rail.querySelectorAll("img")];
+    const pending = images.filter((img) => !img.complete);
+    let left = pending.length;
+    for (const img of pending) {
+      const done = () => {
+        if (--left === 0) measure();
+      };
+      img.addEventListener("load", done, { once: true });
+      img.addEventListener("error", done, { once: true });
+    }
+
+    const stop = trackProgress(gallery, "pin", (p) =>
+      gallery.style.setProperty("--p", p.toFixed(4)),
+    );
 
     return () => {
       stop();

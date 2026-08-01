@@ -1,6 +1,8 @@
 ---
+import { Image } from "astro:assets";
 import Container from "../layouts/Container.astro";
 import Navbar from "./Navbar.astro";
+import heroPortrait from "../assets/portfolio-hero-image.png";
 
 // Professional experience is counted from 1 August 2024, matching the
 // "Joined 2sic" entry in src/data/TimelineData.json.
@@ -26,13 +28,16 @@ const facts = [
   <Navbar />
 
   <div class="hero__media" aria-hidden="true">
-    <img
-      src="/images/portfolio-hero-image.png"
+    <Image
+      src={heroPortrait}
       alt=""
-      width="3515"
-      height="3515"
+      width={1400}
+      widths={[480, 768, 1100, 1400]}
+      sizes="(max-width: 767px) 118vw, min(62rem, 96vw)"
+      format="webp"
+      quality={62}
+      loading="eager"
       fetchpriority="high"
-      decoding="async"
     />
   </div>
 

@@ -1,9 +1,8 @@
 ---
 import Container from "../layouts/Container.astro";
-import NumberCounter from "./NumberCounter.tsx";
 import SubTitle from "./SubTitle.astro";
 import fetchStats from "../utils/FetchGitHubStats";
-import CommitHistoryChart from "./CommitHistoryChart";
+import CommitChart from "./CommitChart.astro";
 import fetchUserCommits from "../utils/FetchYearlyCommits";
 
 const stats = await fetchStats("paulpietzko");
@@ -36,7 +35,7 @@ const tiles = stats
           <div class="stats__grid" data-reveal-group="80">
             {tiles.map((tile) => (
               <div class="stat" data-reveal="up">
-                <NumberCounter client:visible number={tile.value} />
+                <p class="counter" data-count-to={tile.value}>0</p>
                 <p class="stat__label eyebrow">{tile.label}</p>
               </div>
             ))}
@@ -49,7 +48,7 @@ const tiles = stats
               <h3>Contributions, last 12 months</h3>
               <span class="eyebrow">GitHub</span>
             </div>
-            <CommitHistoryChart client:visible data={commitsLastYear} />
+            <CommitChart data={commitsLastYear} />
           </div>
         )}
       </Container>

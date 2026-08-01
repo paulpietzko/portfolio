@@ -166,9 +166,9 @@ const wordCount = Math.max(cursor, 1);
   .story__word {
     display: inline-block;
     color: #fff;
-    /* A steeper multiplier lights more words per unit of scroll, and the
-       floor keeps unlit text legible instead of nearly invisible. */
-    opacity: clamp(0.28, calc((var(--p, 1) * var(--n) - var(--i)) * 0.9), 1);
+    /* Low floor so unlit text sits well back and the lit edge reads clearly;
+       the steep multiplier keeps the sweep quick. */
+    opacity: clamp(0.1, calc((var(--p, 1) * var(--n) - var(--i)) * 0.9), 1);
   }
 
   .story__more {

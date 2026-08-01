@@ -138,7 +138,8 @@
     transform var(--dur-slow) var(--ease-out-expo) var(--reveal-delay),
     filter var(--dur-slow) var(--ease-out-quart) var(--reveal-delay),
     clip-path var(--dur-slow) var(--ease-out-expo) var(--reveal-delay);
-  will-change: opacity, transform;
+  /* No will-change here on purpose: it would promote every reveal target on
+     the page to its own compositor layer for the whole session. */
 }
 
 .js [data-reveal="up"] {
@@ -164,7 +165,6 @@
   transform: none;
   filter: none;
   clip-path: inset(-30% -10% -30% 0);
-  will-change: auto;
 }
 
 /* A line of type that wipes up from behind its own baseline */

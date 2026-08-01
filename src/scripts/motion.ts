@@ -176,6 +176,57 @@ function initReveals(): Cleanup {
 }
 
 /* -------------------------------------------------------------------------
+   Count-up
+   ------------------------------------------------------------------------- */
+
+const easeOutExpo = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
+
+/** Animates `[data-count-to]` numbers the first time they come into view. */
+function initCounters(): Cleanup {
+  const targets = document.querySelectorAll<HTMLElement>("[data-count-to]");
+  if (!targets.length) return;
+
+  const format = (value: number) => value.toLocaleString("en-US");
+  const reduced = prefersReducedMotion();
+  const frames = new Set<number>();
+
+  const run = (el: HTMLElement) => {
+    const target = Number(el.dataset.countTo) || 0;
+    if (reduced) {
+      el.textContent = format(target);
+      return;
+    }
+    const duration = 1800;
+    let start: number | null = null;
+    const step = (now: number) => {
+      if (start === null) start = now;
+      const t = Math.min((now - start) / duration, 1);
+      el.textContent = format(Math.round(easeOutExpo(t) * target));
+      if (t < 1) frames.add(requestAnimationFrame(step));
+    };
+    frames.add(requestAnimationFrame(step));
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        run(entry.target as HTMLElement);
+      }
+    },
+    { threshold: 0.4 },
+  );
+
+  targets.forEach((el) => observer.observe(el));
+
+  return () => {
+    observer.disconnect();
+    frames.forEach((id) => cancelAnimationFrame(id));
+  };
+}
+
+/* -------------------------------------------------------------------------
    Boot
    ------------------------------------------------------------------------- */
 
@@ -183,6 +234,7 @@ if (typeof document !== "undefined") {
   document.documentElement.classList.add("js");
 
   register(initReveals);
+  register(initCounters);
 
   const onScroll = () => schedule();
   window.addEventListener("scroll", onScroll, { passive: true });

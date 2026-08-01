@@ -28,12 +28,16 @@ const socialImage = new URL(image, origin);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
 
-    <!-- Fonts: one request, preconnected, non-blocking swap -->
+    <!--
+      Fonts: one request, preconnected, swap. Only the weights actually used
+      are requested — DM Serif has no italic on the page and JetBrains Mono is
+      only ever regular, so both extras are dropped.
+    -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Anton+SC&family=DM+Serif+Display:ital@0;1&family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Anton+SC&family=DM+Serif+Display&family=Inter:wght@300..700&family=JetBrains+Mono&display=swap"
     />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
