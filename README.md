@@ -41,15 +41,25 @@ Used Technologies, Frameworks, and Tools used in the project:
 
 ## Content
 
-Most sections are still driven by JSON in `src/data`. **Events** are the exception —
-they live in Sanity so they can be edited without a code change:
+The four data-driven sections of the home page live in Sanity, so they can be
+edited without a code change:
+
+| Section  | Type            | Schema                                    | Query                        |
+| -------- | --------------- | ----------------------------------------- | ---------------------------- |
+| Projects | `project`       | `portfolio-studio/schemaTypes/project.ts` | `src/utils/FetchProjects.ts` |
+| Skills   | `skill`         | `portfolio-studio/schemaTypes/skill.ts`   | `src/utils/FetchSkills.ts`   |
+| Timeline | `timelineEntry` | `portfolio-studio/schemaTypes/timelineEntry.ts` | `src/utils/FetchTimeline.ts` |
+| Events   | `event`         | `portfolio-studio/schemaTypes/event.ts`   | `src/utils/FetchEvents.ts`   |
 
 - **Studio**: `../portfolio-studio` (standalone, run it with `npm run dev` from there)
 - **Project**: Portfolio (`jzcwxf3j`), dataset `production`
-- **Schema**: `portfolio-studio/schemaTypes/event.ts`
-- **Query**: `src/utils/FetchEvents.ts`
+- **Images**: served and resized by Sanity's CDN — see `src/utils/SanityImage.ts`
 
-The gallery is prerendered, so publishing in the Studio does not change the live site
+Everything else — the hero, the section headings, the socials and legal pages, and
+the colophon on `/references` — is still authored in the components, because it
+changes when the code does.
+
+The pages are prerendered, so publishing in the Studio does not change the live site
 on its own — the site has to be rebuilt. Add a Sanity webhook pointing at a Vercel
 deploy hook if that should happen automatically.
 

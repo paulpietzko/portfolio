@@ -2,45 +2,13 @@
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
 import ProjectCard from "./ProjectCard.astro";
-import logierImage from "../assets/projects/logier.png";
-import sxcImage from "../assets/projects/2sxc.png";
-import schoolSysImage from "../assets/projects/school-sys.png";
+import fetchProjects from "../utils/FetchProjects";
 
-const projects = [
-  {
-    link: "https://www.logier.dev",
-    imgSrc: logierImage,
-    imgAlt: "Logier devtool desktop app",
-    title: "Logier",
-    year: "2025",
-    role: "Founder · Design & engineering",
-    text: "My own SaaS: a universal log parser and visualiser for developers, shipped as a desktop app for macOS and Windows.",
-    stack: ["Desktop", "TypeScript", "Product"],
-    tilt: 13,
-  },
-  {
-    link: "https://2sxc.org/en/",
-    imgSrc: sxcImage,
-    imgAlt: "2sxc content management system",
-    title: "2sxc",
-    year: "2024–25",
-    role: "Developer · 2sic internship",
-    text: "A CMS for DNN and Oqtane built on the 1-second paradigm, where every interaction has to land in under a second. I contributed features across the stack.",
-    stack: [".NET", "Razor", "TypeScript"],
-    tilt: -13,
-  },
-  {
-    link: "https://school-sys.org/en/",
-    imgSrc: schoolSysImage,
-    imgAlt: "SchoolSys education platform",
-    title: "SchoolSys",
-    year: "2025",
-    role: "Final exam project",
-    text: "A system helping daycares in Arusha and Cape Town teach with modern methods. I built the material management module end to end.",
-    stack: ["Angular", "REST", "IPA"],
-    tilt: 13,
-  },
-];
+const projects = await fetchProjects();
+
+// The deck fans open in alternating directions; which way a card leans is a
+// function of where it sits, so it is derived here rather than authored.
+const tiltFor = (index: number) => (index % 2 === 0 ? 13 : -13);
 ---
 
 <section class="projects" id="work" data-projects>
@@ -56,7 +24,11 @@ const projects = [
 
   <!-- Outside the container on purpose: the deck runs the full screen width -->
   <div class="projects__deck" data-reveal-group="120">
-    {projects.map((project, i) => <ProjectCard {...project} index={i} />)}
+    {
+      projects.map((project, i) => (
+        <ProjectCard {...project} tilt={tiltFor(i)} index={i} />
+      ))
+    }
   </div>
 </section>
 

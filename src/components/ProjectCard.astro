@@ -1,16 +1,19 @@
 ---
-import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
+import {
+  imagePlaceholder,
+  imageSrc,
+  imageSrcSet,
+  type SanityImage,
+} from "../utils/SanityImage";
 
 interface Props {
-  link: string;
-  imgSrc: ImageMetadata;
-  imgAlt: string;
+  link: string | null;
+  image: SanityImage;
   title: string;
   text: string;
-  role?: string;
-  year?: string;
-  stack?: string[];
+  role?: string | null;
+  year?: string | null;
+  stack?: string[] | null;
   /** Resting tilt in degrees; straightens as the card reaches the viewport centre. */
   tilt?: number;
   index?: number;
@@ -18,37 +21,45 @@ interface Props {
 
 const {
   link,
-  imgSrc,
-  imgAlt,
+  image,
   title,
   text,
   role,
   year,
-  stack = [],
+  stack,
   tilt = 0,
   index = 0,
 } = Astro.props;
+
+// The deck runs wider than the viewport on desktop and the cards are close to
+// full-width on mobile, so the frame asks for more pixels than the gallery.
+const WIDTHS = [420, 700, 1000];
+
+// A card without a link is still a card — an <a> without an href would only
+// look like one.
+const Card = link ? "a" : "div";
+const anchor = link
+  ? { href: link, target: "_blank", rel: "noopener noreferrer" }
+  : {};
 ---
 
-<a
+<Card
   class="project"
-  href={link}
-  target="_blank"
-  rel="noopener noreferrer"
+  {...anchor}
   style={`--rot:${tilt}deg; --i:${index}`}
   data-reveal="scale"
 >
   <div class="project__frame">
-    <Image
-      src={imgSrc}
-      alt={imgAlt}
-      width={1000}
-      widths={[420, 700, 1000]}
+    <img
+      src={imageSrc(image, 1000)}
+      srcset={imageSrcSet(image, WIDTHS)}
       sizes="(max-width: 767px) 92vw, 34vw"
-      format="webp"
-      quality={70}
+      width={image.asset.metadata.dimensions.width}
+      height={image.asset.metadata.dimensions.height}
+      alt={image.alt ?? title}
       loading="lazy"
       decoding="async"
+      style={imagePlaceholder(image)}
     />
 
     <div class="project__scrim"></div>
@@ -61,7 +72,7 @@ const {
       {role && <p class="project__role">{role}</p>}
       <p class="project__text">{text}</p>
       {
-        stack.length > 0 && (
+        stack && stack.length > 0 && (
           <ul class="project__stack">
             {stack.map((item) => (
               <li>{item}</li>
@@ -83,7 +94,7 @@ const {
       </svg>
     </span>
   </div>
-</a>
+</Card>
 
 <style>
   .project {

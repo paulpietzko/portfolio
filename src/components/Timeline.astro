@@ -1,10 +1,21 @@
 ---
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
-import timelineData from "../data/TimelineData.json";
+import fetchTimeline from "../utils/FetchTimeline";
 
-// Entries are authored oldest-first in src/data/TimelineData.json.
-const entries = timelineData;
+// Ordered oldest-first by the query — the rail reads downwards in time.
+const entries = await fetchTimeline();
+
+// The bullet reel shows the bare year, the entry itself the full month.
+const yearOf = (date: string) => date.slice(0, 4);
+
+// Anchored at midday: a plain YYYY-MM-DD parses as UTC midnight, which slips
+// back a month in western timezones on the first of the month.
+const monthOf = (date: string) =>
+  new Date(`${date}T12:00:00`).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 ---
 
 <section class="timeline" id="path" data-timeline>
@@ -32,7 +43,7 @@ const entries = timelineData;
             <div class="timeline__bullet">
               <span class="timeline__ring"></span>
               <span class="timeline__reel">
-                {entries.map((entry) => <span>{entry.year}</span>)}
+                {entries.map((entry) => <span>{yearOf(entry.date)}</span>)}
               </span>
             </div>
           </div>
@@ -47,15 +58,17 @@ const entries = timelineData;
               data-entry={i}
               style={`--accent:${entry.accent}`}
             >
-              <p class="tl-entry__when eyebrow">{entry.when}</p>
+              <p class="tl-entry__when eyebrow">{monthOf(entry.date)}</p>
               <h3 class="tl-entry__title">{entry.title}</h3>
-              <p class="tl-entry__org">{entry.org}</p>
+              {entry.org && <p class="tl-entry__org">{entry.org}</p>}
               <p class="tl-entry__body">{entry.description}</p>
-              <ul class="tl-entry__tags">
-                {entry.tags.map((tag) => (
-                  <li>{tag}</li>
-                ))}
-              </ul>
+              {entry.tags && entry.tags.length > 0 && (
+                <ul class="tl-entry__tags">
+                  {entry.tags.map((tag) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))
         }

@@ -1,18 +1,10 @@
 ---
-import skillsData from "../data/SkillsData.json";
 import Container from "../layouts/Container.astro";
 import SkillCard from "./SkillCard.astro";
 import SubTitle from "./SubTitle.astro";
+import fetchSkills from "../utils/FetchSkills";
 
-interface SkillType {
-  name: string;
-  description: string;
-  imageUrl: string;
-  bgColor: string;
-  link: string;
-}
-
-const skills = skillsData as SkillType[];
+const skills = await fetchSkills();
 ---
 
 <section class="skills" id="stack" data-skills>

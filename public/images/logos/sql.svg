@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="SQL">
-  <g stroke="#E0B341" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="7" y="10" width="50" height="44" rx="6" />
-    <path d="M7 25h50" />
-    <path d="M7 39.5h50" />
-    <path d="M25 25v29" />
-  </g>
-</svg>

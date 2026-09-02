@@ -1,27 +1,33 @@
 ---
+import { imageSrc, type SanityImage } from "../utils/SanityImage";
+
 interface Props {
-  bgColor: string;
-  imageUrl: string;
   name: string;
   description: string;
-  link: string;
+  link: string | null;
+  logo: SanityImage;
+  /** CSS colour for the square the logo sits on. */
+  tint: string;
 }
 
-const { bgColor, imageUrl, name, description, link } = Astro.props;
+const { name, description, link, logo, tint } = Astro.props;
+
+// Sanity serves SVGs untouched, so only ask the CDN to resize a raster upload.
+const logoSrc = logo.asset.url.endsWith(".svg")
+  ? logo.asset.url
+  : imageSrc(logo, 64);
+
+const Tile = link ? "a" : "div";
+const anchor = link
+  ? { href: link, target: "_blank", rel: "noopener noreferrer" }
+  : {};
 ---
 
-<a
-  class="skill"
-  href={link}
-  target="_blank"
-  rel="noopener noreferrer"
-  data-reveal="up"
-  data-spotlight
->
+<Tile class="skill" {...anchor} data-reveal="up" data-spotlight>
   <span class="skill__glow" aria-hidden="true"></span>
 
-  <span class:list={["skill__icon", bgColor]}>
-    <img src={imageUrl} width="32" height="32" alt="" loading="lazy" />
+  <span class="skill__icon" style={`background:${tint}`}>
+    <img src={logoSrc} width="32" height="32" alt="" loading="lazy" />
   </span>
 
   <span class="skill__body">
@@ -30,7 +36,7 @@ const { bgColor, imageUrl, name, description, link } = Astro.props;
   </span>
 
   <span class="skill__arrow" aria-hidden="true">↗</span>
-</a>
+</Tile>
 
 <style>
   .skill {

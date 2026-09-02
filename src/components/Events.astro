@@ -1,34 +1,27 @@
 ---
 import Container from "../layouts/Container.astro";
 import SubTitle from "./SubTitle.astro";
-import { urlFor } from "../utils/SanityClient";
-import fetchEvents, { type EventImage } from "../utils/FetchEvents";
+import fetchEvents from "../utils/FetchEvents";
+import {
+  imagePlaceholder,
+  imageSrc,
+  imageSrcSet,
+  type SanityImage,
+} from "../utils/SanityImage";
 
 const events = await fetchEvents();
 
-/**
- * Cards are 25rem wide on desktop and 15rem on mobile, so these two candidates
- * cover both at 1x and 2x. Sanity's CDN does the resizing and picks the format
- * from the Accept header.
- */
+// Cards are 25rem wide on desktop and 15rem on mobile, so these two candidates
+// cover both at 1x and 2x.
 const WIDTHS = [400, 800];
 
-const src = (image: EventImage, width: number) =>
-  urlFor(image).width(width).quality(68).auto("format").url();
+const srcset = (image: SanityImage) => imageSrcSet(image, WIDTHS);
 
-const srcset = (image: EventImage) =>
-  WIDTHS.map((width) => `${src(image, width)} ${width}w`).join(", ");
-
-// Painted behind the image so the card has its colours before the photo
-// decodes, rather than flashing the placeholder background.
-const placeholder = (image: EventImage) =>
-  image.asset.metadata.lqip
-    ? `background-image:url(${image.asset.metadata.lqip})`
-    : undefined;
-
+// Anchored at midday: a plain YYYY-MM-DD parses as UTC midnight, which slips
+// back a month in western timezones on the first of the month.
 const formatDate = (date: string) =>
   date
-    ? new Date(date).toLocaleDateString("en-US", {
+    ? new Date(`${date}T12:00:00`).toLocaleDateString("en-US", {
         month: "short",
         year: "numeric",
       })
@@ -61,7 +54,7 @@ const formatDate = (date: string) =>
               <Card class="card" {...anchor}>
                 <div class="card__media">
                   <img
-                    src={src(image, 800)}
+                    src={imageSrc(image, 800)}
                     srcset={srcset(image)}
                     sizes="(max-width: 767px) 15rem, 25rem"
                     width={image.asset.metadata.dimensions.width}
@@ -69,12 +62,12 @@ const formatDate = (date: string) =>
                     alt={image.alt ?? name}
                     loading="lazy"
                     decoding="async"
-                    style={placeholder(image)}
+                    style={imagePlaceholder(image)}
                   />
                   {hoverImage && (
                     <img
                       class="card__media-hover"
-                      src={src(hoverImage, 800)}
+                      src={imageSrc(hoverImage, 800)}
                       srcset={srcset(hoverImage)}
                       sizes="(max-width: 767px) 15rem, 25rem"
                       width={hoverImage.asset.metadata.dimensions.width}

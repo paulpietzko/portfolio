@@ -1,16 +1,5 @@
 import { sanityClient } from "./SanityClient";
-
-export type EventImage = {
-  alt: string | null;
-  asset: {
-    url: string;
-    metadata: {
-      /** Base64 thumbnail, shown underneath the image until it decodes. */
-      lqip: string | null;
-      dimensions: { width: number; height: number };
-    };
-  };
-};
+import { IMAGE_PROJECTION, type SanityImage } from "./SanityImage";
 
 export type EventEntry = {
   _id: string;
@@ -18,14 +7,9 @@ export type EventEntry = {
   date: string;
   link: string | null;
   description: string | null;
-  image: EventImage;
-  hoverImage: EventImage | null;
+  image: SanityImage;
+  hoverImage: SanityImage | null;
 };
-
-const IMAGE_PROJECTION = `{
-    alt,
-    asset->{url, metadata{lqip, dimensions{width, height}}}
-  }`;
 
 // Required fields keep an image on every published event, but a document can
 // still be mid-edit — dropping those is cheaper than guarding every read.
