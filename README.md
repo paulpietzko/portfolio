@@ -12,6 +12,7 @@
 8. [License](#license)
 9. [Contact](#contact)
 
+The Portfolio website of Paul Pietzko. Using various APIs, Technologies and Frameworks.
 ## Description
 
 The Portfolio website of Paul Pietzko. Using various APIs, Technologies and Frameworks.
