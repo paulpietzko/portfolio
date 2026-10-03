@@ -181,17 +181,27 @@ function initReveals(): Cleanup {
 
 const easeOutExpo = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
-/** Animates `[data-count-to]` numbers the first time they come into view. */
+/**
+ * Animates `[data-count-to]` numbers the first time they come into view.
+ * `data-count-decimals` keeps fractional values (a percentage, a distance)
+ * from collapsing to a whole number on the way up.
+ */
 function initCounters(): Cleanup {
   const targets = document.querySelectorAll<HTMLElement>("[data-count-to]");
   if (!targets.length) return;
 
-  const format = (value: number) => value.toLocaleString("en-US");
   const reduced = prefersReducedMotion();
   const frames = new Set<number>();
 
   const run = (el: HTMLElement) => {
     const target = Number(el.dataset.countTo) || 0;
+    const decimals = Number(el.dataset.countDecimals) || 0;
+    const format = (value: number) =>
+      value.toLocaleString("en-US", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+
     if (reduced) {
       el.textContent = format(target);
       return;
@@ -201,7 +211,7 @@ function initCounters(): Cleanup {
     const step = (now: number) => {
       if (start === null) start = now;
       const t = Math.min((now - start) / duration, 1);
-      el.textContent = format(Math.round(easeOutExpo(t) * target));
+      el.textContent = format(easeOutExpo(t) * target);
       if (t < 1) frames.add(requestAnimationFrame(step));
     };
     frames.add(requestAnimationFrame(step));

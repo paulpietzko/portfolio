@@ -1,0 +1,449 @@
+---
+/**
+ * The degree as a ledger: one tick per ECTS credit, 180 of them in a single
+ * server-rendered SVG ruler. Earned credits are ink, this semester's are
+ * pending, the rest is still paper. Under it, the semesters on the same scale,
+ * so each one sits beneath the credits it is meant to bring in.
+ *
+ * Numbers come from `src/data/credits.ts`.
+ */
+import Container from "../layouts/Container.astro";
+import SubTitle from "./SubTitle.astro";
+import {
+  DEGREE,
+  EARNED,
+  HOURS_PER_CREDIT,
+  IN_PROGRESS,
+  semesterNames,
+  standing,
+} from "../data/credits";
+
+const { total } = DEGREE;
+const earned = Math.min(Math.max(EARNED, 0), total);
+const pending = Math.min(Math.max(IN_PROGRESS, 0), total - earned);
+
+/* --- the ruler ----------------------------------------------------------- */
+
+const PITCH = 6;
+const TICK = 3;
+const H = 48;
+const W = total * PITCH;
+
+// Every 30th credit (a full-time semester's worth) stands tallest, every 10th
+// a little taller, so the ruler can be read at a glance.
+const heightOf = (credit: number) =>
+  credit % 30 === 0 ? H : credit % 10 === 0 ? 32 : 20;
+
+const ticks = Array.from({ length: total }, (_, i) => ({
+  i,
+  x: i * PITCH + (PITCH - TICK) / 2,
+  h: heightOf(i + 1),
+  kind: i < earned ? "ink" : i < earned + pending ? "pending" : "paper",
+}));
+
+const marks = [0, total / 3, (total * 2) / 3, total].map((credit) => ({
+  credit,
+  left: (credit / total) * 100,
+  label: credit === total ? `${credit} · BSc` : String(credit),
+}));
+
+// The "you are here" caret. Near either end it anchors to that end instead of
+// centring, so the label never hangs off the ruler.
+const frontier = (earned / total) * 100;
+const caretAlign = frontier < 8 ? "start" : frontier > 92 ? "end" : "middle";
+
+/* --- the calendar -------------------------------------------------------- */
+
+const terms = semesterNames();
+// Worked out again in the browser; this is only what the build saw.
+const now = standing(new Date());
+---
+
+<section
+  class="ledger"
+  id="credits"
+  data-ledger
+>
+  <Container size="xl">
+    <SubTitle
+      index="06"
+      title="Credit where it's due"
+      text={`A bachelor's at ${DEGREE.school} is ${total} ECTS credits, and every credit stands for about ${HOURS_PER_CREDIT} hours of work. This is the ledger — it starts empty, and a tick fills in for every credit an exam signs off.`}
+      link="#credits"
+    />
+
+    <div class="ledger__head">
+      <p class="ledger__count" data-reveal="up">
+        <span class="counter" data-count-to={earned}>0</span>
+        <span class="ledger__of">/ {total}</span>
+      </p>
+
+      <dl class="ledger__facts" data-reveal-group="90">
+        <div data-reveal="up">
+          <dt class="eyebrow">Degree</dt>
+          <dd>{DEGREE.title}, {DEGREE.school}</dd>
+        </div>
+        <div data-reveal="up">
+          <dt class="eyebrow">Hours logged</dt>
+          <dd>
+            <span class="counter" data-count-to={earned * HOURS_PER_CREDIT}>0</span>{" "}
+            <span class="ledger__muted">
+              of {(total * HOURS_PER_CREDIT).toLocaleString("en-US")}
+            </span>
+          </dd>
+        </div>
+        <div data-reveal="up">
+          <dt class="eyebrow">Where I am</dt>
+          <dd data-standing>{now.label}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="ledger__ruler" data-reveal="up">
+      <p class={`ledger__caret is-${caretAlign}`} style={`left:${frontier}%`}>
+        <span class="eyebrow">{earned} ECTS</span>
+      </p>
+
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        role="img"
+        aria-label={`${earned} of ${total} ECTS credits earned${pending ? `, ${pending} in progress` : ""}.`}
+      >
+        {
+          ticks.map((tick) => (
+            <rect
+              class={`tick is-${tick.kind}`}
+              x={tick.x}
+              y={H - tick.h}
+              width={TICK}
+              height={tick.h}
+              style={`--i:${tick.i}`}
+            />
+          ))
+        }
+      </svg>
+
+      <div class="ledger__marks" aria-hidden="true">
+        {
+          marks.map((mark) => (
+            <span style={`left:${mark.left}%`}>{mark.label}</span>
+          ))
+        }
+      </div>
+    </div>
+
+    <ol class="ledger__terms" data-reveal="up">
+      {
+        terms.map((term, i) => (
+          <li
+            class:list={[
+              "term",
+              i < now.current && "is-past",
+              i === now.current && "is-now",
+            ]}
+            data-term={i}
+          >
+            <span class="term__bar" />
+            <span class="term__name">{term}</span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <ul class="ledger__legend" aria-hidden="true">
+      <li><span class="swatch is-ink" />Earned</li>
+      {pending > 0 && (
+        <li><span class="swatch is-pending" />This semester</li>
+      )}
+      <li><span class="swatch is-paper" />Still to earn</li>
+      <li class="ledger__muted">1 tick = 1 credit ≈ {HOURS_PER_CREDIT} h</li>
+    </ul>
+  </Container>
+</section>
+
+<style>
+  .ledger {
+    padding-block: clamp(4rem, 9vh, 7rem);
+  }
+
+  /* --- head ------------------------------------------------------------- */
+
+  .ledger__head {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: end;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  @media (min-width: 768px) {
+    .ledger__head {
+      grid-template-columns: auto 1fr;
+    }
+  }
+
+  .ledger__count {
+    display: flex;
+    align-items: baseline;
+    gap: 0.15em;
+    font-family: var(--font-poster);
+    font-size: clamp(6rem, 19vw, 13rem);
+    line-height: 0.82;
+    color: var(--color-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ledger__of {
+    font-size: 0.32em;
+    color: var(--fg-3);
+  }
+
+  .ledger__facts {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .ledger__facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding-bottom: 0.75rem;
+    }
+  }
+
+  .ledger__facts dt {
+    color: var(--fg-3);
+    margin-bottom: 0.4rem;
+  }
+
+  .ledger__facts dd {
+    font-size: clamp(0.95rem, 1.4vw, 1.0625rem);
+    color: var(--fg-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ledger__muted {
+    color: var(--fg-3);
+  }
+
+  /* --- ruler ------------------------------------------------------------ */
+
+  .ledger__ruler {
+    position: relative;
+    padding-top: 2rem;
+  }
+
+  .ledger__ruler svg {
+    display: block;
+    width: 100%;
+    height: clamp(3.5rem, 8vw, 5.5rem);
+    overflow: visible;
+  }
+
+  .tick {
+    fill: var(--fg-1);
+    opacity: 0.16;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+
+  .tick.is-ink {
+    fill: var(--color-accent);
+    opacity: 1;
+  }
+
+  .tick.is-pending {
+    fill: var(--color-accent-soft);
+    opacity: 0.9;
+    animation: pending 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pending {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* The ticks rise left to right when the ruler arrives, like a meter coming
+     up to level. Hidden only once the engine has added .js. */
+  :global(.js) .tick {
+    transform: scaleY(0);
+    transition: transform var(--dur-slow) var(--ease-out-expo);
+    transition-delay: calc(var(--i) * 4ms);
+  }
+
+  .ledger__ruler.is-in .tick {
+    transform: none;
+  }
+
+  .ledger__caret {
+    position: absolute;
+    top: 0;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .ledger__caret::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    margin-top: 0.3rem;
+    border-inline: 5px solid transparent;
+    border-top: 6px solid currentColor;
+  }
+
+  .ledger__caret.is-start::after {
+    margin-left: 0;
+  }
+
+  .ledger__caret.is-middle {
+    transform: translateX(-50%);
+  }
+
+  .ledger__caret.is-middle::after {
+    margin-inline: auto;
+  }
+
+  .ledger__caret.is-end {
+    transform: translateX(-100%);
+  }
+
+  .ledger__caret.is-end::after {
+    margin-left: auto;
+  }
+
+  .ledger__marks {
+    position: relative;
+    height: 1.5rem;
+    margin-top: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-3);
+  }
+
+  .ledger__marks span {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .ledger__marks span:first-child {
+    transform: none;
+  }
+
+  .ledger__marks span:last-child {
+    transform: translateX(-100%);
+    color: var(--color-accent);
+  }
+
+  /* --- semesters -------------------------------------------------------- */
+
+  .ledger__terms {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 3px;
+    margin-top: 1.25rem;
+  }
+
+  .term {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .term__bar {
+    height: 3px;
+    border-radius: 3px;
+    background: var(--hairline);
+  }
+
+  .term__name {
+    font-family: var(--font-mono);
+    font-size: clamp(0.625rem, 1.2vw, 0.6875rem);
+    letter-spacing: 0.08em;
+    color: var(--fg-3);
+  }
+
+  .term.is-past .term__bar {
+    background: var(--fg-2);
+  }
+
+  .term.is-now .term__bar {
+    background: var(--color-accent);
+  }
+
+  .term.is-now .term__name {
+    color: var(--fg-1);
+  }
+
+  /* --- legend ----------------------------------------------------------- */
+
+  .ledger__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-2);
+  }
+
+  .ledger__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .swatch {
+    width: 3px;
+    height: 0.9rem;
+    border-radius: 1px;
+  }
+
+  .swatch.is-ink {
+    background: var(--color-accent);
+  }
+
+  .swatch.is-pending {
+    background: var(--color-accent-soft);
+  }
+
+  .swatch.is-paper {
+    background: var(--fg-1);
+    opacity: 0.16;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .tick {
+      transform: none;
+      transition: none;
+    }
+
+    .tick.is-pending {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { register } from "../scripts/motion";
+  import { standing } from "../data/credits";
+
+  // The build wrote down where it thought the degree stood; the page may be
+  // days or months older than that, so check against today's date instead.
+  register(() => {
+    const section = document.querySelector<HTMLElement>("[data-ledger]");
+    if (!section) return;
+
+    const { current, label } = standing(new Date());
+
+    const line = section.querySelector<HTMLElement>("[data-standing]");
+    if (line) line.textContent = label;
+
+    for (const term of section.querySelectorAll<HTMLElement>("[data-term]")) {
+      const i = Number(term.dataset.term);
+      term.classList.toggle("is-past", i < current);
+      term.classList.toggle("is-now", i === current);
+    }
+  });
+</script>

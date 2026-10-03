@@ -19,13 +19,44 @@ const srcset = (image: SanityImage) => imageSrcSet(image, WIDTHS);
 
 // Anchored at midday: a plain YYYY-MM-DD parses as UTC midnight, which slips
 // back a month in western timezones on the first of the month.
-const formatDate = (date: string) =>
-  date
-    ? new Date(`${date}T12:00:00`).toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      })
-    : "";
+const parseDate = (date: string) => new Date(`${date}T12:00:00`);
+
+const MONTH_YEAR = { month: "short", year: "numeric" } as const;
+
+/** "21 Aug" — day first, so ranges read the same way the single dates do. */
+const dayMonth = (date: Date) =>
+  `${date.getDate()} ${date.toLocaleDateString("en-US", { month: "short" })}`;
+
+/**
+ * A single date reads "Aug 2026", as it always has. Days only appear when there
+ * is a span worth showing, so a one-day event is never dressed up as a range —
+ * and an end date that is missing, equal or (invalid data) earlier than the
+ * start falls back to the plain month.
+ */
+const formatDate = (date: string, endDate?: string | null) => {
+  if (!date) return "";
+
+  const start = parseDate(date);
+  if (!endDate || endDate <= date) {
+    return start.toLocaleDateString("en-US", MONTH_YEAR);
+  }
+
+  const end = parseDate(endDate);
+  const sameYear = start.getFullYear() === end.getFullYear();
+
+  // 21–23 Aug 2026
+  if (sameYear && start.getMonth() === end.getMonth()) {
+    return `${start.getDate()}–${end.getDate()} ${end.toLocaleDateString("en-US", MONTH_YEAR)}`;
+  }
+
+  // 28 Aug – 2 Sep 2026
+  if (sameYear) {
+    return `${dayMonth(start)} – ${dayMonth(end)} ${end.getFullYear()}`;
+  }
+
+  // 28 Dec 2025 – 2 Jan 2026
+  return `${dayMonth(start)} ${start.getFullYear()} – ${dayMonth(end)} ${end.getFullYear()}`;
+};
 ---
 
 <section class="events" id="events">
@@ -42,7 +73,7 @@ const formatDate = (date: string) =>
     <div class="gallery__stage">
       <div class="gallery__rail" data-rail>
         {
-          events.map(({ name, link, description, date, image, hoverImage }) => {
+          events.map(({ name, link, description, date, endDate, image, hoverImage }) => {
             // A card without a link is still a card — an <a> without an href
             // would only look like one.
             const Card = link ? "a" : "div";
@@ -81,7 +112,7 @@ const formatDate = (date: string) =>
                 </div>
 
                 <div class="card__body">
-                  <span class="card__date eyebrow">{formatDate(date)}</span>
+                  <span class="card__date eyebrow">{formatDate(date, endDate)}</span>
                   <h3 class="card__title">{name}</h3>
                   {description && <p class="card__text">{description}</p>}
                 </div>

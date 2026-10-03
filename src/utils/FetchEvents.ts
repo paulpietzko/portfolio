@@ -5,6 +5,7 @@ export type EventEntry = {
   _id: string;
   name: string;
   date: string;
+  endDate: string | null;
   link: string | null;
   description: string | null;
   image: SanityImage;
@@ -17,6 +18,7 @@ const EVENTS_QUERY = `*[_type == "event" && defined(image.asset)] | order(date d
   _id,
   name,
   date,
+  endDate,
   link,
   description,
   image ${IMAGE_PROJECTION},

@@ -1,0 +1,692 @@
+---
+/**
+ * The travel map. Every country is a server-rendered SVG path — the geometry
+ * is projected and simplified at authoring time (see `scripts/gen-map.mjs`),
+ * so the page ships no map library and paints the whole world on first frame.
+ *
+ * The visited list lives in `src/data/visited.ts`. Loading the page with
+ * `?edit` turns the map into its own editor: click countries, copy the list,
+ * paste it back into that file.
+ */
+import Container from "../layouts/Container.astro";
+import SubTitle from "./SubTitle.astro";
+import {
+  DOT_R,
+  MAP_COUNTRIES,
+  MAP_GRATICULE,
+  MAP_OUTLINE,
+  MAP_VIEWBOX,
+} from "../data/world-map";
+import { HOME, VISITED } from "../data/visited";
+
+const visited = new Set(VISITED);
+
+// Codes that aren't on the map would silently inflate every number below.
+const unknown = VISITED.filter(
+  (code) => !MAP_COUNTRIES.some((country) => country.code === code),
+);
+if (unknown.length) {
+  console.warn(`[atlas] ignoring unknown country codes: ${unknown.join(", ")}`);
+}
+
+// Alphabetical by name: the chips are a list to read, not a lookup table.
+const been = MAP_COUNTRIES.filter((country) => visited.has(country.code)).sort(
+  (a, b) => a.name.localeCompare(b.name),
+);
+const share = been.reduce((sum, country) => sum + country.share, 0) * 100;
+const home = MAP_COUNTRIES.find((country) => country.code === HOME);
+
+const paths = MAP_COUNTRIES.filter((country) => country.d);
+const dots = MAP_COUNTRIES.filter((country) => country.dot);
+
+/**
+ * Regional indicator pairs. The three non-ISO codes on the map have no flag,
+ * and neither does anything else outside A–Z, so those fall back to nothing.
+ */
+const flag = (code: string) =>
+  /^[A-Z]{2}$/.test(code) && !code.startsWith("X")
+    ? String.fromCodePoint(
+        ...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+      )
+    : "";
+
+// The ink sweeps in west to east as the section arrives, so the reveal reads
+// as a journey rather than 237 things blinking on at once.
+const sweep = (x: number) => Math.round((x / MAP_VIEWBOX.width) * 900);
+
+/** Shares are integers in hundred-thousandths so `?edit` can re-total them. */
+const attrs = (country: (typeof MAP_COUNTRIES)[number]) => {
+  const on = visited.has(country.code);
+  return {
+    "data-code": country.code,
+    "data-name": country.name,
+    "data-share": Math.round(country.share * 1e5),
+    class: on ? "country is-on" : "country",
+    // Only the lit countries ever read --d, so only they carry it.
+    style: on ? `--d:${sweep(country.x)}ms` : undefined,
+  };
+};
+
+// One country is 0.03% of the planet and thirty are 12% — a fixed number of
+// decimals would read as either "0.0" or "12.4718".
+const shareDecimals = share >= 10 ? 0 : share >= 1 ? 1 : 2;
+
+const tiles = [
+  { value: been.length, decimals: 0, unit: "", label: "Countries" },
+  { value: share, decimals: shareDecimals, unit: "%", label: "Of the world's land" },
+  {
+    value: MAP_COUNTRIES.length - been.length,
+    decimals: 0,
+    unit: "",
+    label: "Still to go",
+  },
+];
+---
+
+<section class="atlas" id="atlas">
+  <Container size="xl">
+    <SubTitle
+      index="05"
+      title="Been there"
+      text="Everywhere I've set foot, on an equal-area projection — so the countries are the size they actually are, not the size Mercator flatters them into. Hover one to name it."
+      link="#atlas"
+    />
+
+    <div class="atlas__stats" data-reveal-group="80">
+      {
+        tiles.map((tile) => (
+          <div class="stat" data-reveal="up">
+            <p class="stat__value">
+              <span
+                class="counter"
+                data-count-to={tile.value}
+                data-count-decimals={tile.decimals}
+              >
+                0
+              </span>
+              {tile.unit && <span class="stat__unit">{tile.unit}</span>}
+            </p>
+            <p class="stat__label eyebrow">{tile.label}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <figure class="atlas__plate" data-atlas data-reveal="up">
+      <div
+        class="atlas__scroll"
+        data-scroll
+        data-focus={home ? (home.x / MAP_VIEWBOX.width).toFixed(4) : undefined}
+      >
+      <svg
+        viewBox={`0 0 ${MAP_VIEWBOX.width} ${MAP_VIEWBOX.height}`}
+        role="img"
+        aria-label={`World map with ${been.length} of ${MAP_COUNTRIES.length} countries marked as visited.`}
+      >
+        <path class="atlas__graticule" d={MAP_GRATICULE} />
+        <path class="atlas__edge" d={MAP_OUTLINE} />
+
+        <g class="atlas__land" data-land>
+          {paths.map((country) => <path d={country.d} {...attrs(country)} />)}
+          {
+            dots.map((country) => (
+              <circle
+                cx={country.x}
+                cy={country.y}
+                r={DOT_R}
+                {...attrs(country)}
+              />
+            ))
+          }
+        </g>
+
+        {
+          home && (
+            <circle
+              class="atlas__home"
+              cx={home.x}
+              cy={home.y}
+              r="7"
+              aria-hidden="true"
+            />
+          )
+        }
+      </svg>
+      </div>
+
+      <p class="atlas__tip" data-tip hidden></p>
+
+      <div class="atlas__editor" data-editor hidden>
+        <span class="eyebrow">Edit mode</span>
+        <button type="button" data-copy>Copy list</button>
+        <button type="button" data-reset>Reset</button>
+      </div>
+    </figure>
+
+    <ul class="atlas__chips" data-chips>
+      {
+        been.map((country) => (
+          <li class="chip" data-chip={country.code}>
+            <span class="chip__flag" aria-hidden="true">
+              {flag(country.code)}
+            </span>
+            {country.name}
+          </li>
+        ))
+      }
+    </ul>
+  </Container>
+</section>
+
+<style>
+  .atlas {
+    padding-block: clamp(4rem, 9vh, 7rem);
+  }
+
+  /* --- numbers ---------------------------------------------------------- */
+
+  .atlas__stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: 1px;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+    border-radius: 1rem;
+    overflow: hidden;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .stat {
+    padding: clamp(1.5rem, 3vw, 2.5rem) 1.25rem;
+    background: var(--color-dark-100);
+    text-align: center;
+    transition: background-color var(--dur-mid) var(--ease-out-quart);
+  }
+
+  .stat:hover {
+    background: var(--color-dark-200);
+  }
+
+  .stat__value {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.1em;
+    font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--color-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat__unit {
+    font-size: 0.45em;
+    font-weight: 400;
+    color: var(--fg-3);
+  }
+
+  .stat__label {
+    margin-top: 0.85rem;
+    color: var(--fg-3);
+  }
+
+  /* --- the plate -------------------------------------------------------- */
+
+  /* No card around it: the projection's own outline is the frame. */
+  .atlas__plate {
+    position: relative;
+  }
+
+  .atlas__scroll {
+    /* Desktop shows the whole world; the scroller only earns its keep below. */
+    overflow: visible;
+  }
+
+  .atlas__plate svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /*
+   * At phone widths the whole world in 340px makes Switzerland three pixels
+   * across — too small to see, let alone tap. So the map keeps a usable size
+   * and pans sideways instead, the same trade the events gallery makes.
+   */
+  @media (max-width: 767px) {
+    .atlas__scroll {
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .atlas__plate svg {
+      width: 44rem;
+      max-width: none;
+    }
+  }
+
+  .atlas__graticule {
+    fill: none;
+    stroke: var(--fg-1);
+    stroke-width: 0.5;
+    opacity: 0.07;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .atlas__edge {
+    fill: none;
+    stroke: var(--fg-1);
+    stroke-width: 0.8;
+    opacity: 0.14;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Unvisited land: present, but only just. */
+  .country {
+    fill: var(--color-dark-400);
+    /* Borders are cut in the page colour, now that the map sits on the page. */
+    stroke: var(--color-dark-100);
+    stroke-width: 0.5;
+    vector-effect: non-scaling-stroke;
+    transition:
+      fill var(--dur-mid) var(--ease-out-quart),
+      opacity var(--dur-mid) var(--ease-out-quart);
+  }
+
+  /*
+   * The lit state is applied on `.is-in` rather than at rest, so the ink
+   * sweeps across the map when the section arrives. Without JS the reveal
+   * observer never runs, so the `.js`-less fallback below paints it straight
+   * away instead.
+   */
+  :global(html:not(.js)) .country.is-on,
+  .atlas__plate.is-in .country.is-on {
+    fill: var(--color-accent);
+    transition-delay: var(--d);
+  }
+
+  .country:hover {
+    fill: color-mix(in oklab, var(--color-accent) 55%, var(--color-dark-400));
+    transition-delay: 0ms;
+  }
+
+  .country.is-on:hover {
+    fill: color-mix(in oklab, var(--color-accent) 70%, #fff);
+  }
+
+  .atlas__home {
+    fill: none;
+    stroke: var(--color-accent-soft);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ping 3.2s var(--ease-out-quart) infinite;
+  }
+
+  @keyframes ping {
+    0% {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+    30% {
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  /* --- hover readout ---------------------------------------------------- */
+
+  .atlas__tip {
+    position: absolute;
+    z-index: 2;
+    transform: translate(-50%, -160%);
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--hairline);
+    background: var(--color-dark-300);
+    color: var(--fg-1);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .atlas__tip[data-below] {
+    transform: translate(-50%, 60%);
+  }
+
+  .atlas__tip[hidden] {
+    display: none;
+  }
+
+  .atlas__tip::after {
+    content: attr(data-state);
+    margin-left: 0.5rem;
+    color: var(--fg-3);
+  }
+
+  .atlas__tip[data-on]::after {
+    color: var(--color-accent);
+  }
+
+  /* --- edit mode -------------------------------------------------------- */
+
+  .atlas__editor {
+    position: absolute;
+    inset: auto auto 1rem 1rem;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--hairline);
+    border-radius: 0.6rem;
+    background: color-mix(in oklab, var(--color-dark-100) 85%, transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .atlas__editor[hidden] {
+    display: none;
+  }
+
+  .atlas__editor span {
+    color: var(--color-accent-soft);
+  }
+
+  .atlas__editor button {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-2);
+    border: 1px solid var(--hairline);
+    border-radius: 0.35rem;
+    padding: 0.25rem 0.5rem;
+    transition: color var(--dur-fast) ease;
+  }
+
+  .atlas__editor button:hover {
+    color: var(--fg-1);
+  }
+
+  [data-editing] .country {
+    cursor: pointer;
+  }
+
+  /* --- the list --------------------------------------------------------- */
+
+  .atlas__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    color: var(--fg-2);
+    transition: border-color var(--dur-fast) ease;
+  }
+
+  .chip:hover {
+    border-color: var(--color-accent);
+    color: var(--fg-1);
+  }
+
+  .chip__flag {
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .country {
+      transition-delay: 0ms !important;
+    }
+    .atlas__home {
+      animation: none;
+      opacity: 0.5;
+    }
+  }
+</style>
+
+<script>
+  import { register } from "../scripts/motion";
+
+  register(() => {
+    const plate = document.querySelector<HTMLElement>("[data-atlas]");
+    const land = plate?.querySelector<SVGGElement>("[data-land]");
+    const tip = plate?.querySelector<HTMLElement>("[data-tip]");
+    if (!plate || !land || !tip) return;
+
+    const countryFrom = (target: EventTarget | null) =>
+      target instanceof Element
+        ? (target.closest<SVGElement>(".country") ?? null)
+        : null;
+
+    /* --- hover readout --- */
+
+    const move = (event: PointerEvent) => {
+      const country = countryFrom(event.target);
+      if (!country) {
+        tip.hidden = true;
+        return;
+      }
+      const box = plate.getBoundingClientRect();
+      const x = event.clientX - box.left;
+      const y = event.clientY - box.top;
+      // Greenland and Russia sit at the top of the plate, where a label
+      // hovering above the cursor would float off the card entirely — so it
+      // flips under the cursor there, and never runs past the sides.
+      tip.toggleAttribute("data-below", y < 48);
+      tip.style.left = `${Math.min(Math.max(x, 60), box.width - 60)}px`;
+      tip.style.top = `${y}px`;
+      tip.textContent = country.dataset.name ?? "";
+      const on = country.classList.contains("is-on");
+      tip.dataset.state = on ? "been" : "not yet";
+      tip.toggleAttribute("data-on", on);
+      tip.hidden = false;
+    };
+
+    const leave = () => {
+      tip.hidden = true;
+    };
+
+    plate.addEventListener("pointermove", move);
+    plate.addEventListener("pointerleave", leave);
+    window.addEventListener("scroll", leave, { passive: true });
+
+    /* --- opening view ---
+       When the map is wider than its frame it starts scrolled to the far west,
+       which is a view of the Pacific. Centre it on home instead. */
+
+    const scroller = plate.querySelector<HTMLElement>("[data-scroll]");
+    const focus = Number(scroller?.dataset.focus);
+    let stopCentring: (() => void) | undefined;
+
+    if (scroller && focus) {
+      const centre = () => {
+        if (scroller.scrollWidth <= scroller.clientWidth) return;
+        scroller.scrollLeft =
+          scroller.scrollWidth * focus - scroller.clientWidth / 2;
+      };
+      centre();
+      window.addEventListener("resize", centre);
+      stopCentring = () => window.removeEventListener("resize", centre);
+    }
+
+    /* --- edit mode ---
+       Only for the owner: `?edit` turns the map into the tool that writes
+       src/data/visited.ts. The picks are kept in localStorage so a reload
+       mid-session doesn't lose them. */
+
+    if (!new URLSearchParams(location.search).has("edit")) {
+      return () => {
+        plate.removeEventListener("pointermove", move);
+        plate.removeEventListener("pointerleave", leave);
+        window.removeEventListener("scroll", leave);
+        stopCentring?.();
+      };
+    }
+
+    const editor = plate.querySelector<HTMLElement>("[data-editor]");
+    const KEY = "atlas:visited";
+    const all = [...land.querySelectorAll<SVGElement>(".country")];
+    const counter = document.querySelector<HTMLElement>(
+      ".atlas__stats .stat:first-child .counter",
+    );
+    const shareEl = document.querySelector<HTMLElement>(
+      ".atlas__stats .stat:nth-child(2) .counter",
+    );
+    const leftEl = document.querySelector<HTMLElement>(
+      ".atlas__stats .stat:nth-child(3) .counter",
+    );
+
+    // Whatever is in the file is the starting point; a stored edit wins.
+    const fromFile = all
+      .filter((el) => el.classList.contains("is-on"))
+      .map((el) => el.dataset.code!);
+
+    let picked = new Set(fromFile);
+    try {
+      const saved = localStorage.getItem(KEY);
+      if (saved) picked = new Set(JSON.parse(saved) as string[]);
+    } catch {
+      // A private window or a corrupt entry — start from the file instead.
+    }
+
+    const chips = document.querySelector<HTMLElement>("[data-chips]");
+    // Astro scopes this component's CSS with a generated attribute, which
+    // nodes built here would not carry — so borrow it from the list itself.
+    const scope = chips
+      ? [...chips.attributes]
+          .map((attribute) => attribute.name)
+          .find((name) => name.startsWith("data-astro-cid-"))
+      : undefined;
+
+    const flag = (code: string) =>
+      /^[A-Z]{2}$/.test(code) && !code.startsWith("X")
+        ? String.fromCodePoint(
+            ...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+          )
+        : "";
+
+    const paint = () => {
+      let share = 0;
+      const named: SVGElement[] = [];
+      for (const el of all) {
+        const on = picked.has(el.dataset.code!);
+        el.classList.toggle("is-on", on);
+        if (!on) continue;
+        share += Number(el.dataset.share) || 0;
+        named.push(el);
+      }
+
+      // The shared count-up animates to `data-count-to` the first time a tile
+      // scrolls into view, so both have to move — otherwise the build-time
+      // numbers would slide back over the edited ones.
+      const set = (el: HTMLElement | null, value: number, decimals: number) => {
+        if (!el) return;
+        el.dataset.countTo = String(value);
+        el.dataset.countDecimals = String(decimals);
+        el.textContent = value.toLocaleString("en-US", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        });
+      };
+
+      const percent = share / 1000;
+      set(counter, picked.size, 0);
+      set(shareEl, percent, percent >= 10 ? 0 : percent >= 1 ? 1 : 2);
+      set(leftEl, all.length - picked.size, 0);
+
+      if (chips) {
+        named.sort((a, b) =>
+          (a.dataset.name ?? "").localeCompare(b.dataset.name ?? ""),
+        );
+        chips.replaceChildren(
+          ...named.map((el) => {
+            const li = document.createElement("li");
+            li.className = "chip";
+            const mark = document.createElement("span");
+            mark.className = "chip__flag";
+            mark.setAttribute("aria-hidden", "true");
+            mark.textContent = flag(el.dataset.code!);
+            if (scope) {
+              li.setAttribute(scope, "");
+              mark.setAttribute(scope, "");
+            }
+            li.append(mark, el.dataset.name ?? "");
+            return li;
+          }),
+        );
+      }
+
+      try {
+        localStorage.setItem(KEY, JSON.stringify([...picked]));
+      } catch {
+        // Not being able to remember the picks doesn't stop the editing.
+      }
+    };
+
+    const click = (event: MouseEvent) => {
+      const country = countryFrom(event.target);
+      const code = country?.dataset.code;
+      if (!code) return;
+      if (picked.has(code)) picked.delete(code);
+      else picked.add(code);
+      paint();
+      // Repaint the readout under the cursor without waiting for a move.
+      if (country) {
+        const on = picked.has(code);
+        tip.dataset.state = on ? "been" : "not yet";
+        tip.toggleAttribute("data-on", on);
+      }
+    };
+
+    const copy = () => {
+      const list = [...picked].sort();
+      const text = `export const VISITED: string[] = ${JSON.stringify(list)
+        .replace(/","/g, '", "')
+        .replace(/^\[/, "[\n  ")
+        .replace(/\]$/, ",\n]")};`;
+      navigator.clipboard?.writeText(text);
+      const button = editor?.querySelector<HTMLElement>("[data-copy]");
+      if (!button) return;
+      button.textContent = `Copied ${list.length}`;
+      window.setTimeout(() => (button.textContent = "Copy list"), 1600);
+    };
+
+    const reset = () => {
+      picked = new Set(fromFile);
+      paint();
+    };
+
+    plate.setAttribute("data-editing", "");
+    // The sweep is keyed off `.is-in`; edit mode needs the fills up front.
+    plate.classList.add("is-in");
+    if (editor) editor.hidden = false;
+    plate.addEventListener("click", click);
+    editor?.querySelector("[data-copy]")?.addEventListener("click", copy);
+    editor?.querySelector("[data-reset]")?.addEventListener("click", reset);
+    paint();
+
+    return () => {
+      plate.removeEventListener("pointermove", move);
+      plate.removeEventListener("pointerleave", leave);
+      plate.removeEventListener("click", click);
+      window.removeEventListener("scroll", leave);
+      stopCentring?.();
+    };
+  });
+</script>
