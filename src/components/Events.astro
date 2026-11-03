@@ -157,9 +157,12 @@ const formatDate = (date: string, endDate?: string | null) => {
     flex-flow: column wrap;
     align-content: flex-start;
     gap: clamp(0.75rem, 1.2vw, 1.25rem);
-    /* Tall enough for the most extreme portrait card (~1.8x the card width)
-       so nothing overflows the column. */
-    height: min(84svh, 48rem);
+    /* Nearly the full pinned viewport, so several cards stack per column;
+       a portrait card taller than this is capped by max-height below. */
+    height: 92svh;
+    /* JS sizes the rail to its columns; don't let the stage squeeze it. */
+    flex: none;
+    box-sizing: border-box;
     padding-inline: clamp(1rem, 5vw, 5rem);
     transform: translate3d(calc(var(--p, 0) * var(--travel, 0px) * -1), 0, 0);
     will-change: transform;
@@ -292,7 +295,7 @@ const formatDate = (date: string, endDate?: string | null) => {
 
     .gallery__rail {
       transform: none;
-      height: 30rem;
+      height: 38rem;
       will-change: auto;
     }
 
@@ -320,13 +323,22 @@ const formatDate = (date: string, endDate?: string | null) => {
       window.matchMedia("(min-width: 768px)").matches && !prefersReducedMotion();
 
     const measure = () => {
+      // Column-wrap flex containers don't widen to fit their columns, and the
+      // overflow drops the end padding, so measure the last column and size
+      // the rail to it. Both the pinned and the swipeable layout need this.
+      rail.style.removeProperty("width");
+      const left = rail.getBoundingClientRect().left;
+      const right = Math.max(
+        ...[...rail.children].map((card) => card.getBoundingClientRect().right),
+      );
+      const padEnd = parseFloat(getComputedStyle(rail).paddingInlineEnd);
+      rail.style.width = `${Math.ceil(right - left + padEnd)}px`;
+
       if (!pinned()) {
         gallery.style.removeProperty("--travel");
         return;
       }
-      // Column-wrap flex containers don't widen to fit their columns, so the
-      // real extent has to come from scrollWidth rather than offsetWidth.
-      const travel = Math.max(0, rail.scrollWidth - stage.clientWidth);
+      const travel = Math.max(0, rail.offsetWidth - stage.clientWidth);
       gallery.style.setProperty("--travel", `${Math.round(travel)}px`);
     };
 
