@@ -12,7 +12,7 @@ const { data } = Astro.props;
 
 const W = 1440;
 const H = 420;
-// Headroom above the peak so its label never touches the top fade.
+// Headroom above the peak so it never reaches the top fade.
 const TOP = 150;
 
 const max = Math.max(...data, 1);
@@ -65,7 +65,6 @@ const months = Array.from({ length: data.length }, (_, i) => {
 
 // Percentages, so the HTML labels line up with the stretched SVG.
 const pctX = (i: number) => (x(i) / W) * 100;
-const pctY = (v: number) => (y(v) / H) * 100;
 ---
 
 <figure
@@ -96,19 +95,10 @@ const pctY = (v: number) => (y(v) / H) * 100;
       fill="url(#ridge-lines)"
       clip-path="url(#ridge-clip)"
     />
-    <path class="ridge__glow" d={line} />
     <path class="ridge__line" d={line} />
   </svg>
 
   <!-- Labels live in HTML so the stretched SVG doesn't distort the text -->
-  <span
-    class="ridge__peak"
-    style={`left:${pctX(peakIndex)}%; top:${pctY(max)}%`}
-  >
-    <span class="ridge__dot"></span>
-    <span class="ridge__peak-label">{max} · {months[peakIndex]}</span>
-  </span>
-
   <ol class="ridge__months">
     {months.map((month, i) => <li style={`left:${pctX(i)}%`}>{month}</li>)}
   </ol>
@@ -145,16 +135,6 @@ const pctY = (v: number) => (y(v) / H) * 100;
     transition: opacity 1400ms var(--ease-out-quart) 700ms;
   }
 
-  .ridge__glow {
-    fill: none;
-    stroke: var(--color-accent-soft);
-    stroke-width: 10;
-    opacity: 0;
-    filter: blur(10px);
-    vector-effect: non-scaling-stroke;
-    transition: opacity 1400ms var(--ease-out-quart) 900ms;
-  }
-
   .ridge__line {
     fill: none;
     stroke: var(--color-accent-soft);
@@ -165,31 +145,6 @@ const pctY = (v: number) => (y(v) / H) * 100;
        maths breaks on a stretched (`preserveAspectRatio="none"`) path with a
        non-scaling stroke, which stopped the line short of the last month. */
     clip-path: inset(0 100% 0 0);
-  }
-
-  .ridge__peak {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    translate: -0.3rem -50%;
-    opacity: 0;
-    transition: opacity var(--dur-slow) var(--ease-out-quart) 1300ms;
-  }
-
-  .ridge__dot {
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-    background: var(--color-accent-soft);
-    box-shadow: 0 0 0 0.35rem rgb(10 207 131 / 0.15);
-  }
-
-  .ridge__peak-label {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--color-accent-soft);
-    white-space: nowrap;
   }
 
   .ridge__months {
@@ -224,16 +179,7 @@ const pctY = (v: number) => (y(v) / H) * 100;
   }
 
   :global(.is-in) > .ridge .ridge__area,
-  :global(.is-in) > .ridge .ridge__lines,
-  :global(.is-in) > .ridge .ridge__glow {
-    opacity: 1;
-  }
-
-  :global(.is-in) > .ridge .ridge__glow {
-    opacity: 0.35;
-  }
-
-  :global(.is-in) > .ridge .ridge__peak {
+  :global(.is-in) > .ridge .ridge__lines {
     opacity: 1;
   }
 
@@ -243,8 +189,7 @@ const pctY = (v: number) => (y(v) / H) * 100;
   }
 
   :global(html:not(.js)) .ridge__area,
-  :global(html:not(.js)) .ridge__lines,
-  :global(html:not(.js)) .ridge__peak {
+  :global(html:not(.js)) .ridge__lines {
     opacity: 1;
   }
 
@@ -260,9 +205,7 @@ const pctY = (v: number) => (y(v) / H) * 100;
       animation: none !important;
     }
     .ridge__area,
-    .ridge__lines,
-    .ridge__glow,
-    .ridge__peak {
+    .ridge__lines {
       transition: none;
     }
   }
