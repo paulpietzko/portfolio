@@ -14,9 +14,6 @@ interface Props {
   role?: string | null;
   year?: string | null;
   stack?: string[] | null;
-  /** Resting tilt in degrees; straightens as the card reaches the viewport centre. */
-  tilt?: number;
-  index?: number;
 }
 
 const {
@@ -27,8 +24,6 @@ const {
   role,
   year,
   stack,
-  tilt = 0,
-  index = 0,
 } = Astro.props;
 
 // The deck runs wider than the viewport on desktop and the cards are close to
@@ -43,12 +38,7 @@ const anchor = link
   : {};
 ---
 
-<Card
-  class="project"
-  {...anchor}
-  style={`--rot:${tilt}deg; --i:${index}`}
-  data-reveal="scale"
->
+<Card class="project" {...anchor}>
   <div class="project__frame">
     <img
       src={imageSrc(image, 1000)}
@@ -101,13 +91,9 @@ const anchor = link
     display: block;
     flex: 1 1 0;
     min-width: 0;
-    /* Fanned at rest, straightening as the section settles in the middle
-       of the viewport. --settle is written by Projects.astro. */
-    rotate: calc(var(--rot) * (1 - var(--settle, 0)));
-    translate: 0 calc((1 - var(--settle, 0)) * 1.5rem);
-    transition:
-      rotate var(--dur-mid) var(--ease-out-quart),
-      translate var(--dur-mid) var(--ease-out-quart);
+    /* Fanned; --rot is set per position by Projects.astro. */
+    rotate: var(--rot, 0deg);
+    translate: 0 1.5rem;
   }
 
   .project__frame {

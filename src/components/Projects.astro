@@ -5,10 +5,6 @@ import ProjectCard from "./ProjectCard.astro";
 import fetchProjects from "../utils/FetchProjects";
 
 const projects = await fetchProjects();
-
-// The deck fans open in alternating directions; which way a card leans is a
-// function of where it sits, so it is derived here rather than authored.
-const tiltFor = (index: number) => (index % 2 === 0 ? 13 : -13);
 ---
 
 <section class="projects" id="work" data-projects>
@@ -23,12 +19,10 @@ const tiltFor = (index: number) => (index % 2 === 0 ? 13 : -13);
   </Container>
 
   <!-- Outside the container on purpose: the deck runs the full screen width -->
-  <div class="projects__deck" data-reveal-group="120">
-    {
-      projects.map((project, i) => (
-        <ProjectCard {...project} tilt={tiltFor(i)} index={i} />
-      ))
-    }
+  <!-- Every project is rendered; the script shuffles them on load and CSS
+       shows only as many as the screen has room for (3, or 5 when very wide). -->
+  <div class="projects__deck" data-projects-deck>
+    {projects.map((project) => <ProjectCard {...project} />)}
   </div>
 </section>
 
@@ -46,15 +40,34 @@ const tiltFor = (index: number) => (index % 2 === 0 ? 13 : -13);
     padding: clamp(0.5rem, 2vh, 1.5rem) clamp(1rem, 4vw, 3rem);
   }
 
+  /* Tilt alternates by position, so it follows the shuffled order. */
+  .projects__deck > :global(.project:nth-child(odd)) {
+    --rot: 9deg;
+  }
+
+  .projects__deck > :global(.project:nth-child(even)) {
+    --rot: -9deg;
+  }
+
+  .projects__deck > :global(.project:nth-child(n + 4)) {
+    display: none;
+  }
+
   @media (min-width: 768px) {
     .projects__deck {
       flex-direction: row;
       align-items: center;
-      gap: clamp(0.5rem, 1vw, 1rem);
+      gap: 0;
       /* Wider than the screen: the outer two cards run off both edges. */
       width: 118vw;
       margin-inline: -9vw;
       margin-top: clamp(2rem, 6vh, 4rem);
+    }
+
+    /* Side cards are partly covered by the raised centre card, so their
+       labels are pulled clear of the overlap. */
+    .projects__deck > :global(.project:not(:nth-child(2)) .project__meta) {
+      padding-inline: calc(8vw + clamp(1rem, 2vw, 1.75rem));
     }
 
     /* The bleed would take the outer cards' labels off-screen with them, so
@@ -63,8 +76,13 @@ const tiltFor = (index: number) => (index % 2 === 0 ? 13 : -13);
       padding-left: calc(9vw + clamp(1rem, 2vw, 1.75rem));
     }
 
-    .projects__deck > :global(.project:last-child .project__meta) {
+    .projects__deck > :global(.project:nth-child(3) .project__meta) {
       padding-right: calc(9vw + clamp(1rem, 2vw, 1.75rem));
+    }
+
+    /* Neighbours tuck under each other */
+    .projects__deck > :global(.project + .project) {
+      margin-left: -4vw;
     }
 
     /* Centre card sits proud of the other two */
@@ -73,20 +91,50 @@ const tiltFor = (index: number) => (index % 2 === 0 ? 13 : -13);
       scale: 1.08;
     }
   }
+
+  /* Big displays have room for five; a MacBook still gets three. */
+  @media (min-width: 1920px) {
+    .projects__deck > :global(.project:nth-child(n + 4)) {
+      display: block;
+    }
+
+    .projects__deck > :global(.project:nth-child(n + 6)) {
+      display: none;
+    }
+
+    .projects__deck > :global(.project:nth-child(2) .project__meta) {
+      padding-inline: calc(8vw + clamp(1rem, 2vw, 1.75rem));
+    }
+
+    .projects__deck > :global(.project:nth-child(3) .project__meta) {
+      padding-inline: clamp(1rem, 2vw, 1.75rem);
+    }
+
+    .projects__deck > :global(.project:nth-child(5) .project__meta) {
+      padding-right: calc(9vw + clamp(1rem, 2vw, 1.75rem));
+    }
+
+    .projects__deck > :global(.project:nth-child(2)) {
+      z-index: auto;
+      scale: none;
+    }
+
+    .projects__deck > :global(.project:nth-child(3)) {
+      z-index: 2;
+      scale: 1.08;
+    }
+  }
 </style>
 
 <script>
-  import { register, trackProgress } from "../scripts/motion";
-
-  register(() => {
-    const section = document.querySelector<HTMLElement>("[data-projects]");
-    if (!section) return;
-
-    // 0 at the edges of the viewport, 1 when the section sits dead centre —
-    // the cards fan open on the way in and fold back on the way out.
-    return trackProgress(section, "cover", (p) => {
-      const settle = 1 - Math.abs(p - 0.5) * 2;
-      section.style.setProperty("--settle", Math.max(settle, 0).toFixed(4));
-    });
-  });
+  // Shuffle the deck so each visit shows a different selection.
+  const deck = document.querySelector<HTMLElement>("[data-projects-deck]");
+  if (deck) {
+    const cards = Array.from(deck.children);
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    deck.append(...cards);
+  }
 </script>
