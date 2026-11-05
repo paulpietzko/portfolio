@@ -22,7 +22,13 @@ const tiles = stats
 
 {
   (tiles.length > 0 || hasCommits) && (
-    <section class="stats" id="stats">
+    <section class:list={["stats", { "has-ridge": hasCommits }]} id="stats">
+      {hasCommits && (
+        <div class="stats__ridge" data-reveal>
+          <CommitChart data={commitsLastYear} />
+        </div>
+      )}
+
       <Container size="xl">
         <SubTitle
           index="07"
@@ -43,13 +49,7 @@ const tiles = stats
         )}
 
         {hasCommits && (
-          <div class="stats__chart" data-reveal="up">
-            <div class="stats__chart-head">
-              <h3>Contributions, last 12 months</h3>
-              <span class="eyebrow">GitHub</span>
-            </div>
-            <CommitChart data={commitsLastYear} />
-          </div>
+          <p class="stats__caption eyebrow">Contributions · last 12 months</p>
         )}
       </Container>
     </section>
@@ -58,28 +58,61 @@ const tiles = stats
 
 <style>
   .stats {
+    position: relative;
     padding-block: clamp(4rem, 9vh, 7rem);
+    /* The ridge runs edge to edge; nothing should scroll sideways for it */
+    overflow: clip;
+  }
+
+  /* Room under the tiles for the year to rise into */
+  .stats.has-ridge {
+    padding-bottom: clamp(16rem, 34vw, 26rem);
+  }
+
+  .stats__ridge {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: clamp(20rem, 46vw, 36rem);
+    pointer-events: none;
+    /* Fades into the page at the top and both sides */
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 6%, #000 94%, transparent),
+      linear-gradient(to bottom, transparent, #000 35%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, transparent, #000 6%, #000 94%, transparent),
+      linear-gradient(to bottom, transparent, #000 35%);
+    mask-composite: intersect;
+  }
+
+  .stats :global(.container),
+  .stats > :global(*:not(.stats__ridge)) {
+    position: relative;
+    z-index: 1;
   }
 
   .stats__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
-    gap: 1px;
-    background: var(--hairline);
     border: 1px solid var(--hairline);
     border-radius: 1rem;
     overflow: hidden;
+    /* Frosted, so the ridge behind still reads through the tiles */
+    background: color-mix(in oklab, var(--color-dark-100) 72%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
 
   .stat {
     padding: clamp(1.5rem, 3vw, 2.5rem) 1.25rem;
-    background: var(--color-dark-100);
+    /* Hairline dividers without the gap trick, which needs an opaque fill */
+    box-shadow: 0 0 0 0.5px var(--hairline);
     text-align: center;
     transition: background-color var(--dur-mid) var(--ease-out-quart);
   }
 
   .stat:hover {
-    background: var(--color-dark-200);
+    background: rgb(255 255 255 / 0.03);
   }
 
   .stat :global(.counter) {
@@ -96,29 +129,8 @@ const tiles = stats
     color: var(--fg-3);
   }
 
-  .stats__chart {
-    margin-top: clamp(2rem, 5vw, 3.5rem);
-    padding: clamp(1.25rem, 2.5vw, 2rem);
-    border: 1px solid var(--hairline);
-    border-radius: 1rem;
-    background: var(--color-dark-200);
-  }
-
-  .stats__chart-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .stats__chart-head h3 {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--fg-1);
-  }
-
-  .stats__chart-head .eyebrow {
+  .stats__caption {
+    margin-top: 1.25rem;
     color: var(--fg-3);
   }
 </style>

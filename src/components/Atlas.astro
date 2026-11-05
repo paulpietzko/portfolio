@@ -17,7 +17,11 @@ import {
   MAP_OUTLINE,
   MAP_VIEWBOX,
 } from "../data/world-map";
-import { HOME, VISITED } from "../data/visited";
+import { HOME, HOME_LNGLAT, VISITED } from "../data/visited";
+
+// With a Mapbox token the plate is a live 3D globe; without one (or when
+// WebGL is unavailable, or in `?edit` mode) it is the static SVG map below.
+const globe = Boolean(import.meta.env.PUBLIC_MAPBOX_TOKEN);
 
 const visited = new Set(VISITED);
 
@@ -29,26 +33,12 @@ if (unknown.length) {
   console.warn(`[atlas] ignoring unknown country codes: ${unknown.join(", ")}`);
 }
 
-// Alphabetical by name: the chips are a list to read, not a lookup table.
-const been = MAP_COUNTRIES.filter((country) => visited.has(country.code)).sort(
-  (a, b) => a.name.localeCompare(b.name),
-);
+const been = MAP_COUNTRIES.filter((country) => visited.has(country.code));
 const share = been.reduce((sum, country) => sum + country.share, 0) * 100;
 const home = MAP_COUNTRIES.find((country) => country.code === HOME);
 
 const paths = MAP_COUNTRIES.filter((country) => country.d);
 const dots = MAP_COUNTRIES.filter((country) => country.dot);
-
-/**
- * Regional indicator pairs. The three non-ISO codes on the map have no flag,
- * and neither does anything else outside A–Z, so those fall back to nothing.
- */
-const flag = (code: string) =>
-  /^[A-Z]{2}$/.test(code) && !code.startsWith("X")
-    ? String.fromCodePoint(
-        ...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-      )
-    : "";
 
 // The ink sweeps in west to east as the section arrives, so the reveal reads
 // as a journey rather than 237 things blinking on at once.
@@ -88,7 +78,7 @@ const tiles = [
     <SubTitle
       index="05"
       title="Been there"
-      text="Everywhere I've set foot, on an equal-area projection — so the countries are the size they actually are, not the size Mercator flatters them into. Hover one to name it."
+      text="Everywhere I've set foot, on an equal-area projection."
       link="#atlas"
     />
 
@@ -112,7 +102,23 @@ const tiles = [
       }
     </div>
 
-    <figure class="atlas__plate" data-atlas data-reveal="up">
+    <figure
+      class:list={["atlas__plate", { "has-globe": globe }]}
+      data-atlas
+      data-reveal="up"
+    >
+      {
+        globe && (
+          <div
+            class="atlas__globe"
+            data-globe
+            data-visited={JSON.stringify(VISITED)}
+            data-home={JSON.stringify(HOME_LNGLAT)}
+            role="img"
+            aria-label={`Interactive globe with ${been.length} countries marked as visited.`}
+          />
+        )
+      }
       <div
         class="atlas__scroll"
         data-scroll
@@ -163,18 +169,6 @@ const tiles = [
       </div>
     </figure>
 
-    <ul class="atlas__chips" data-chips>
-      {
-        been.map((country) => (
-          <li class="chip" data-chip={country.code}>
-            <span class="chip__flag" aria-hidden="true">
-              {flag(country.code)}
-            </span>
-            {country.name}
-          </li>
-        ))
-      }
-    </ul>
   </Container>
 </section>
 
@@ -241,6 +235,55 @@ const tiles = [
   .atlas__scroll {
     /* Desktop shows the whole world; the scroller only earns its keep below. */
     overflow: visible;
+  }
+
+  /* --- the globe -------------------------------------------------------- */
+
+  .atlas__globe {
+    position: relative;
+    height: clamp(26rem, 62vw, 46rem);
+    /* Space is the page colour, so the globe hangs in the section itself;
+       the soft edge keeps the atmosphere from ending on a hard line. */
+    -webkit-mask-image: radial-gradient(
+      ellipse 62% 60% at 50% 50%,
+      #000 70%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 62% 60% at 50% 50%,
+      #000 70%,
+      transparent 100%
+    );
+    cursor: grab;
+  }
+
+  .atlas__globe:active {
+    cursor: grabbing;
+  }
+
+  /* Mapbox's own attribution is required; it is just kept quiet. */
+  .atlas__globe :global(.mapboxgl-ctrl-bottom-right),
+  .atlas__globe :global(.mapboxgl-ctrl-bottom-left) {
+    opacity: 0.45;
+  }
+
+  .atlas__globe :global(.mapboxgl-ctrl-attrib) {
+    background: transparent;
+  }
+
+  .atlas__globe :global(.mapboxgl-ctrl-attrib a) {
+    color: var(--fg-3);
+  }
+
+  .has-globe .atlas__scroll,
+  .has-globe[data-globe-failed] .atlas__globe,
+  .has-globe[data-editing] .atlas__globe {
+    display: none;
+  }
+
+  .has-globe[data-globe-failed] .atlas__scroll,
+  .has-globe[data-editing] .atlas__scroll {
+    display: block;
   }
 
   .atlas__plate svg {
@@ -418,37 +461,6 @@ const tiles = [
     cursor: pointer;
   }
 
-  /* --- the list --------------------------------------------------------- */
-
-  .atlas__chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: clamp(1.5rem, 3vw, 2rem);
-  }
-
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.35rem 0.7rem;
-    border: 1px solid var(--hairline);
-    border-radius: 999px;
-    font-size: 0.8125rem;
-    color: var(--fg-2);
-    transition: border-color var(--dur-fast) ease;
-  }
-
-  .chip:hover {
-    border-color: var(--color-accent);
-    color: var(--fg-1);
-  }
-
-  .chip__flag {
-    font-size: 0.95rem;
-    line-height: 1;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .country {
       transition-delay: 0ms !important;
@@ -477,6 +489,8 @@ const tiles = [
     /* --- hover readout --- */
 
     const move = (event: PointerEvent) => {
+      // The globe drives the readout itself.
+      if (event.target instanceof Element && event.target.closest("[data-globe]")) return;
       const country = countryFrom(event.target);
       if (!country) {
         tip.hidden = true;
@@ -565,31 +579,12 @@ const tiles = [
       // A private window or a corrupt entry — start from the file instead.
     }
 
-    const chips = document.querySelector<HTMLElement>("[data-chips]");
-    // Astro scopes this component's CSS with a generated attribute, which
-    // nodes built here would not carry — so borrow it from the list itself.
-    const scope = chips
-      ? [...chips.attributes]
-          .map((attribute) => attribute.name)
-          .find((name) => name.startsWith("data-astro-cid-"))
-      : undefined;
-
-    const flag = (code: string) =>
-      /^[A-Z]{2}$/.test(code) && !code.startsWith("X")
-        ? String.fromCodePoint(
-            ...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-          )
-        : "";
-
     const paint = () => {
       let share = 0;
-      const named: SVGElement[] = [];
       for (const el of all) {
         const on = picked.has(el.dataset.code!);
         el.classList.toggle("is-on", on);
-        if (!on) continue;
-        share += Number(el.dataset.share) || 0;
-        named.push(el);
+        if (on) share += Number(el.dataset.share) || 0;
       }
 
       // The shared count-up animates to `data-count-to` the first time a tile
@@ -609,28 +604,6 @@ const tiles = [
       set(counter, picked.size, 0);
       set(shareEl, percent, percent >= 10 ? 0 : percent >= 1 ? 1 : 2);
       set(leftEl, all.length - picked.size, 0);
-
-      if (chips) {
-        named.sort((a, b) =>
-          (a.dataset.name ?? "").localeCompare(b.dataset.name ?? ""),
-        );
-        chips.replaceChildren(
-          ...named.map((el) => {
-            const li = document.createElement("li");
-            li.className = "chip";
-            const mark = document.createElement("span");
-            mark.className = "chip__flag";
-            mark.setAttribute("aria-hidden", "true");
-            mark.textContent = flag(el.dataset.code!);
-            if (scope) {
-              li.setAttribute(scope, "");
-              mark.setAttribute(scope, "");
-            }
-            li.append(mark, el.dataset.name ?? "");
-            return li;
-          }),
-        );
-      }
 
       try {
         localStorage.setItem(KEY, JSON.stringify([...picked]));
@@ -687,6 +660,231 @@ const tiles = [
       plate.removeEventListener("click", click);
       window.removeEventListener("scroll", leave);
       stopCentring?.();
+    };
+  });
+</script>
+
+<script>
+  import { register, prefersReducedMotion } from "../scripts/motion";
+
+  const TOKEN = import.meta.env.PUBLIC_MAPBOX_TOKEN as string | undefined;
+
+  // Mapbox paints with these directly, so they mirror the design tokens.
+  const COLOR = {
+    space: "#0a0a0a",
+    ocean: "#101010",
+    land: "#2a2a2a",
+    border: "#0a0a0a",
+    hover: "#4d4d4d",
+    accent: "#f2e14c",
+    accentHover: "#f8ee95",
+  };
+
+  register(() => {
+    const el = document.querySelector<HTMLElement>("[data-globe]");
+    const plate = el?.closest<HTMLElement>("[data-atlas]");
+    const tip = plate?.querySelector<HTMLElement>("[data-tip]");
+    if (!TOKEN || !el || !plate || !tip) return;
+    // Edit mode works on the SVG map.
+    if (new URLSearchParams(location.search).has("edit")) return;
+
+    const visited: string[] = JSON.parse(el.dataset.visited ?? "[]");
+    const home: [number, number] = JSON.parse(el.dataset.home ?? "[8, 47]");
+
+    let disposed = false;
+    let map: import("mapbox-gl").Map | undefined;
+
+    const fail = (error?: unknown) => {
+      if (error) console.warn("[atlas] globe unavailable, using the flat map", error);
+      plate.setAttribute("data-globe-failed", "");
+      map?.remove();
+      map = undefined;
+    };
+
+    const start = async () => {
+      // ~1 MB, so only fetched once the section is close.
+      const [{ default: mapboxgl }] = await Promise.all([
+        import("mapbox-gl"),
+        import("mapbox-gl/dist/mapbox-gl.css"),
+      ]);
+      if (disposed) return;
+
+      mapboxgl.accessToken = TOKEN;
+      const narrow = window.matchMedia("(max-width: 767px)").matches;
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+
+      try {
+        map = new mapboxgl.Map({
+          container: el,
+          projection: "globe",
+          // Start a quarter turn west so arriving reads as travelling home.
+          center: [home[0] - 70, home[1] - 15],
+          zoom: narrow ? 0.9 : 1.55,
+          minZoom: 0.8,
+          maxZoom: 4,
+          // The page scrolls; the globe must not swallow the wheel.
+          scrollZoom: false,
+          cooperativeGestures: coarse,
+          dragRotate: false,
+          pitchWithRotate: false,
+          attributionControl: true,
+          style: {
+            version: 8,
+            sources: {
+              countries: {
+                type: "vector",
+                url: "mapbox://mapbox.country-boundaries-v1",
+                promoteId: { country_boundaries: "iso_3166_1" },
+              },
+            },
+            layers: [
+              {
+                id: "ocean",
+                type: "background",
+                paint: { "background-color": COLOR.ocean },
+              },
+              {
+                id: "land",
+                type: "fill",
+                source: "countries",
+                "source-layer": "country_boundaries",
+                // One worldview, so disputed areas aren't drawn twice.
+                filter: [
+                  "any",
+                  ["==", ["get", "worldview"], "all"],
+                  ["in", "US", ["get", "worldview"]],
+                ],
+                paint: {
+                  "fill-color": [
+                    "case",
+                    ["in", ["get", "iso_3166_1"], ["literal", visited]],
+                    [
+                      "case",
+                      ["boolean", ["feature-state", "hover"], false],
+                      COLOR.accentHover,
+                      COLOR.accent,
+                    ],
+                    [
+                      "case",
+                      ["boolean", ["feature-state", "hover"], false],
+                      COLOR.hover,
+                      COLOR.land,
+                    ],
+                  ],
+                  "fill-opacity": 0,
+                  "fill-opacity-transition": { duration: 1400, delay: 0 },
+                },
+              },
+              {
+                id: "borders",
+                type: "line",
+                source: "countries",
+                "source-layer": "country_boundaries",
+                paint: { "line-color": COLOR.border, "line-width": 0.6 },
+              },
+            ],
+            fog: {
+              color: "rgba(242, 225, 76, 0.08)",
+              "high-color": "rgba(20, 20, 20, 1)",
+              "horizon-blend": 0.04,
+              "space-color": COLOR.space,
+              "star-intensity": 0.12,
+            },
+          },
+        });
+      } catch (error) {
+        fail(error);
+        return;
+      }
+
+      map.on("error", (event) => {
+        // A bad or restricted token is fatal; a missed tile is not.
+        const status = (event.error as { status?: number } | undefined)?.status;
+        if (status === 401 || status === 403) fail(event.error);
+      });
+
+      /* --- idle spin, which any touch of the globe pauses --- */
+
+      let interacting = false;
+      const spin = () => {
+        if (!map || interacting || prefersReducedMotion()) return;
+        const center = map.getCenter();
+        center.lng -= 4;
+        map.easeTo({ center, duration: 1000, easing: (t) => t });
+      };
+
+      map.on("mousedown", () => (interacting = true));
+      map.on("touchstart", () => (interacting = true));
+      map.on("dragend", () => {
+        interacting = false;
+        spin();
+      });
+      map.on("moveend", spin);
+
+      map.on("load", () => {
+        if (!map) return;
+        map.setPaintProperty("land", "fill-opacity", 1);
+        // Turn home once, then drift.
+        map.easeTo({
+          center: home,
+          duration: prefersReducedMotion() ? 0 : 2600,
+          easing: (t) => 1 - Math.pow(1 - t, 4),
+        });
+      });
+
+      /* --- hover readout, shared with the flat map --- */
+
+      let hovered: string | undefined;
+      const clearHover = () => {
+        if (hovered && map) {
+          map.setFeatureState(
+            { source: "countries", sourceLayer: "country_boundaries", id: hovered },
+            { hover: false },
+          );
+        }
+        hovered = undefined;
+        tip.hidden = true;
+      };
+
+      map.on("mousemove", "land", (event) => {
+        const feature = event.features?.[0];
+        const code = feature?.properties?.iso_3166_1 as string | undefined;
+        if (!map || !feature || !code) return;
+        if (code !== hovered) {
+          clearHover();
+          hovered = code;
+          map.setFeatureState(
+            { source: "countries", sourceLayer: "country_boundaries", id: code },
+            { hover: true },
+          );
+        }
+        const on = visited.includes(code);
+        tip.toggleAttribute("data-below", event.point.y < 48);
+        tip.style.left = `${event.point.x}px`;
+        tip.style.top = `${event.point.y}px`;
+        tip.textContent = (feature.properties?.name_en as string) ?? code;
+        tip.dataset.state = on ? "been" : "not yet";
+        tip.toggleAttribute("data-on", on);
+        tip.hidden = false;
+      });
+      map.on("mouseleave", "land", clearHover);
+    };
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        io.disconnect();
+        start().catch(fail);
+      },
+      { rootMargin: "600px 0px" },
+    );
+    io.observe(el);
+
+    return () => {
+      disposed = true;
+      io.disconnect();
+      map?.remove();
+      map = undefined;
     };
   });
 </script>

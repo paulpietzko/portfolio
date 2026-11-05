@@ -1,9 +1,8 @@
 ---
 /**
- * The commit history is already known at build time, so the chart is plain
- * server-rendered SVG. That removes Chart.js (~160 kB) and the Solid runtime
- * from the page entirely, and the chart is painted on first frame instead of
- * after a hydration round-trip.
+ * The last year of contributions as a landscape behind the "Receipts"
+ * section: no axes, no card, just the shape of the year rising out of the
+ * bottom of the page. Plain server-rendered SVG, so it paints on first frame.
  */
 interface Props {
   data: number[];
@@ -11,20 +10,23 @@ interface Props {
 
 const { data } = Astro.props;
 
-const W = 720;
-const H = 220;
-const PAD = { top: 16, right: 8, bottom: 26, left: 34 };
-
-const plotW = W - PAD.left - PAD.right;
-const plotH = H - PAD.top - PAD.bottom;
+const W = 1440;
+const H = 420;
+// Headroom above the peak so its label never touches the top fade.
+const TOP = 150;
 
 const max = Math.max(...data, 1);
-// Round the axis up to a clean number so the gridlines read well
-const step = Math.pow(10, Math.floor(Math.log10(max))) / 2;
-const top = Math.ceil(max / step) * step;
+const peakIndex = data.indexOf(max);
 
-const x = (i: number) => PAD.left + (i / (data.length - 1 || 1)) * plotW;
-const y = (v: number) => PAD.top + plotH - (v / top) * plotH;
+// The first and last month sit inside the side fades, not under them, so
+// December and the current month stay readable; the line runs on flat to the
+// edges from there.
+const INSET = W * 0.08;
+const x = (i: number) => INSET + (i / (data.length - 1 || 1)) * (W - INSET * 2);
+// Zero sits above the bottom edge, so quiet months (and the half-stroke of a
+// line at zero) aren't clipped, and the month labels get their own strip.
+const BOTTOM = 72;
+const y = (v: number) => H - BOTTOM - (v / max) * (H - TOP - BOTTOM);
 
 const points = data.map((v, i) => [x(i), y(v)] as const);
 
@@ -46,10 +48,13 @@ const smoothPath = (pts: readonly (readonly [number, number])[]) => {
   return d;
 };
 
-const line = smoothPath(points);
-const area = `${line} L ${x(data.length - 1)} ${PAD.top + plotH} L ${x(0)} ${PAD.top + plotH} Z`;
-
-const ticks = [0, top / 2, top];
+const curve = smoothPath(points);
+const first = points[0];
+const last = points[points.length - 1];
+const line = first && last
+  ? `M 0 ${first[1]} L ${curve.slice(2)} L ${W} ${last[1]}`
+  : "";
+const area = `${line} L ${W} ${H} L 0 ${H} Z`;
 
 const months = Array.from({ length: data.length }, (_, i) => {
   const d = new Date();
@@ -58,127 +63,206 @@ const months = Array.from({ length: data.length }, (_, i) => {
   return d.toLocaleString("en-US", { month: "short" });
 });
 
-const gradientId = "commit-fill";
+// Percentages, so the HTML labels line up with the stretched SVG.
+const pctX = (i: number) => (x(i) / W) * 100;
+const pctY = (v: number) => (y(v) / H) * 100;
 ---
 
-<figure class="chart">
-  <svg
-    viewBox={`0 0 ${W} ${H}`}
-    preserveAspectRatio="none"
-    role="img"
-    aria-label={`Monthly contributions over the last ${data.length} months, peaking at ${max}.`}
-  >
+<figure
+  class="ridge"
+  aria-label={`Contributions over the last ${data.length} months, peaking at ${max} in ${months[peakIndex]}.`}
+>
+  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
     <defs>
-      <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--color-accent-soft)" stop-opacity="0.3" />
+      <linearGradient id="ridge-fill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--color-accent-soft)" stop-opacity="0.22" />
+        <stop offset="70%" stop-color="var(--color-accent-soft)" stop-opacity="0.04" />
         <stop offset="100%" stop-color="var(--color-accent-soft)" stop-opacity="0" />
       </linearGradient>
+      <!-- Vertical strokes every few px read as a scanline texture -->
+      <pattern id="ridge-lines" width="6" height={H} patternUnits="userSpaceOnUse">
+        <line x1="0.5" x2="0.5" y1="0" y2={H} />
+      </pattern>
+      <clipPath id="ridge-clip">
+        <path d={area} />
+      </clipPath>
     </defs>
 
-    {
-      ticks.map((tick) => (
-        <g class="chart__grid">
-          <line x1={PAD.left} x2={W - PAD.right} y1={y(tick)} y2={y(tick)} />
-          <text x={PAD.left - 8} y={y(tick)} dy="0.32em" text-anchor="end">
-            {tick}
-          </text>
-        </g>
-      ))
-    }
-
-    <path class="chart__area" d={area} fill={`url(#${gradientId})`} />
-    <!-- pathLength normalises the dash maths regardless of the real length -->
-    <path class="chart__line" d={line} pathLength="1" />
-
-    {
-      points.map(([px, py], i) => (
-        <g class="chart__point">
-          <circle cx={px} cy={py} r="3.5" />
-          <title>{`${months[i]}: ${data[i]} contributions`}</title>
-        </g>
-      ))
-    }
-
-    {
-      months.map((month, i) => (
-        <text class="chart__label" x={x(i)} y={H - 8} text-anchor="middle">
-          {month}
-        </text>
-      ))
-    }
+    <path class="ridge__area" d={area} fill="url(#ridge-fill)" />
+    <rect
+      class="ridge__lines"
+      width={W}
+      height={H}
+      fill="url(#ridge-lines)"
+      clip-path="url(#ridge-clip)"
+    />
+    <path class="ridge__glow" d={line} />
+    <path class="ridge__line" d={line} />
   </svg>
+
+  <!-- Labels live in HTML so the stretched SVG doesn't distort the text -->
+  <span
+    class="ridge__peak"
+    style={`left:${pctX(peakIndex)}%; top:${pctY(max)}%`}
+  >
+    <span class="ridge__dot"></span>
+    <span class="ridge__peak-label">{max} · {months[peakIndex]}</span>
+  </span>
+
+  <ol class="ridge__months">
+    {months.map((month, i) => <li style={`left:${pctX(i)}%`}>{month}</li>)}
+  </ol>
 </figure>
 
 <style>
-  .chart svg {
+  .ridge {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .ridge svg {
     display: block;
     width: 100%;
-    height: clamp(14rem, 26vw, 20rem);
-    overflow: visible;
+    height: 100%;
   }
 
-  .chart__grid line {
-    stroke: var(--hairline);
+  .ridge__area {
+    opacity: 0;
+    transition: opacity 1400ms var(--ease-out-quart) 500ms;
+  }
+
+  .ridge__lines line {
+    stroke: var(--color-accent-soft);
     stroke-width: 1;
+    opacity: 0.12;
     vector-effect: non-scaling-stroke;
   }
 
-  .chart__grid text,
-  .chart__label {
-    fill: var(--fg-3);
-    font-family: var(--font-mono);
-    font-size: 11px;
+  .ridge__lines {
+    opacity: 0;
+    transition: opacity 1400ms var(--ease-out-quart) 700ms;
   }
 
-  .chart__line {
+  .ridge__glow {
     fill: none;
     stroke: var(--color-accent-soft);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    stroke-width: 10;
+    opacity: 0;
+    filter: blur(10px);
     vector-effect: non-scaling-stroke;
-    /* Drawn on once the section scrolls into view */
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
+    transition: opacity 1400ms var(--ease-out-quart) 900ms;
   }
 
-  .chart__area {
+  .ridge__line {
+    fill: none;
+    stroke: var(--color-accent-soft);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    /* Revealed left to right with a clip rather than a stroke dash: dash
+       maths breaks on a stretched (`preserveAspectRatio="none"`) path with a
+       non-scaling stroke, which stopped the line short of the last month. */
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .ridge__peak {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    translate: -0.3rem -50%;
     opacity: 0;
-    transition: opacity 900ms var(--ease-out-quart) 350ms;
+    transition: opacity var(--dur-slow) var(--ease-out-quart) 1300ms;
   }
 
-  .chart__point circle {
-    fill: var(--color-accent-soft);
-    opacity: 0;
-    transition: opacity var(--dur-fast) ease;
+  .ridge__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--color-accent-soft);
+    box-shadow: 0 0 0 0.35rem rgb(10 207 131 / 0.15);
   }
 
-  .chart__point:hover circle {
-    opacity: 1;
+  .ridge__peak-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-accent-soft);
+    white-space: nowrap;
+  }
+
+  .ridge__months {
+    position: absolute;
+    inset: auto 0 1rem;
+    height: 1em;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    opacity: 0.6;
+  }
+
+  /* Each label sits under its own data point */
+  .ridge__months li {
+    position: absolute;
+    translate: -50% 0;
+  }
+
+  /* Phones: twelve labels don't fit, every other one does */
+  @media (max-width: 767px) {
+    .ridge__months li:nth-child(even) {
+      visibility: hidden;
+    }
   }
 
   /* `.is-in` is added by the shared reveal observer on the wrapper */
-  :global(.stats__chart.is-in) .chart__line {
-    animation: draw 1400ms var(--ease-out-quart) forwards;
+  :global(.is-in) > .ridge .ridge__line {
+    animation: draw 2200ms var(--ease-out-quart) forwards;
   }
 
-  :global(.stats__chart.is-in) .chart__area {
+  :global(.is-in) > .ridge .ridge__area,
+  :global(.is-in) > .ridge .ridge__lines,
+  :global(.is-in) > .ridge .ridge__glow {
+    opacity: 1;
+  }
+
+  :global(.is-in) > .ridge .ridge__glow {
+    opacity: 0.35;
+  }
+
+  :global(.is-in) > .ridge .ridge__peak {
+    opacity: 1;
+  }
+
+  /* Without the reveal engine, show the finished state */
+  :global(html:not(.js)) .ridge__line {
+    clip-path: none;
+  }
+
+  :global(html:not(.js)) .ridge__area,
+  :global(html:not(.js)) .ridge__lines,
+  :global(html:not(.js)) .ridge__peak {
     opacity: 1;
   }
 
   @keyframes draw {
     to {
-      stroke-dashoffset: 0;
+      clip-path: inset(0 0 0 0);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .chart__line {
-      stroke-dashoffset: 0;
-      animation: none;
+    .ridge__line {
+      clip-path: none;
+      animation: none !important;
     }
-    .chart__area {
-      opacity: 1;
+    .ridge__area,
+    .ridge__lines,
+    .ridge__glow,
+    .ridge__peak {
       transition: none;
     }
   }

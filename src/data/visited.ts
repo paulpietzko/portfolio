@@ -14,6 +14,9 @@
 /** Where the map centres its “home” marker. */
 export const HOME = "CH";
 
+/** Where the globe turns to when it first comes into view (longitude, latitude). */
+export const HOME_LNGLAT: [number, number] = [8.23, 46.82];
+
 // England is GB: at this scale the map draws the United Kingdom as one country,
 // so it lights up Scotland, Wales and Northern Ireland along with it.
 export const VISITED: string[] = [

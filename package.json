@@ -14,7 +14,8 @@
     "@astrojs/vercel": "^11.0.18",
     "@sanity/client": "^8.14.1",
     "@sanity/image-url": "^2.1.1",
-    "astro": "^7.4.5"
+    "astro": "^7.4.5",
+    "mapbox-gl": "^3.34.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
