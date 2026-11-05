@@ -16,9 +16,9 @@ export const sanityClient = createClient({
   dataset,
   // Pinned so a future API release can't quietly reshape query results.
   apiVersion: "2025-01-01",
-  // Pages are prerendered, so this runs once per deploy rather than per
-  // request. The CDN can lag a publish by a few seconds — precisely the window
-  // a publish-triggered rebuild lands in — so go straight to the API.
+  // ISR caches the page, so this runs once per regeneration rather than per
+  // visit. The CDN can lag a publish by a few seconds — precisely the window
+  // the publish webhook's revalidation lands in — so go straight to the API.
   useCdn: false,
   perspective: "published",
 });
